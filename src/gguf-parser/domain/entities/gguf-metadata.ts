@@ -136,4 +136,5 @@ export interface GGUFModel {
   tensors: TensorInfo[];
   totalParameters: bigint;
   quantizationType: string;
+  tensorDataOffset?: bigint; // Offset in file where tensor data begins
 }

@@ -55,6 +55,7 @@ export class GGUFParser {
       tensors,
       totalParameters,
       quantizationType,
+      tensorDataOffset: BigInt(this.offset), // Offset where tensor data begins
     };
   }
 
