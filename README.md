@@ -304,13 +304,13 @@ Instead of Jest or Mocha (which take 1-2 seconds to start), our custom framework
 
 ## Documentation
 
-- **[CLAUDE.md](CLAUDE.md)** - AI coding standards
-- **[Grammar Analysis Index](GRAMMAR_ANALYSIS_INDEX.md)** - Overview of analyses
-- **[Universal Grammar Proof](UNIVERSAL_GRAMMAR_PROOF.md)** - Theoretical foundations
+- **[CLAUDE.md](docs/CLAUDE.md)** - AI coding standards
+- **[Grammar Analysis Index](docs/GRAMMAR_ANALYSIS_INDEX.md)** - Overview of analyses
+- **[Universal Grammar Proof](docs/UNIVERSAL_GRAMMAR_PROOF.md)** - Theoretical foundations
 
 ## Contributing
 
-Contributions are welcome! Please read [CLAUDE.md](CLAUDE.md) for coding standards.
+Contributions are welcome! Please read [CLAUDE.md](docs/CLAUDE.md) for coding standards.
 
 ## Performance
 
