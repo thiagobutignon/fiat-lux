@@ -6,9 +6,22 @@
 import { GGMLType } from '../entities/gguf-metadata';
 
 /**
+ * Validate buffer has enough bytes
+ */
+function validateBuffer(buffer: Buffer, offset: number, needed: number, context: string): void {
+  if (offset + needed > buffer.length) {
+    throw new Error(
+      `Buffer underrun in ${context}: need ${needed} bytes at offset ${offset}, ` +
+      `but buffer is only ${buffer.length} bytes (missing ${offset + needed - buffer.length} bytes)`
+    );
+  }
+}
+
+/**
  * Read FP16 (half precision float)
  */
 function readFloat16(buffer: Buffer, offset: number): number {
+  validateBuffer(buffer, offset, 2, 'readFloat16');
   const uint16 = buffer.readUInt16LE(offset);
 
   // Extract sign, exponent, and mantissa
@@ -33,6 +46,7 @@ function readFloat16(buffer: Buffer, offset: number): number {
  * Dequantize F32 (no conversion needed)
  */
 export function dequantizeF32(buffer: Buffer, count: number): Float32Array {
+  validateBuffer(buffer, 0, count * 4, 'dequantizeF32');
   const result = new Float32Array(count);
   for (let i = 0; i < count; i++) {
     result[i] = buffer.readFloatLE(i * 4);
@@ -44,6 +58,7 @@ export function dequantizeF32(buffer: Buffer, count: number): Float32Array {
  * Dequantize F16 to F32
  */
 export function dequantizeF16(buffer: Buffer, count: number): Float32Array {
+  validateBuffer(buffer, 0, count * 2, 'dequantizeF16');
   const result = new Float32Array(count);
   for (let i = 0; i < count; i++) {
     result[i] = readFloat16(buffer, i * 2);
@@ -62,11 +77,14 @@ export function dequantizeQ4_0(buffer: Buffer, count: number): Float32Array {
   const result = new Float32Array(count);
   const blockSize = 32;
   const bytesPerBlock = 18;
+  const numBlocks = Math.ceil(count / blockSize);
+
+  validateBuffer(buffer, 0, numBlocks * bytesPerBlock, 'dequantizeQ4_0');
 
   let resultOffset = 0;
   let bufferOffset = 0;
 
-  for (let block = 0; block < Math.ceil(count / blockSize); block++) {
+  for (let block = 0; block < numBlocks; block++) {
     // Read scale (FP16)
     const scale = readFloat16(buffer, bufferOffset);
     bufferOffset += 2;
@@ -99,11 +117,15 @@ export function dequantizeQ4_0(buffer: Buffer, count: number): Float32Array {
 export function dequantizeQ4_1(buffer: Buffer, count: number): Float32Array {
   const result = new Float32Array(count);
   const blockSize = 32;
+  const bytesPerBlock = 20;
+  const numBlocks = Math.ceil(count / blockSize);
+
+  validateBuffer(buffer, 0, numBlocks * bytesPerBlock, 'dequantizeQ4_1');
 
   let resultOffset = 0;
   let bufferOffset = 0;
 
-  for (let block = 0; block < Math.ceil(count / blockSize); block++) {
+  for (let block = 0; block < numBlocks; block++) {
     // Read scale (FP16)
     const scale = readFloat16(buffer, bufferOffset);
     bufferOffset += 2;
@@ -141,15 +163,9 @@ function unpack6bit(buffer: Buffer, offset: number, count: number): number[] {
     const byteOffset = offset + Math.floor(bitOffset / 8);
     const bitShift = bitOffset % 8;
 
-    let value: number;
-
-    if (bitShift <= 2) {
-      // Value fits in current byte and next
-      value = ((buffer[byteOffset] >> bitShift) | (buffer[byteOffset + 1] << (8 - bitShift))) & 0x3F;
-    } else {
-      // Value spans current and next byte
-      value = ((buffer[byteOffset] >> bitShift) | (buffer[byteOffset + 1] << (8 - bitShift))) & 0x3F;
-    }
+    // All cases use the same formula (spans byte boundaries)
+    const value = ((buffer[byteOffset] >> bitShift) |
+                   (buffer[byteOffset + 1] << (8 - bitShift))) & 0x3F;
 
     result.push(value);
     bitOffset += 6;
@@ -176,7 +192,10 @@ function unpack6bit(buffer: Buffer, offset: number, count: number): number[] {
 export function dequantizeQ4_K(buffer: Buffer, count: number): Float32Array {
   const result = new Float32Array(count);
   const QK_K = 256; // Super-block size
+  const bytesPerBlock = 144; // 2+2+6+6+128
   const numBlocks = Math.ceil(count / QK_K);
+
+  validateBuffer(buffer, 0, numBlocks * bytesPerBlock, 'dequantizeQ4_K');
 
   let resultOffset = 0;
   let bufferOffset = 0;
@@ -207,10 +226,9 @@ export function dequantizeQ4_K(buffer: Buffer, count: number): Float32Array {
           ? (buffer[byteIndex] & 0x0F)
           : ((buffer[byteIndex] >> 4) & 0x0F);
 
-        // Dequantize: w = d * scale * q + dmin * min
-        // Quant is [0,15], normalize to [0,1] range
-        const q = nibble / 15.0;
-        result[resultOffset++] = scale * (q * 15.0 - 8.0) + min;
+        // Dequantize: w = d * scale * (q - 8) + dmin * min
+        // Quant is [0,15], shifted to [-8, 7] signed range
+        result[resultOffset++] = scale * (nibble - 8) + min;
       }
 
       bufferOffset += 16; // 16 bytes per 32 elements
@@ -237,7 +255,10 @@ export function dequantizeQ4_K(buffer: Buffer, count: number): Float32Array {
 export function dequantizeQ6_K(buffer: Buffer, count: number): Float32Array {
   const result = new Float32Array(count);
   const QK_K = 256; // Super-block size
+  const bytesPerBlock = 210; // 128+64+16+2
   const numBlocks = Math.ceil(count / QK_K);
+
+  validateBuffer(buffer, 0, numBlocks * bytesPerBlock, 'dequantizeQ6_K');
 
   let resultOffset = 0;
   let bufferOffset = 0;
@@ -246,11 +267,11 @@ export function dequantizeQ6_K(buffer: Buffer, count: number): Float32Array {
     // GGUF Q6_K layout: ql, qh, scales, d (d comes LAST, not first!)
 
     // Read 128 bytes of lower 4 bits (ql)
-    const ql = Buffer.from(buffer.slice(bufferOffset, bufferOffset + 128));
+    const ql = buffer.subarray(bufferOffset, bufferOffset + 128);
     bufferOffset += 128;
 
     // Read 64 bytes of upper 2 bits (qh)
-    const qh = Buffer.from(buffer.slice(bufferOffset, bufferOffset + 64));
+    const qh = buffer.subarray(bufferOffset, bufferOffset + 64);
     bufferOffset += 64;
 
     // Read 16 x int8 scales for sub-blocks
@@ -298,11 +319,15 @@ export function dequantizeQ6_K(buffer: Buffer, count: number): Float32Array {
 export function dequantizeQ8_0(buffer: Buffer, count: number): Float32Array {
   const result = new Float32Array(count);
   const blockSize = 32;
+  const bytesPerBlock = 34; // 2 + 32
+  const numBlocks = Math.ceil(count / blockSize);
+
+  validateBuffer(buffer, 0, numBlocks * bytesPerBlock, 'dequantizeQ8_0');
 
   let resultOffset = 0;
   let bufferOffset = 0;
 
-  for (let block = 0; block < Math.ceil(count / blockSize); block++) {
+  for (let block = 0; block < numBlocks; block++) {
     // Read scale (FP16)
     const scale = readFloat16(buffer, bufferOffset);
     bufferOffset += 2;

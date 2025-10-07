@@ -148,9 +148,7 @@ export class GGUFParser {
 
       // Calculate size (bytes)
       const elementCount = dimensions.reduce((prod, dim) => prod * BigInt(dim), BigInt(1));
-      const bytesPerElement = this.getBytesPerElement(type);
-      // For quantized types, multiply first then divide to avoid decimal BigInt
-      const size = (elementCount * BigInt(Math.round(bytesPerElement * 1000))) / BigInt(1000);
+      const size = this.calculateTensorSize(elementCount, type);
 
       tensors.push({
         name,
@@ -348,6 +346,58 @@ export class GGUFParser {
     }
 
     return array;
+  }
+
+  /**
+   * Calculate tensor size using exact block sizes
+   */
+  private calculateTensorSize(elementCount: bigint, type: GGMLType): bigint {
+    // For types with exact block sizes, use precise calculation
+    switch (type) {
+      case GGMLType.Q4_0:
+        return (elementCount / BigInt(32)) * BigInt(18);
+      case GGMLType.Q4_1:
+        return (elementCount / BigInt(32)) * BigInt(20);
+      case GGMLType.Q5_0:
+        return (elementCount / BigInt(32)) * BigInt(22);
+      case GGMLType.Q5_1:
+        return (elementCount / BigInt(32)) * BigInt(24);
+      case GGMLType.Q8_0:
+        return (elementCount / BigInt(32)) * BigInt(34);
+      case GGMLType.Q8_1:
+        return (elementCount / BigInt(32)) * BigInt(36);
+      case GGMLType.Q4_K:
+        return (elementCount / BigInt(256)) * BigInt(144);
+      case GGMLType.Q5_K:
+        return (elementCount / BigInt(256)) * BigInt(176);
+      case GGMLType.Q6_K:
+        return (elementCount / BigInt(256)) * BigInt(210);
+      case GGMLType.Q2_K:
+        return (elementCount / BigInt(256)) * BigInt(80);
+      case GGMLType.Q3_K:
+        return (elementCount / BigInt(256)) * BigInt(112);
+      case GGMLType.Q8_K:
+        return (elementCount / BigInt(256)) * BigInt(272);
+      // For non-quantized types, use simple multiplication
+      case GGMLType.F32:
+        return elementCount * BigInt(4);
+      case GGMLType.F16:
+        return elementCount * BigInt(2);
+      case GGMLType.I8:
+        return elementCount;
+      case GGMLType.I16:
+        return elementCount * BigInt(2);
+      case GGMLType.I32:
+        return elementCount * BigInt(4);
+      case GGMLType.I64:
+        return elementCount * BigInt(8);
+      case GGMLType.F64:
+        return elementCount * BigInt(8);
+      default:
+        // Fallback to approximate calculation
+        const bytesPerElement = this.getBytesPerElement(type);
+        return (elementCount * BigInt(Math.round(bytesPerElement * 1000))) / BigInt(1000);
+    }
   }
 
   /**
