@@ -130,95 +130,163 @@ export function dequantizeQ4_1(buffer: Buffer, count: number): Float32Array {
 }
 
 /**
- * Dequantize Q4_K (4-bit k-quantization, block size 256)
- * More complex format with multiple scales and minimums
+ * Unpack 6-bit values from packed bytes
+ * Used by Q4_K for scales and mins
  */
-export function dequantizeQ4_K(buffer: Buffer, count: number): Float32Array {
-  const result = new Float32Array(count);
-  const blockSize = 256;
-  const bytesPerBlock = 144; // Approximate for Q4_K
+function unpack6bit(buffer: Buffer, offset: number, count: number): number[] {
+  const result: number[] = [];
+  let bitOffset = 0;
 
-  let resultOffset = 0;
-  let bufferOffset = 0;
+  for (let i = 0; i < count; i++) {
+    const byteOffset = offset + Math.floor(bitOffset / 8);
+    const bitShift = bitOffset % 8;
 
-  for (let block = 0; block < Math.ceil(count / blockSize); block++) {
-    // Q4_K has complex structure with super-blocks
-    // For now, use simplified approximation
+    let value: number;
 
-    // Read main scale (FP16)
-    const scale = readFloat16(buffer, bufferOffset);
-    bufferOffset += 2;
-
-    // Read min (FP16)
-    const min = readFloat16(buffer, bufferOffset);
-    bufferOffset += 2;
-
-    // Skip sub-scales (6 bytes for 6 sub-blocks)
-    bufferOffset += 6;
-
-    // Read quantized values (128 bytes for 256 values at 4 bits each)
-    for (let i = 0; i < blockSize && resultOffset < count; i++) {
-      const byteIndex = bufferOffset + Math.floor(i / 2);
-      const nibble = (i % 2 === 0)
-        ? (buffer[byteIndex] & 0x0F)
-        : ((buffer[byteIndex] >> 4) & 0x0F);
-
-      // Simplified dequantization
-      result[resultOffset++] = min + (nibble / 15.0) * scale;
+    if (bitShift <= 2) {
+      // Value fits in current byte and next
+      value = ((buffer[byteOffset] >> bitShift) | (buffer[byteOffset + 1] << (8 - bitShift))) & 0x3F;
+    } else {
+      // Value spans current and next byte
+      value = ((buffer[byteOffset] >> bitShift) | (buffer[byteOffset + 1] << (8 - bitShift))) & 0x3F;
     }
 
-    bufferOffset += 128; // Skip to next block
+    result.push(value);
+    bitOffset += 6;
   }
 
   return result;
 }
 
 /**
- * Dequantize Q6_K (6-bit k-quantization, block size 256)
+ * Dequantize Q4_K (4-bit k-quantization with super-blocks)
+ *
+ * Q4_K Block Structure (256 elements per super-block):
+ * - 2 bytes: FP16 d (main scale)
+ * - 2 bytes: FP16 dmin (main min scale)
+ * - 6 bytes: 8 x 6-bit scales (packed)
+ * - 6 bytes: 8 x 6-bit mins (packed)
+ * - 128 bytes: quantized data (4 bits per element, 32 elements per sub-block)
+ *
+ * Total: 144 bytes per 256 elements = 4.5 bits per element
+ *
+ * Dequantization formula for each sub-block:
+ * weight = d * scale * quant + dmin * min
  */
-export function dequantizeQ6_K(buffer: Buffer, count: number): Float32Array {
+export function dequantizeQ4_K(buffer: Buffer, count: number): Float32Array {
   const result = new Float32Array(count);
-  const blockSize = 256;
-  const bytesPerBlock = 210; // Approximate for Q6_K
+  const QK_K = 256; // Super-block size
+  const numBlocks = Math.ceil(count / QK_K);
 
   let resultOffset = 0;
   let bufferOffset = 0;
 
-  for (let block = 0; block < Math.ceil(count / blockSize); block++) {
-    // Read scale (FP16)
-    const scale = readFloat16(buffer, bufferOffset);
-    bufferOffset += 2;
+  for (let block = 0; block < numBlocks; block++) {
+    // Read main scales
+    const d = readFloat16(buffer, bufferOffset);
+    const dmin = readFloat16(buffer, bufferOffset + 2);
+    bufferOffset += 4;
 
-    // Skip sub-scales
-    bufferOffset += 16;
+    // Unpack 8 x 6-bit scales
+    const scales = unpack6bit(buffer, bufferOffset, 8);
+    bufferOffset += 6;
 
-    // Read quantized values (6 bits each = 192 bytes for 256 values)
-    for (let i = 0; i < blockSize && resultOffset < count; i++) {
-      // Q6_K packs 4 values into 3 bytes
-      const groupIndex = Math.floor(i / 4);
-      const valueInGroup = i % 4;
-      const byteOffset = bufferOffset + groupIndex * 3;
+    // Unpack 8 x 6-bit mins
+    const mins = unpack6bit(buffer, bufferOffset, 8);
+    bufferOffset += 6;
 
-      let value: number;
-      if (valueInGroup === 0) {
-        // First 6 bits
-        value = buffer[byteOffset] & 0x3F;
-      } else if (valueInGroup === 1) {
-        // Next 6 bits (spans bytes)
-        value = ((buffer[byteOffset] >> 6) | ((buffer[byteOffset + 1] & 0x0F) << 2)) & 0x3F;
-      } else if (valueInGroup === 2) {
-        // Next 6 bits
-        value = ((buffer[byteOffset + 1] >> 4) | ((buffer[byteOffset + 2] & 0x03) << 4)) & 0x3F;
-      } else {
-        // Last 6 bits
-        value = (buffer[byteOffset + 2] >> 2) & 0x3F;
+    // Process 8 sub-blocks
+    for (let subBlock = 0; subBlock < 8 && resultOffset < count; subBlock++) {
+      const scale = d * (scales[subBlock] / 63.0); // Normalize 6-bit to [0,1]
+      const min = dmin * (mins[subBlock] / 63.0);
+
+      // Read 32 elements (16 bytes, 4 bits per element)
+      for (let i = 0; i < 32 && resultOffset < count; i++) {
+        const byteIndex = bufferOffset + Math.floor(i / 2);
+        const nibble = (i % 2 === 0)
+          ? (buffer[byteIndex] & 0x0F)
+          : ((buffer[byteIndex] >> 4) & 0x0F);
+
+        // Dequantize: w = d * scale * q + dmin * min
+        // Quant is [0,15], normalize to [0,1] range
+        const q = nibble / 15.0;
+        result[resultOffset++] = scale * (q * 15.0 - 8.0) + min;
       }
 
-      // Dequantize: value = (quantized - 32) * scale
-      result[resultOffset++] = (value - 32) * scale;
+      bufferOffset += 16; // 16 bytes per 32 elements
     }
+  }
 
-    bufferOffset += 192; // 192 bytes for 256 values at 6 bits each
+  return result;
+}
+
+/**
+ * Dequantize Q6_K (6-bit k-quantization with super-blocks)
+ *
+ * Q6_K Block Structure (from llama.cpp):
+ * - 2 bytes: FP16 d (super-block scale)
+ * - 128 bytes: ql (lower 4 bits, 2 values per byte)
+ * - 64 bytes: qh (upper 2 bits, 4 values per byte)
+ * - 16 bytes: int8 scales (16 sub-blocks of 16 elements)
+ *
+ * Total: 210 bytes per 256 elements = 6.56 bits per element
+ *
+ * Each 6-bit value is: (lower 4 bits) | (upper 2 bits << 4)
+ * Range: [0, 63], centered at 32
+ */
+export function dequantizeQ6_K(buffer: Buffer, count: number): Float32Array {
+  const result = new Float32Array(count);
+  const QK_K = 256; // Super-block size
+  const numBlocks = Math.ceil(count / QK_K);
+
+  let resultOffset = 0;
+  let bufferOffset = 0;
+
+  for (let block = 0; block < numBlocks; block++) {
+    // GGUF Q6_K layout: ql, qh, scales, d (d comes LAST, not first!)
+
+    // Read 128 bytes of lower 4 bits (ql)
+    const ql = Buffer.from(buffer.slice(bufferOffset, bufferOffset + 128));
+    bufferOffset += 128;
+
+    // Read 64 bytes of upper 2 bits (qh)
+    const qh = Buffer.from(buffer.slice(bufferOffset, bufferOffset + 64));
+    bufferOffset += 64;
+
+    // Read 16 x int8 scales for sub-blocks
+    const scales = new Int8Array(16);
+    for (let i = 0; i < 16; i++) {
+      scales[i] = buffer.readInt8(bufferOffset + i);
+    }
+    bufferOffset += 16;
+
+    // Read main scale (FP16) - comes LAST in GGUF format!
+    const d = readFloat16(buffer, bufferOffset);
+    bufferOffset += 2;
+
+    // Dequantize 256 elements
+    for (let i = 0; i < QK_K && resultOffset < count; i++) {
+      // Get lower 4 bits (2 values per byte in ql)
+      const qlByteIndex = i >> 1;
+      const qlValue = (i % 2 === 0)
+        ? (ql[qlByteIndex] & 0x0F)        // Low nibble
+        : ((ql[qlByteIndex] >> 4) & 0x0F); // High nibble
+
+      // Get upper 2 bits (4 values per byte in qh)
+      const qhByteIndex = Math.floor(i / 4);
+      const qhBitShift = (i % 4) * 2;
+      const qhValue = (qh[qhByteIndex] >> qhBitShift) & 0x03;
+
+      // Combine to get 6-bit value: lower 4 bits | (upper 2 bits << 4)
+      const q = qlValue | (qhValue << 4); // Range [0, 63]
+
+      // Get sub-block scale (16 sub-blocks of 16 elements)
+      const subBlockIndex = Math.floor(i / 16);
+      const scale = scales[subBlockIndex];
+
+      // Dequantize: d * scale * (q - 32)
+      result[resultOffset++] = d * scale * (q - 32);
+    }
   }
 
   return result;
