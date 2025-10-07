@@ -10,5 +10,5 @@ export * from './grammar-engine/presentation'
 // Similarity Algorithms
 export * from './similarity-algorithms/presentation'
 
-// Pattern Loader (when implemented)
-// export * from './pattern-loader/presentation'
+// Pattern Loader
+export * from './pattern-loader/presentation'

@@ -6,8 +6,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "demo": "ts-node src/demo.ts",
+    "test": "ts-node src/test.ts",
+    "test:watch": "nodemon --exec ts-node src/test.ts",
     "build": "tsc",
-    "test": "npm run demo",
     "lint": "eslint src/**/*.ts"
   },
   "keywords": [

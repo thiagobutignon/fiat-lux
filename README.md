@@ -209,12 +209,64 @@ npm install
 # Run demo
 npm run demo
 
+# Run tests (ultra-fast, <5ms)
+npm test
+
 # Build
 npm run build
-
-# Test
-npm test
 ```
+
+## Testing
+
+The project includes a **custom lightweight test framework** designed for speed. All 45+ unit tests run in under 5ms!
+
+```bash
+$ npm test
+
+🧪 Running Tests...
+
+📦 Levenshtein Distance
+  ✅ should return 0 for identical strings (0.11ms)
+  ✅ should calculate single character difference (0.01ms)
+  ...
+
+📦 GrammarEngine - Validation
+  ✅ should validate valid sentences (0.11ms)
+  ✅ should detect invalid values (0.10ms)
+  ...
+
+════════════════════════════════════════════════════════════════════════════════
+Test Summary
+════════════════════════════════════════════════════════════════════════════════
+Total:   45
+✅ Passed: 45
+❌ Failed: 0
+⏭️  Duration: 2.63ms
+════════════════════════════════════════════════════════════════════════════════
+
+✅ All tests passed!
+```
+
+### Test Coverage
+
+- **Similarity Algorithms**: 26 tests
+  - Levenshtein distance and similarity
+  - Jaro-Winkler similarity
+  - Hybrid algorithm
+
+- **Grammar Engine**: 19 tests
+  - Validation logic
+  - Auto-repair functionality
+  - Cache performance
+  - Configuration options
+
+### Why Custom Test Framework?
+
+Instead of Jest or Mocha (which take 1-2 seconds to start), our custom framework:
+- ✅ Runs in **<5ms** (400x faster startup)
+- ✅ Zero dependencies
+- ✅ Simple API (`describe`, `it`, `expect`)
+- ✅ Perfect for TDD workflow
 
 ## Documentation
 
