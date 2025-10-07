@@ -432,6 +432,115 @@ The benchmark supports multiple detection systems:
 
 **🍎 Mac Setup**: See [`src/benchmark/docs/MAC_SETUP.md`](src/benchmark/docs/MAC_SETUP.md) for Mac M1/M2/M3/M4 setup guide.
 
+## LLM Research Program 🔬
+
+Fiat Lux includes a comprehensive research program to understand and engineer the internal mechanisms of Large Language Models. This represents a new frontier: **Precise LLM Engineering** - moving from black-box usage to weight-level control.
+
+### Research Pillars
+
+#### 1. Understanding - Mechanistic Analysis of Hallucinations
+[Issue #6](https://github.com/thiagobutignon/fiat-lux/issues/6)
+
+**Goal**: Peek inside the "black box" to understand neural pathways that lead to hallucinations.
+
+**Key Questions**:
+- Where do hallucinations originate in the network?
+- What weight patterns correlate with false confidence?
+- How do attention mechanisms differ in truthful vs. hallucinating generations?
+
+**Methodology**:
+- Weight Pattern Analysis (all 8.03B parameters)
+- Activation Flow Tracing (32 transformer layers)
+- Quantization Impact Study (Q4_K vs. Q6_K effects)
+- Causal Intervention (ablation studies)
+
+#### 2. Engineering - Behavioral Modification and Determinism
+[Issue #7](https://github.com/thiagobutignon/fiat-lux/issues/7)
+
+**Goal**: Test the boundaries of weight-based behavior engineering, including deterministic inference.
+
+**Key Questions**:
+- Can we achieve bit-exact reproducible LLM inference?
+- How to improve performance through surgical weight modifications?
+- What are the fundamental limits of weight engineering?
+
+**Techniques**:
+- Fixed-point arithmetic for determinism
+- Redundancy elimination (10-20% speedup)
+- Sparsity-aware quantization
+- Task-specific weight overlays
+
+#### 3. Safety - Constitutional AI at the Weight Level
+[Issue #8](https://github.com/thiagobutignon/fiat-lux/issues/8)
+
+**Goal**: Embed safety principles directly into weights, making harmful outputs mathematically impossible.
+
+**Key Questions**:
+- Can we modify weights to make specific outputs unreachable?
+- Do safety constraints compose without interfering?
+- Can we provide formal guarantees about model safety?
+
+**Approaches**:
+- Attention bias injection for constitutional constraints
+- Safety residual stream modifications
+- FFN gate constitutional masks
+- Formal verification of safety properties
+
+### GGUF Parser Infrastructure
+
+All research builds on our production-ready GGUF parser:
+
+✅ **Implemented Features** (PR #5):
+- Complete GGUF v3 binary format parsing
+- Weight extraction for all 292 tensors (8.03B parameters)
+- Accurate Q4_K and Q6_K dequantization
+- Statistical analysis framework
+- Tested with Llama 3.1 8B (4.58 GB model)
+
+```bash
+# Extract and analyze model weights
+tsx scripts/gguf/extract-weights.ts model.gguf --layer 0 --stats-only
+
+# Test specific quantization types
+tsx scripts/gguf/verify-quantization.ts
+```
+
+### Expected Outcomes
+
+**Scientific Contributions**:
+- First comprehensive map of Llama 3.1's internal mechanisms
+- Weight-level Constitutional AI methodology
+- Formal safety guarantees for LLM behavior
+- Deterministic LLM inference system
+
+**Practical Deliverables**:
+- Constitutional Llama 3.1 8B (embedded safety principles)
+- Deterministic Llama 3.1 8B (bit-exact reproducibility)
+- Optimized Llama 3.1 8B (20% faster)
+- Weight Engineering Toolkit (open-source)
+
+**Publications**:
+- 3 arXiv preprints (20-30 pages each)
+- NeurIPS/ICML submissions
+- 10k+ activation traces dataset
+- Interactive visualization tools
+
+### Research Documentation
+
+- **[Research Program Overview](docs/research-program-overview.md)** - Complete program vision and timeline
+- **[GGUF Phase 2.1 Documentation](docs/gguf-phase2.1-accurate-k-quants.md)** - Detailed K-quant implementation
+
+### Timeline
+
+- **Q1 (Months 1-3)**: Mechanistic understanding phase
+- **Q2 (Months 4-6)**: Behavioral engineering phase
+- **Q3 (Months 7-9)**: Constitutional AI integration
+- **Q4 (Months 10-12)**: Publication and deployment
+
+**Target Venues**: arXiv, NeurIPS, ICML, ICLR, AI Safety Workshops
+
+**📚 Full Details**: See [Research Program Overview](docs/research-program-overview.md) for the complete 12-month research roadmap.
+
 ## Validation Tools
 
 ### Grammar Pattern Validator
