@@ -322,6 +322,18 @@ Contributions are welcome! Please read [CLAUDE.md](docs/CLAUDE.md) for coding st
 
 MIT License - see [LICENSE](LICENSE) file for details
 
+## Acknowledgements
+
+Special thanks to the amazing developers and mentors who inspired this work:
+
+- [@rmanguinho](https://github.com/rmanguinho) - Clean Architecture and SOLID principles
+- [@barreirabruno](https://github.com/barreirabruno) - Software craftsmanship
+- [@lnmunhoz](https://github.com/lnmunhoz) - Best practices and code quality
+- [@kidchenko](https://github.com/kidchenko) - Technical excellence
+- [Hernane Gomes](https://www.linkedin.com/in/hernanegomes/) - Architecture insights
+- [Rebecca Barbosa](https://www.linkedin.com/in/rebeccafbarbosa/) - Engineering leadership
+- [Miller Cesar Oliveira](https://www.linkedin.com/in/millercesaroliveira/) - Technical guidance
+
 ## Credits
 
 Built with [Claude Code](https://claude.com/claude-code) by Anthropic
