@@ -1,7 +1,10 @@
 import { IPatternDetector } from '../../domain/repositories/IPatternDetector';
 import { CandlestickSequence } from '../../domain/entities/CandlestickSequence';
 import { BenchmarkResult, BenchmarkMetrics } from '../../domain/entities/BenchmarkResult';
-import { SignalType } from '../../domain/entities/TradingSignal';
+import { SignalType, TradingSignal } from '../../domain/entities/TradingSignal';
+import { ErrorAnalysis } from '../../domain/entities/ErrorAnalysis';
+import { ErrorAnalysisBuilder } from '../ErrorAnalysisBuilder';
+import { TestCase } from '../../infrastructure/data-generation/CandlestickGenerator';
 
 /**
  * Application Use Case: RunBenchmark
@@ -12,11 +15,12 @@ export interface BenchmarkConfig {
   detector: IPatternDetector;
   testData: CandlestickSequence[];
   groundTruth: SignalType[]; // Expected signals for each sequence
+  testCases?: TestCase[]; // Optional: for detailed error analysis
 }
 
 export class RunBenchmark {
   async execute(config: BenchmarkConfig): Promise<BenchmarkResult> {
-    const { detector, testData, groundTruth } = config;
+    const { detector, testData, groundTruth, testCases } = config;
 
     if (testData.length !== groundTruth.length) {
       throw new Error('Test data and ground truth must have the same length');
@@ -26,9 +30,12 @@ export class RunBenchmark {
     console.log(`Test cases: ${testData.length}`);
 
     const startTime = performance.now();
-    const results: SignalType[] = [];
+    const results: TradingSignal[] = [];
     const latencies: number[] = [];
     let totalCost = 0;
+
+    // Error analysis builder
+    const errorAnalysisBuilder = new ErrorAnalysisBuilder(detector.getName());
 
     // Run detection on each test case
     for (let i = 0; i < testData.length; i++) {
@@ -38,12 +45,17 @@ export class RunBenchmark {
       const signal = await detector.detectPatterns(sequence);
       const testEnd = performance.now();
 
-      results.push(signal.type);
+      results.push(signal);
       latencies.push(testEnd - testStart);
 
       // Calculate cost (if detector has a cost)
       if ('getCost' in detector) {
         totalCost += (detector as any).getCost();
+      }
+
+      // Add to error analysis if test cases provided
+      if (testCases && testCases[i]) {
+        errorAnalysisBuilder.addResult(testCases[i], signal);
       }
 
       // Progress logging every 100 tests
@@ -56,19 +68,28 @@ export class RunBenchmark {
     const totalTime = endTime - startTime;
 
     // Calculate metrics
-    const metrics = this.calculateMetrics(results, groundTruth, latencies, totalCost, detector);
+    const signalTypes = results.map(r => r.type);
+    const metrics = this.calculateMetrics(signalTypes, groundTruth, latencies, totalCost, detector);
 
     console.log(`✓ Completed ${detector.getName()} in ${totalTime.toFixed(0)}ms`);
     console.log(`  Accuracy: ${(metrics.accuracy * 100).toFixed(1)}%`);
     console.log(`  Avg Latency: ${metrics.avgLatencyMs.toFixed(3)}ms`);
     console.log(`  Total Cost: $${metrics.totalCostUSD.toFixed(4)}`);
 
-    return new BenchmarkResult(
+    // Build error analysis
+    const errorAnalysis = errorAnalysisBuilder.build();
+
+    const result = new BenchmarkResult(
       detector.getName(),
       metrics,
       testData.length,
       new Date()
     );
+
+    // Attach error analysis
+    (result as any).errorAnalysis = errorAnalysis;
+
+    return result;
   }
 
   private calculateMetrics(

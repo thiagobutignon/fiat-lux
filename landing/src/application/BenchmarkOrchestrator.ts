@@ -8,6 +8,10 @@ import {
   createLlamaDetector
 } from '../infrastructure/adapters/LLMPatternDetector';
 import { LSTMPatternDetector } from '../infrastructure/adapters/LSTMPatternDetector';
+import { GeminiPatternDetector } from '../infrastructure/adapters/GeminiPatternDetector';
+import { LocalLlamaDetector } from '../infrastructure/adapters/LocalLlamaDetector';
+import { VllmPatternDetector } from '../infrastructure/adapters/VllmPatternDetector';
+import { LlamaCppDetector } from '../infrastructure/adapters/LlamaCppDetector';
 
 /**
  * Application Layer: BenchmarkOrchestrator
@@ -44,15 +48,80 @@ export class BenchmarkOrchestrator {
     const testData = testCases.map(tc => tc.sequence);
     const groundTruth = testCases.map(tc => tc.expectedSignal);
     console.log(`✓ Generated ${testCases.length} test cases\n`);
+    console.log(`⚙️  Error analysis enabled - detailed metrics will be generated\n`);
 
     // Initialize all detectors
     const detectors = [
       new GrammarPatternDetector(),
+    ];
+
+    // Try to add Gemini detector (requires API key)
+    const enableGemini = process.env.ENABLE_GEMINI !== 'false';
+    if (enableGemini) {
+      try {
+        detectors.push(new GeminiPatternDetector());
+        console.log('✓ Gemini 2.5 Flash enabled (real API integration)\n');
+      } catch (error) {
+        console.warn('⚠️  Skipping Gemini: GEMINI_API_KEY not configured');
+        console.warn('   Get your API key from: https://aistudio.google.com/apikey\n');
+      }
+    } else {
+      console.log('⚠️  Gemini disabled via ENABLE_GEMINI=false\n');
+    }
+
+    // Try to add llama.cpp detector (Mac M-series with Metal) - FASTEST FOR MAC
+    const enableLlamaCpp = process.env.ENABLE_LLAMACPP === 'true';
+    if (enableLlamaCpp) {
+      try {
+        const llamacppUrl = process.env.LLAMACPP_BASE_URL || 'http://localhost:8080';
+        const llamacppModel = process.env.LLAMACPP_MODEL || 'Meta-Llama-3.1-8B-Instruct-Q4_K_M';
+        detectors.push(new LlamaCppDetector(llamacppUrl, llamacppModel));
+        console.log(`✓ llama.cpp enabled (${llamacppModel}) - Metal Acceleration\n`);
+      } catch (error) {
+        console.warn('⚠️  Skipping llama.cpp: Server not available');
+        console.warn('   See MAC_SETUP.md for installation instructions\n');
+      }
+    }
+
+    // Try to add vLLM detector (requires vLLM server) - FASTEST FOR NVIDIA
+    const enableVllm = process.env.ENABLE_VLLM === 'true';
+    if (enableVllm && !enableLlamaCpp) {  // Skip if llama.cpp is enabled
+      try {
+        const vllmUrl = process.env.VLLM_BASE_URL || 'http://localhost:8000';
+        const vllmModel = process.env.VLLM_MODEL || 'meta-llama/Meta-Llama-3.1-8B-Instruct';
+        detectors.push(new VllmPatternDetector(vllmUrl, vllmModel));
+        console.log(`✓ vLLM enabled (${vllmModel.split('/').pop()}) - CUDA Acceleration\n`);
+      } catch (error) {
+        console.warn('⚠️  Skipping vLLM: Server not available');
+        console.warn('   See VLLM_SETUP.md for installation instructions\n');
+      }
+    } else if (enableVllm && enableLlamaCpp) {
+      console.log('ℹ️  Skipping vLLM (llama.cpp is enabled)\n');
+    }
+
+    // Try to add Local Llama detector (requires Ollama) - SLOWEST BUT EASIEST
+    const enableLocalLlama = process.env.ENABLE_LOCAL_LLAMA === 'true';
+    if (enableLocalLlama && !enableVllm && !enableLlamaCpp) {  // Skip if faster options enabled
+      try {
+        const ollamaUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+        const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.1:8b';
+        detectors.push(new LocalLlamaDetector(ollamaUrl, ollamaModel));
+        console.log(`✓ Local Llama enabled (${ollamaModel} via Ollama)\n`);
+      } catch (error) {
+        console.warn('⚠️  Skipping Local Llama: Ollama not available');
+        console.warn('   Install Ollama: https://ollama.ai/\n');
+      }
+    } else if (enableLocalLlama && (enableVllm || enableLlamaCpp)) {
+      console.log('ℹ️  Skipping Ollama (faster option enabled)\n');
+    }
+
+    // Add simulated detectors
+    detectors.push(
       createGPT4Detector(),
       createClaudeDetector(),
       createLlamaDetector(),
-      new LSTMPatternDetector(),
-    ];
+      new LSTMPatternDetector()
+    );
 
     console.log(`Running benchmarks for ${detectors.length} systems...\n`);
 
@@ -65,6 +134,7 @@ export class BenchmarkOrchestrator {
         detector,
         testData,
         groundTruth,
+        testCases, // Include test cases for error analysis
       });
       results.push(result);
     }
@@ -160,6 +230,20 @@ export class BenchmarkOrchestrator {
     summary.comparisons.forEach((comparison, index) => {
       console.log(`${index + 1}. ${comparison}\n`);
     });
+
+    // Display error analysis for systems with < 100% accuracy
+    const failingSystems = summary.results.filter(r => r.metrics.accuracy < 1.0);
+    if (failingSystems.length > 0) {
+      console.log('\n📉 ERROR ANALYSIS\n');
+      console.log('Detailed analysis for systems with errors:\n');
+
+      failingSystems.forEach(result => {
+        const errorAnalysis = (result as any).errorAnalysis;
+        if (errorAnalysis) {
+          errorAnalysis.displaySummary();
+        }
+      });
+    }
   }
 
   /**

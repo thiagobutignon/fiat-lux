@@ -5,6 +5,7 @@
  * Executes the Deterministic Intelligence Benchmark
  */
 
+import 'dotenv/config'; // Load environment variables from .env
 import { BenchmarkOrchestrator } from '../src/application/BenchmarkOrchestrator';
 import * as fs from 'fs';
 import * as path from 'path';

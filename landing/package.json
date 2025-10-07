@@ -7,11 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test:gemini": "tsx scripts/test-gemini.ts",
     "benchmark": "tsx scripts/run-benchmark.ts",
     "benchmark:quick": "tsx scripts/run-benchmark.ts 100",
-    "benchmark:full": "tsx scripts/run-benchmark.ts 1000"
+    "benchmark:full": "tsx scripts/run-benchmark.ts 1000",
+    "benchmark:analysis": "tsx scripts/export-error-analysis.ts"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.2.3",
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
