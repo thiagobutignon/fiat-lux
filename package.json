@@ -1,14 +1,15 @@
 {
   "name": "fiat-lux",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A Universal Grammar Engine for Structured Data - Generic, configurable grammar validation and auto-repair system",
-  "main": "fiat-lux.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "demo": "ts-node fiat-lux.ts",
-    "demo:patterns": "ts-node pattern-loader.ts",
-    "test": "ts-node fiat-lux.ts && ts-node pattern-loader.ts",
+    "demo": "ts-node src/demo.ts",
+    "test": "ts-node src/test.ts",
+    "test:watch": "nodemon --exec ts-node src/test.ts",
     "build": "tsc",
-    "lint": "eslint *.ts"
+    "lint": "eslint src/**/*.ts"
   },
   "keywords": [
     "grammar",

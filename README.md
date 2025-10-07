@@ -8,7 +8,32 @@
 
 ## Overview
 
-Fiat Lux is a generic, configurable grammar engine that validates and auto-repairs structured data based on customizable grammatical rules. It's designed to work with any domain: code architecture, natural language, configuration files, or any structured data that follows grammatical patterns.
+Fiat Lux is a generic, configurable grammar engine that validates and auto-repairs structured data based on customizable grammatical rules. Built with **Clean Architecture** principles following the `src/[feature]/[use-cases]` pattern.
+
+## Architecture
+
+The project follows Clean Architecture with clear separation of concerns:
+
+```
+src/
+├── grammar-engine/              # Grammar validation and repair
+│   ├── domain/
+│   │   ├── entities/           # Types and predefined grammars
+│   │   └── use-cases/          # GrammarEngine business logic
+│   ├── data/
+│   │   ├── protocols/          # Interface definitions
+│   │   └── use-cases/          # Implementations (Cache)
+│   └── presentation/           # Public API, factories, utilities
+│
+├── similarity-algorithms/       # String similarity calculations
+│   ├── domain/
+│   │   └── use-cases/          # Levenshtein, Jaro-Winkler, Hybrid
+│   └── presentation/           # Public API
+│
+└── shared/                      # Shared utilities and types
+    ├── types/
+    └── utils/
+```
 
 ## Core Principles
 
@@ -17,6 +42,7 @@ Fiat Lux is a generic, configurable grammar engine that validates and auto-repai
 - **Explainability**: Every decision is traceable and reportable
 - **Performance**: Caching and optimization for large-scale processing
 - **Type Safety**: Full TypeScript support with generics
+- **Clean Architecture**: Feature-based organization with clear boundaries
 
 ## Features
 
@@ -32,28 +58,18 @@ Fiat Lux is a generic, configurable grammar engine that validates and auto-repai
 - **Levenshtein Distance**: Edit distance for typo detection
 - **Jaro-Winkler**: Better for typos at the beginning of strings
 - **Hybrid**: Weighted combination (60% Levenshtein + 40% Jaro-Winkler)
-- Pluggable algorithm system for easy extension
 
 ### ⚡ Performance Optimization
 
 - Similarity calculation caching with hit rate tracking
 - Configurable cache management
 - Performance metadata in processing results
-- Optimized O(m×n) algorithms
 
 ### 🔧 Advanced Auto-Repair
 
 - Configurable similarity thresholds
 - Multiple repair suggestions with confidence scores
 - Alternative suggestions ranked by similarity
-- Detailed repair reports with algorithm information
-
-### 📊 Rich Type System
-
-- Full TypeScript generics support
-- Comprehensive interfaces for all data structures
-- Severity levels (ERROR, WARNING, INFO)
-- Detailed metadata tracking
 
 ## Installation
 
@@ -61,184 +77,129 @@ Fiat Lux is a generic, configurable grammar engine that validates and auto-repai
 npm install fiat-lux
 ```
 
-Or use directly with TypeScript:
-
-```bash
-git clone https://github.com/thiagobutignon/fiat-lux.git
-cd fiat-lux
-npm install
-npx ts-node fiat-lux.ts
-```
-
 ## Quick Start
 
 ### Basic Usage
 
 ```typescript
-import { GrammarEngine, GrammarConfig } from './fiat-lux'
+import { makeGrammarEngine, CLEAN_ARCHITECTURE_GRAMMAR } from 'fiat-lux'
 
-// Define your grammar
-const myGrammar: GrammarConfig = {
-  roles: {
-    Subject: {
-      values: ["DbAddAccount", "RemoteAddAccount"],
-      required: true
-    },
-    Verb: {
-      values: ["add", "delete", "update"],
-      required: true
-    },
-    Object: {
-      values: ["Account.Params", "Survey.Params"],
-      required: false
-    }
-  }
-}
-
-// Create engine
-const engine = new GrammarEngine(myGrammar)
+// Create engine with predefined grammar
+const engine = makeGrammarEngine(CLEAN_ARCHITECTURE_GRAMMAR)
 
 // Process data
 const result = engine.process({
   Subject: "DbAddAccount",
   Verb: "ad", // typo - will be auto-repaired to "add"
-  Object: "AccountParams" // will be suggested "Account.Params"
+  Object: "Account.Params",
+  Context: "Controller"
 })
 
 console.log(result)
 ```
 
-### Using Predefined Grammars
+### Custom Grammar
 
 ```typescript
-import { GrammarEngine, CLEAN_ARCHITECTURE_GRAMMAR } from './fiat-lux'
+import { makeGrammarEngine, GrammarConfig, SimilarityAlgorithm } from 'fiat-lux'
 
-const engine = new GrammarEngine(CLEAN_ARCHITECTURE_GRAMMAR)
-
-const result = engine.process({
-  Subject: "DbAddAccount",
-  Verb: "add",
-  Object: "Account.Params",
-  Adverbs: ["Hasher", "Repository"],
-  Context: "Controller"
-})
-```
-
-## Examples
-
-### Clean Architecture Validation
-
-```typescript
-const engine = new GrammarEngine(CLEAN_ARCHITECTURE_GRAMMAR)
-
-const result = engine.process({
-  Subject: "RemoteLoadSurvey",
-  Verb: "lod", // typo → will suggest "load"
-  Object: "UserParams", // typo → will suggest "User.Params"
-  Adverbs: ["Hash", "Validatr"], // typos
-  Context: "Facto" // typo → will suggest "MainFactory"
-})
-
-// Result includes:
-// - Original input
-// - Validation errors
-// - Auto-repaired output
-// - Detailed repair operations with confidence scores
-// - Alternative suggestions
-// - Performance metadata
-```
-
-### HTTP API Grammar
-
-```typescript
-import { GrammarEngine, HTTP_API_GRAMMAR } from './fiat-lux'
-
-const engine = new GrammarEngine(HTTP_API_GRAMMAR)
-
-const result = engine.process({
-  Method: "PSOT", // typo → will suggest "POST"
-  Resource: "/user", // typo → will suggest "/users"
-  Status: "201",
-  Handler: ["Controller", "Middleware"]
-})
-```
-
-### Custom Grammar with Structural Rules
-
-```typescript
-const customGrammar: GrammarConfig = {
+const myGrammar: GrammarConfig = {
   roles: {
     Action: {
-      values: ["authenticate", "authorize"],
+      values: ["create", "read", "update", "delete"],
       required: true
     },
-    Target: {
-      values: ["User.Credentials", "Auth.Token"],
+    Resource: {
+      values: ["user", "post", "comment"],
       required: true
     }
   },
-  structuralRules: [
-    {
-      name: "AuthenticationRequiresCredentials",
-      validate: (s) => {
-        if (s.Action === "authenticate" && !s.Target?.includes("Credentials")) {
-          return false
-        }
-        return true
-      },
-      message: "Authentication requires User.Credentials"
-    }
-  ]
+  options: {
+    similarityThreshold: 0.7,
+    similarityAlgorithm: SimilarityAlgorithm.HYBRID
+  }
 }
+
+const engine = makeGrammarEngine(myGrammar)
 ```
 
 ## API Documentation
 
-### `GrammarEngine<T>`
-
-The main class for grammar validation and repair.
-
-#### Constructor
+### Main Exports
 
 ```typescript
-new GrammarEngine<T>(config: GrammarConfig)
+import {
+  // Grammar Engine
+  makeGrammarEngine,
+  GrammarEngine,
+
+  // Types
+  GrammarConfig,
+  ProcessingResult,
+  ValidationError,
+  RepairOperation,
+
+  // Enums
+  SimilarityAlgorithm,
+  Severity,
+
+  // Predefined Grammars
+  CLEAN_ARCHITECTURE_GRAMMAR,
+  HTTP_API_GRAMMAR,
+
+  // Utilities
+  formatResult,
+
+  // Similarity Algorithms
+  levenshteinSimilarity,
+  jaroWinklerSimilarity,
+  hybridSimilarity
+} from 'fiat-lux'
 ```
 
-#### Methods
+### GrammarEngine Methods
 
-- **`process(sentence: T): ProcessingResult<T>`** - Validate and repair a sentence
-- **`validate(sentence: T): { errors, structuralErrors }`** - Validate only
-- **`repair(sentence: T): { repaired, repairs }`** - Repair only
-- **`setOptions(options: Partial<GrammarOptions>)`** - Update configuration
-- **`getCacheStats()`** - Get cache performance statistics
+- **`process(sentence: T): ProcessingResult<T>`** - Validate and repair
+- **`validate(sentence: T)`** - Validate only
+- **`repair(sentence: T)`** - Repair only
+- **`getCacheStats()`** - Get cache statistics
 - **`clearCache()`** - Clear similarity cache
+- **`setOptions(options)`** - Update configuration
 
-### Configuration Options
+### PatternLoader Methods
+
+Load and validate architectural patterns from YAML configurations:
+
+- **`getPatterns()`** - Get all patterns
+- **`getPatternById(id)`** - Get specific pattern
+- **`getPatternsByLayer(layer)`** - Filter patterns by layer
+- **`getLayers()`** - Get all available layers
+- **`validateNaming(value, layer, element)`** - Validate naming conventions
+- **`validateDependency(from, to)`** - Check dependency rules
+- **`getExamples(layer, element)`** - Get naming examples
+- **`getSummary()`** - Get configuration statistics
 
 ```typescript
-interface GrammarOptions {
-  similarityThreshold?: number      // 0-1, default: 0.6
-  similarityAlgorithm?: SimilarityAlgorithm  // default: HYBRID
-  enableCache?: boolean             // default: true
-  autoRepair?: boolean              // default: true
-  maxSuggestions?: number           // default: 3
-  caseSensitive?: boolean           // default: false
-}
+import { PatternLoader } from 'fiat-lux'
+
+const loader = new PatternLoader(yamlContent)
+
+// Validate naming
+const result = loader.validateNaming('AddAccountUseCase', 'domain', 'usecases')
+console.log(result.valid) // true
+
+// Check dependencies
+const depResult = loader.validateDependency('domain', 'data')
+console.log(depResult.valid) // false (forbidden)
 ```
-
-### Similarity Algorithms
-
-- `SimilarityAlgorithm.LEVENSHTEIN` - Edit distance
-- `SimilarityAlgorithm.JARO_WINKLER` - Good for prefix typos
-- `SimilarityAlgorithm.HYBRID` - Weighted combination (recommended)
 
 ## Running Demos
 
 ```bash
-npx ts-node fiat-lux.ts
+npm run demo
 ```
 
-The demo includes:
+Output includes:
 1. Clean Architecture validation with invalid tokens
 2. Multiple errors with hybrid algorithm
 3. Valid sentence (no repairs needed)
@@ -246,100 +207,136 @@ The demo includes:
 5. Algorithm comparison analysis
 6. Cache performance testing
 
+## Project Structure
+
+### Feature Organization
+
+Each feature follows Clean Architecture layers:
+
+- **domain/entities**: Core types and interfaces
+- **domain/use-cases**: Business logic (no external dependencies)
+- **data/protocols**: Interface definitions for external dependencies
+- **data/use-cases**: Implementations
+- **presentation**: Public API, factories, and utilities
+
+### Benefits
+
+- **Dependency Rule**: Dependencies point inward
+- **Testability**: Easy to mock external dependencies
+- **Maintainability**: Clear separation of concerns
+- **Scalability**: Easy to add new features
+- **Flexibility**: Swap implementations without changing business logic
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run demo
+npm run demo
+
+# Run tests (ultra-fast, <5ms)
+npm test
+
+# Build
+npm run build
+```
+
+## Testing
+
+The project includes a **custom lightweight test framework** designed for speed. All 77 unit tests run in under 5ms!
+
+```bash
+$ npm test
+
+🧪 Running Tests...
+
+📦 Levenshtein Distance
+  ✅ should return 0 for identical strings (0.11ms)
+  ✅ should calculate single character difference (0.01ms)
+  ...
+
+📦 GrammarEngine - Validation
+  ✅ should validate valid sentences (0.11ms)
+  ✅ should detect invalid values (0.10ms)
+  ...
+
+════════════════════════════════════════════════════════════════════════════════
+Test Summary
+════════════════════════════════════════════════════════════════════════════════
+Total:   77
+✅ Passed: 77
+❌ Failed: 0
+⏭️  Duration: 4.55ms
+════════════════════════════════════════════════════════════════════════════════
+
+✅ All tests passed!
+```
+
+### Test Coverage
+
+- **Similarity Algorithms**: 26 tests
+  - Levenshtein distance and similarity
+  - Jaro-Winkler similarity
+  - Hybrid algorithm
+
+- **Grammar Engine**: 19 tests
+  - Validation logic
+  - Auto-repair functionality
+  - Cache performance
+  - Configuration options
+
+- **Pattern Loader**: 32 tests
+  - YAML parsing and pattern extraction
+  - Naming convention validation
+  - Dependency rule validation
+  - Layer operations and queries
+  - Edge cases and error handling
+
+### Why Custom Test Framework?
+
+Instead of Jest or Mocha (which take 1-2 seconds to start), our custom framework:
+- ✅ Runs in **<5ms** (400x faster startup)
+- ✅ Zero dependencies
+- ✅ Simple API (`describe`, `it`, `expect`)
+- ✅ Perfect for TDD workflow
+
 ## Documentation
 
-Comprehensive documentation is available in the repository:
-
-- **[Grammar Analysis Index](GRAMMAR_ANALYSIS_INDEX.md)** - Overview of all analyses
-- **[Universal Grammar Proof](UNIVERSAL_GRAMMAR_PROOF.md)** - Theoretical foundations
-- **[Clean Architecture Analysis](CLEAN_ARCHITECTURE_GRAMMAR_ANALYSIS.md)** - TypeScript patterns
-- **[Quick Reference Guide](GRAMMAR_QUICK_REFERENCE.md)** - Common patterns
-- **[Sentence Validation Examples](SENTENCE_VALIDATION_EXAMPLES.md)** - Test cases
-- **[CLAUDE.md](CLAUDE.md)** - AI coding standards
-
-## Architecture
-
-```
-fiat-lux.ts
-├── Core Type Definitions
-│   ├── GenericRecord, RoleConfig, GrammarConfig
-│   ├── ValidationError, RepairOperation, ProcessingResult
-│   └── MatchCandidate, SimilarityAlgorithm, Severity
-├── Similarity Algorithms
-│   ├── levenshteinDistance()
-│   ├── jaroWinklerSimilarity()
-│   ├── levenshteinSimilarity()
-│   └── hybridSimilarity()
-├── SimilarityCache
-│   └── Caching with statistics
-├── GrammarEngine<T>
-│   ├── validate()
-│   ├── repair()
-│   ├── process()
-│   └── Configuration management
-├── Predefined Grammars
-│   ├── CLEAN_ARCHITECTURE_GRAMMAR
-│   └── HTTP_API_GRAMMAR
-└── Utilities
-    ├── formatResult()
-    └── runDemo()
-```
+- **[CLAUDE.md](docs/CLAUDE.md)** - AI coding standards
+- **[Grammar Analysis Index](docs/GRAMMAR_ANALYSIS_INDEX.md)** - Overview of analyses
+- **[Universal Grammar Proof](docs/UNIVERSAL_GRAMMAR_PROOF.md)** - Theoretical foundations
 
 ## Contributing
 
-Contributions are welcome! Please read [CLAUDE.md](CLAUDE.md) for coding standards.
-
-### Development Setup
-
-```bash
-git clone https://github.com/thiagobutignon/fiat-lux.git
-cd fiat-lux
-npm install
-```
-
-### Running Tests
-
-```bash
-npx ts-node fiat-lux.ts
-```
-
-### Claude Code Integration
-
-This project uses Claude Code for automated code review. Simply mention `@claude` in issues or PRs.
-
-## Use Cases
-
-- **Code Architecture Validation**: Ensure architectural patterns are followed
-- **API Schema Validation**: Validate REST API endpoints and methods
-- **Configuration Validation**: Check YAML/JSON config files
-- **Natural Language Processing**: Grammar checking and correction
-- **Data Quality**: Validate structured data formats
-- **Linting**: Create custom linting rules for any domain
+Contributions are welcome! Please read [CLAUDE.md](docs/CLAUDE.md) for coding standards.
 
 ## Performance
 
-- **Caching**: Similarity calculations are cached for repeated comparisons
-- **Optimized Algorithms**: Efficient O(m×n) implementations
-- **Batch Processing**: Process multiple sentences efficiently
-- **Configurable**: Adjust performance vs accuracy trade-offs
-
-Example cache performance (100 iterations of same sentence):
-- Cache hit rate: ~99%
-- Average processing time: <1ms per iteration
+- **Processing time**: 0.02ms - 0.50ms per validation
+- **Cache hit rate**: ~99% after warm-up
+- **Average iteration**: <1ms with caching
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details
 
+## Acknowledgements
+
+Special thanks to the amazing developers and mentors who inspired this work:
+
+- [@rmanguinho](https://github.com/rmanguinho) - Clean Architecture and SOLID principles
+- [@barreirabruno](https://github.com/barreirabruno) - Software craftsmanship
+- [@lnmunhoz](https://github.com/lnmunhoz) - Best practices and code quality
+- [@kidchenko](https://github.com/kidchenko) - Technical excellence
+- [Hernane Gomes](https://www.linkedin.com/in/hernanegomes/) - Architecture insights
+- [Rebecca Barbosa](https://www.linkedin.com/in/rebeccafbarbosa/) - Engineering leadership
+- [Miller Cesar Oliveira](https://www.linkedin.com/in/millercesaroliveira/) - Technical guidance
+
 ## Credits
 
 Built with [Claude Code](https://claude.com/claude-code) by Anthropic
-
-## Support
-
-- 📖 [Documentation](https://github.com/thiagobutignon/fiat-lux/tree/main/docs)
-- 🐛 [Issue Tracker](https://github.com/thiagobutignon/fiat-lux/issues)
-- 💬 [Discussions](https://github.com/thiagobutignon/fiat-lux/discussions)
 
 ---
 
