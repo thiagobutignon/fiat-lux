@@ -48,6 +48,12 @@ export class GGUFParser {
     // Determine quantization type
     const quantizationType = this.determineQuantizationType(tensors);
 
+    // Align to boundary before tensor data
+    const alignment = architecture.alignment || 32;
+    const currentOffset = this.offset;
+    const alignedOffset = Math.ceil(currentOffset / alignment) * alignment;
+    this.offset = alignedOffset;
+
     return {
       header,
       metadata,
@@ -55,7 +61,7 @@ export class GGUFParser {
       tensors,
       totalParameters,
       quantizationType,
-      tensorDataOffset: BigInt(this.offset), // Offset where tensor data begins
+      tensorDataOffset: BigInt(this.offset), // Aligned offset where tensor data begins
     };
   }
 
