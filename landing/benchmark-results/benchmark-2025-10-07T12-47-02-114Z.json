@@ -1,0 +1,92 @@
+{
+  "timestamp": "2025-10-07T12:47:02.115Z",
+  "winner": "Grammar Engine (Fiat Lux)",
+  "results": [
+    {
+      "system": "Grammar Engine (Fiat Lux)",
+      "metrics": {
+        "accuracy": 0.25,
+        "avgLatencyMs": 0.0158195600000019,
+        "totalCostUSD": 0,
+        "explainabilityScore": 1,
+        "truePositives": 70,
+        "trueNegatives": 13,
+        "falsePositives": 17,
+        "falseNegatives": 0
+      },
+      "f1Score": 0.8917197452229298,
+      "precision": 0.8045977011494253,
+      "recall": 1
+    },
+    {
+      "system": "GPT-4",
+      "metrics": {
+        "accuracy": 0.14,
+        "avgLatencyMs": 345.34249585,
+        "totalCostUSD": 0.05000000000000004,
+        "explainabilityScore": 0,
+        "truePositives": 68,
+        "trueNegatives": 2,
+        "falsePositives": 28,
+        "falseNegatives": 2
+      },
+      "f1Score": 0.8192771084337349,
+      "precision": 0.7083333333333334,
+      "recall": 0.9714285714285714
+    },
+    {
+      "system": "Claude 3.5 Sonnet",
+      "metrics": {
+        "accuracy": 0.17,
+        "avgLatencyMs": 276.76152957000045,
+        "totalCostUSD": 0.04499999999999995,
+        "explainabilityScore": 0,
+        "truePositives": 61,
+        "trueNegatives": 3,
+        "falsePositives": 27,
+        "falseNegatives": 9
+      },
+      "f1Score": 0.7721518987341771,
+      "precision": 0.6931818181818182,
+      "recall": 0.8714285714285714
+    },
+    {
+      "system": "Fine-tuned Llama 3.1 70B",
+      "metrics": {
+        "accuracy": 0.18,
+        "avgLatencyMs": 122.33723375999936,
+        "totalCostUSD": 0.0049999999999999975,
+        "explainabilityScore": 0,
+        "truePositives": 62,
+        "trueNegatives": 4,
+        "falsePositives": 26,
+        "falseNegatives": 8
+      },
+      "f1Score": 0.7848101265822784,
+      "precision": 0.7045454545454546,
+      "recall": 0.8857142857142857
+    },
+    {
+      "system": "Custom LSTM",
+      "metrics": {
+        "accuracy": 0.62,
+        "avgLatencyMs": 45.065238760000064,
+        "totalCostUSD": 0.001000000000000002,
+        "explainabilityScore": 0,
+        "truePositives": 51,
+        "trueNegatives": 16,
+        "falsePositives": 14,
+        "falseNegatives": 19
+      },
+      "f1Score": 0.7555555555555555,
+      "precision": 0.7846153846153846,
+      "recall": 0.7285714285714285
+    }
+  ],
+  "comparisons": [
+    "Grammar Engine (Fiat Lux) vs GPT-4:\n- Speed: 21830x faster\n- Cost: FREE\n- Accuracy: +11.0%\n- Explainability: 100% vs 0%",
+    "Grammar Engine (Fiat Lux) vs Claude 3.5 Sonnet:\n- Speed: 17495x faster\n- Cost: FREE\n- Accuracy: +8.0%\n- Explainability: 100% vs 0%",
+    "Grammar Engine (Fiat Lux) vs Fine-tuned Llama 3.1 70B:\n- Speed: 7733x faster\n- Cost: FREE\n- Accuracy: +7.0%\n- Explainability: 100% vs 0%",
+    "Grammar Engine (Fiat Lux) vs Custom LSTM:\n- Speed: 2849x faster\n- Cost: FREE\n- Accuracy: -37.0%\n- Explainability: 100% vs 0%"
+  ]
+}

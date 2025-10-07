@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "benchmark": "tsx scripts/run-benchmark.ts",
+    "benchmark:quick": "tsx scripts/run-benchmark.ts 100",
+    "benchmark:full": "tsx scripts/run-benchmark.ts 1000"
   },
   "dependencies": {
     "next": "^14.0.0",
@@ -20,6 +23,7 @@
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.0"
   }
 }
