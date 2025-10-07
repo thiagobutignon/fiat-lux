@@ -15,6 +15,37 @@ import {
 } from '../entities/gguf-metadata';
 import { calculateTotalParameters, analyzeTransformerArchitecture } from '../entities/tensor-shape';
 import { IFileReader } from '../../data/protocols/file-reader';
+import {
+  // Block sizes
+  QK_STANDARD,
+  QK_K,
+
+  // Bytes per block
+  BYTES_PER_BLOCK_Q4_0,
+  BYTES_PER_BLOCK_Q4_1,
+  BYTES_PER_BLOCK_Q5_0,
+  BYTES_PER_BLOCK_Q5_1,
+  BYTES_PER_BLOCK_Q8_0,
+  BYTES_PER_BLOCK_Q8_1,
+  BYTES_PER_BLOCK_Q2_K,
+  BYTES_PER_BLOCK_Q3_K,
+  BYTES_PER_BLOCK_Q4_K,
+  BYTES_PER_BLOCK_Q5_K,
+  BYTES_PER_BLOCK_Q6_K,
+  BYTES_PER_BLOCK_Q8_K,
+
+  // Primitive sizes
+  SIZEOF_FP16,
+  SIZEOF_FP32,
+  SIZEOF_FP64,
+  SIZEOF_INT8,
+  SIZEOF_INT16,
+  SIZEOF_INT32,
+  SIZEOF_INT64,
+
+  // Default alignment
+  DEFAULT_ALIGNMENT,
+} from '../entities/quantization-constants';
 
 export class GGUFParser {
   private buffer!: Buffer;
@@ -49,7 +80,7 @@ export class GGUFParser {
     const quantizationType = this.determineQuantizationType(tensors);
 
     // Align to boundary before tensor data
-    const alignment = architecture.alignment || 32;
+    const alignment = architecture.alignment || DEFAULT_ALIGNMENT;
     const currentOffset = this.offset;
     const alignedOffset = Math.ceil(currentOffset / alignment) * alignment;
     this.offset = alignedOffset;
@@ -372,44 +403,44 @@ export class GGUFParser {
     // For types with exact block sizes, use ceiling division
     switch (type) {
       case GGMLType.Q4_0:
-        return ceilDiv(elementCount, 32, 18);
+        return ceilDiv(elementCount, QK_STANDARD, BYTES_PER_BLOCK_Q4_0);
       case GGMLType.Q4_1:
-        return ceilDiv(elementCount, 32, 20);
+        return ceilDiv(elementCount, QK_STANDARD, BYTES_PER_BLOCK_Q4_1);
       case GGMLType.Q5_0:
-        return ceilDiv(elementCount, 32, 22);
+        return ceilDiv(elementCount, QK_STANDARD, BYTES_PER_BLOCK_Q5_0);
       case GGMLType.Q5_1:
-        return ceilDiv(elementCount, 32, 24);
+        return ceilDiv(elementCount, QK_STANDARD, BYTES_PER_BLOCK_Q5_1);
       case GGMLType.Q8_0:
-        return ceilDiv(elementCount, 32, 34);
+        return ceilDiv(elementCount, QK_STANDARD, BYTES_PER_BLOCK_Q8_0);
       case GGMLType.Q8_1:
-        return ceilDiv(elementCount, 32, 36);
+        return ceilDiv(elementCount, QK_STANDARD, BYTES_PER_BLOCK_Q8_1);
       case GGMLType.Q4_K:
-        return ceilDiv(elementCount, 256, 144);
+        return ceilDiv(elementCount, QK_K, BYTES_PER_BLOCK_Q4_K);
       case GGMLType.Q5_K:
-        return ceilDiv(elementCount, 256, 176);
+        return ceilDiv(elementCount, QK_K, BYTES_PER_BLOCK_Q5_K);
       case GGMLType.Q6_K:
-        return ceilDiv(elementCount, 256, 210);
+        return ceilDiv(elementCount, QK_K, BYTES_PER_BLOCK_Q6_K);
       case GGMLType.Q2_K:
-        return ceilDiv(elementCount, 256, 80);
+        return ceilDiv(elementCount, QK_K, BYTES_PER_BLOCK_Q2_K);
       case GGMLType.Q3_K:
-        return ceilDiv(elementCount, 256, 112);
+        return ceilDiv(elementCount, QK_K, BYTES_PER_BLOCK_Q3_K);
       case GGMLType.Q8_K:
-        return ceilDiv(elementCount, 256, 272);
+        return ceilDiv(elementCount, QK_K, BYTES_PER_BLOCK_Q8_K);
       // For non-quantized types, use simple multiplication (no blocks)
       case GGMLType.F32:
-        return elementCount * BigInt(4);
+        return elementCount * BigInt(SIZEOF_FP32);
       case GGMLType.F16:
-        return elementCount * BigInt(2);
+        return elementCount * BigInt(SIZEOF_FP16);
       case GGMLType.I8:
-        return elementCount;
+        return elementCount * BigInt(SIZEOF_INT8);
       case GGMLType.I16:
-        return elementCount * BigInt(2);
+        return elementCount * BigInt(SIZEOF_INT16);
       case GGMLType.I32:
-        return elementCount * BigInt(4);
+        return elementCount * BigInt(SIZEOF_INT32);
       case GGMLType.I64:
-        return elementCount * BigInt(8);
+        return elementCount * BigInt(SIZEOF_INT64);
       case GGMLType.F64:
-        return elementCount * BigInt(8);
+        return elementCount * BigInt(SIZEOF_FP64);
       default:
         // Fallback to approximate calculation
         const bytesPerElement = this.getBytesPerElement(type);
