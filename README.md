@@ -166,6 +166,33 @@ import {
 - **`clearCache()`** - Clear similarity cache
 - **`setOptions(options)`** - Update configuration
 
+### PatternLoader Methods
+
+Load and validate architectural patterns from YAML configurations:
+
+- **`getPatterns()`** - Get all patterns
+- **`getPatternById(id)`** - Get specific pattern
+- **`getPatternsByLayer(layer)`** - Filter patterns by layer
+- **`getLayers()`** - Get all available layers
+- **`validateNaming(value, layer, element)`** - Validate naming conventions
+- **`validateDependency(from, to)`** - Check dependency rules
+- **`getExamples(layer, element)`** - Get naming examples
+- **`getSummary()`** - Get configuration statistics
+
+```typescript
+import { PatternLoader } from 'fiat-lux'
+
+const loader = new PatternLoader(yamlContent)
+
+// Validate naming
+const result = loader.validateNaming('AddAccountUseCase', 'domain', 'usecases')
+console.log(result.valid) // true
+
+// Check dependencies
+const depResult = loader.validateDependency('domain', 'data')
+console.log(depResult.valid) // false (forbidden)
+```
+
 ## Running Demos
 
 ```bash
@@ -218,7 +245,7 @@ npm run build
 
 ## Testing
 
-The project includes a **custom lightweight test framework** designed for speed. All 45+ unit tests run in under 5ms!
+The project includes a **custom lightweight test framework** designed for speed. All 77 unit tests run in under 5ms!
 
 ```bash
 $ npm test
@@ -238,10 +265,10 @@ $ npm test
 ════════════════════════════════════════════════════════════════════════════════
 Test Summary
 ════════════════════════════════════════════════════════════════════════════════
-Total:   45
-✅ Passed: 45
+Total:   77
+✅ Passed: 77
 ❌ Failed: 0
-⏭️  Duration: 2.63ms
+⏭️  Duration: 4.55ms
 ════════════════════════════════════════════════════════════════════════════════
 
 ✅ All tests passed!
@@ -259,6 +286,13 @@ Total:   45
   - Auto-repair functionality
   - Cache performance
   - Configuration options
+
+- **Pattern Loader**: 32 tests
+  - YAML parsing and pattern extraction
+  - Naming convention validation
+  - Dependency rule validation
+  - Layer operations and queries
+  - Edge cases and error handling
 
 ### Why Custom Test Framework?
 

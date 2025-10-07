@@ -11,6 +11,7 @@ import './similarity-algorithms/__tests__/levenshtein.test'
 import './similarity-algorithms/__tests__/jaro-winkler.test'
 import './similarity-algorithms/__tests__/hybrid.test'
 import './grammar-engine/__tests__/grammar-engine.test'
+import './pattern-loader/__tests__/pattern-loader.test'
 
 // Run tests
 runTests().catch(error => {
