@@ -1,0 +1,43 @@
+{
+  "name": "fiat-lux",
+  "version": "1.0.0",
+  "description": "A Universal Grammar Engine for Structured Data - Generic, configurable grammar validation and auto-repair system",
+  "main": "fiat-lux.ts",
+  "scripts": {
+    "demo": "ts-node fiat-lux.ts",
+    "demo:patterns": "ts-node pattern-loader.ts",
+    "test": "ts-node fiat-lux.ts && ts-node pattern-loader.ts",
+    "build": "tsc",
+    "lint": "eslint *.ts"
+  },
+  "keywords": [
+    "grammar",
+    "validation",
+    "auto-repair",
+    "architecture",
+    "clean-architecture",
+    "typescript",
+    "pattern-validation",
+    "levenshtein",
+    "jaro-winkler",
+    "similarity"
+  ],
+  "author": "Thiago Butignon",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thiagobutignon/fiat-lux.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thiagobutignon/fiat-lux/issues"
+  },
+  "homepage": "https://github.com/thiagobutignon/fiat-lux#readme",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
