@@ -301,6 +301,89 @@ describe('Dequantization - Edge Cases', () => {
   });
 });
 
+describe('Dequantization - Boundary Conditions', () => {
+  it('should handle exactly one block (Q4_K)', () => {
+    // Exactly 256 elements = 1 block
+    const buffer = Buffer.alloc(144);
+
+    const result = dequantizeQ4_K(buffer, 256);
+
+    expect.toEqual(result.length, 256);
+  });
+
+  it('should handle one element over block boundary (Q4_K)', () => {
+    // 257 elements = needs 2 blocks (144 * 2 = 288 bytes)
+    const buffer = Buffer.alloc(288);
+
+    const result = dequantizeQ4_K(buffer, 257);
+
+    expect.toEqual(result.length, 257);
+  });
+
+  it('should handle partial block (Q4_K)', () => {
+    // 300 elements = needs 2 blocks
+    const buffer = Buffer.alloc(288);
+
+    const result = dequantizeQ4_K(buffer, 300);
+
+    expect.toEqual(result.length, 300);
+  });
+
+  it('should reject insufficient buffer (Q4_K)', () => {
+    // 300 elements needs 288 bytes, but only provide 144
+    const buffer = Buffer.alloc(144);
+
+    let errorThrown = false;
+    try {
+      dequantizeQ4_K(buffer, 300);
+    } catch (e: any) {
+      errorThrown = true;
+      expect.toEqual(e.message.includes('Buffer underrun'), true);
+    }
+
+    expect.toEqual(errorThrown, true);
+  });
+
+  it('should handle exactly one block (Q6_K)', () => {
+    // Exactly 256 elements = 1 block (210 bytes)
+    const buffer = Buffer.alloc(210);
+
+    const result = dequantizeQ6_K(buffer, 256);
+
+    expect.toEqual(result.length, 256);
+  });
+
+  it('should handle partial block (Q6_K)', () => {
+    // 300 elements = needs 2 blocks (420 bytes)
+    const buffer = Buffer.alloc(420);
+
+    const result = dequantizeQ6_K(buffer, 300);
+
+    expect.toEqual(result.length, 300);
+  });
+
+  it('should handle exactly one block (Q4_0)', () => {
+    // Exactly 32 elements = 1 block (18 bytes)
+    const buffer = Buffer.alloc(18);
+    buffer.writeUInt16LE(0x3C00, 0); // scale = 1.0
+
+    const result = dequantizeQ4_0(buffer, 32);
+
+    expect.toEqual(result.length, 32);
+  });
+
+  it('should handle partial block (Q4_0)', () => {
+    // 50 elements = needs 2 blocks (36 bytes)
+    const buffer = Buffer.alloc(36);
+    buffer.writeUInt16LE(0x3C00, 0); // scale = 1.0 for block 1
+    buffer.writeUInt16LE(0x3C00, 18); // scale = 1.0 for block 2
+
+    const result = dequantizeQ4_0(buffer, 50);
+
+    expect.toEqual(result.length, 50);
+  });
+});
+
 describe('Dequantization - Performance', () => {
   it('should dequantize large tensor efficiently', () => {
     // 1M elements

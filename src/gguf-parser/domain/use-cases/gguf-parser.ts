@@ -349,36 +349,53 @@ export class GGUFParser {
   }
 
   /**
-   * Calculate tensor size using exact block sizes
+   * Calculate tensor size using exact block sizes with ceiling division
+   *
+   * IMPORTANT: Block-based quantization types require ceiling division
+   * because partial blocks still need full block storage.
+   *
+   * Example: 300 elements with Q4_K (256 elem/block)
+   *   - Wrong: floor(300/256) * 144 = 1 * 144 = 144 bytes
+   *   - Right: ceil(300/256) * 144 = 2 * 144 = 288 bytes
    */
   private calculateTensorSize(elementCount: bigint, type: GGMLType): bigint {
-    // For types with exact block sizes, use precise calculation
+    /**
+     * Helper for ceiling division: ceil(n/d) = (n + d - 1) / d
+     * This works because BigInt division truncates, so we add (d-1) to round up
+     */
+    const ceilDiv = (n: bigint, blockSize: number, bytesPerBlock: number): bigint => {
+      const bs = BigInt(blockSize);
+      const numBlocks = (n + bs - BigInt(1)) / bs; // Ceiling division
+      return numBlocks * BigInt(bytesPerBlock);
+    };
+
+    // For types with exact block sizes, use ceiling division
     switch (type) {
       case GGMLType.Q4_0:
-        return (elementCount / BigInt(32)) * BigInt(18);
+        return ceilDiv(elementCount, 32, 18);
       case GGMLType.Q4_1:
-        return (elementCount / BigInt(32)) * BigInt(20);
+        return ceilDiv(elementCount, 32, 20);
       case GGMLType.Q5_0:
-        return (elementCount / BigInt(32)) * BigInt(22);
+        return ceilDiv(elementCount, 32, 22);
       case GGMLType.Q5_1:
-        return (elementCount / BigInt(32)) * BigInt(24);
+        return ceilDiv(elementCount, 32, 24);
       case GGMLType.Q8_0:
-        return (elementCount / BigInt(32)) * BigInt(34);
+        return ceilDiv(elementCount, 32, 34);
       case GGMLType.Q8_1:
-        return (elementCount / BigInt(32)) * BigInt(36);
+        return ceilDiv(elementCount, 32, 36);
       case GGMLType.Q4_K:
-        return (elementCount / BigInt(256)) * BigInt(144);
+        return ceilDiv(elementCount, 256, 144);
       case GGMLType.Q5_K:
-        return (elementCount / BigInt(256)) * BigInt(176);
+        return ceilDiv(elementCount, 256, 176);
       case GGMLType.Q6_K:
-        return (elementCount / BigInt(256)) * BigInt(210);
+        return ceilDiv(elementCount, 256, 210);
       case GGMLType.Q2_K:
-        return (elementCount / BigInt(256)) * BigInt(80);
+        return ceilDiv(elementCount, 256, 80);
       case GGMLType.Q3_K:
-        return (elementCount / BigInt(256)) * BigInt(112);
+        return ceilDiv(elementCount, 256, 112);
       case GGMLType.Q8_K:
-        return (elementCount / BigInt(256)) * BigInt(272);
-      // For non-quantized types, use simple multiplication
+        return ceilDiv(elementCount, 256, 272);
+      // For non-quantized types, use simple multiplication (no blocks)
       case GGMLType.F32:
         return elementCount * BigInt(4);
       case GGMLType.F16:

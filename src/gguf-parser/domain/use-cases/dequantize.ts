@@ -154,8 +154,27 @@ export function dequantizeQ4_1(buffer: Buffer, count: number): Float32Array {
 /**
  * Unpack 6-bit values from packed bytes
  * Used by Q4_K for scales and mins
+ *
+ * Each 6-bit value can span byte boundaries, so we read 2 bytes and mask.
+ * Example: 8 values * 6 bits = 48 bits = 6 bytes needed
+ *
+ * Edge case: When reading the last value, we might access buffer[byteOffset + 1]
+ * which could be out of bounds if we're at the last byte. However, in practice
+ * this is safe because:
+ * - We read 2 bytes and mask with 0x3F (only keep 6 bits)
+ * - The buffer is always allocated with enough space for the full block
+ * - For Q4_K: 8 values * 6 bits = 48 bits = 6 bytes exactly
+ *
+ * We still validate the buffer has enough bytes to be safe.
  */
 function unpack6bit(buffer: Buffer, offset: number, count: number): number[] {
+  // Calculate bytes needed: ceil(count * 6 / 8)
+  const bitsNeeded = count * 6;
+  const bytesNeeded = Math.ceil(bitsNeeded / 8);
+
+  // Add 1 extra byte because we might read byteOffset + 1 in the loop
+  validateBuffer(buffer, offset, bytesNeeded + 1, 'unpack6bit');
+
   const result: number[] = [];
   let bitOffset = 0;
 
@@ -163,7 +182,8 @@ function unpack6bit(buffer: Buffer, offset: number, count: number): number[] {
     const byteOffset = offset + Math.floor(bitOffset / 8);
     const bitShift = bitOffset % 8;
 
-    // All cases use the same formula (spans byte boundaries)
+    // Read 2 bytes and extract 6 bits (may span byte boundary)
+    // This formula works for all cases including when bitShift = 0
     const value = ((buffer[byteOffset] >> bitShift) |
                    (buffer[byteOffset + 1] << (8 - bitShift))) & 0x3F;
 
@@ -178,16 +198,23 @@ function unpack6bit(buffer: Buffer, offset: number, count: number): number[] {
  * Dequantize Q4_K (4-bit k-quantization with super-blocks)
  *
  * Q4_K Block Structure (256 elements per super-block):
- * - 2 bytes: FP16 d (main scale)
- * - 2 bytes: FP16 dmin (main min scale)
- * - 6 bytes: 8 x 6-bit scales (packed)
- * - 6 bytes: 8 x 6-bit mins (packed)
- * - 128 bytes: quantized data (4 bits per element, 32 elements per sub-block)
+ * - 2 bytes: FP16 d (super-block scale for quantized scales)
+ * - 2 bytes: FP16 dmin (super-block scale for quantized mins)
+ * - 6 bytes: 8 x 6-bit scales (packed, integer range [0,63])
+ * - 6 bytes: 8 x 6-bit mins (packed, integer range [0,63])
+ * - 128 bytes: quantized data (4 bits per element, integer range [0,15])
  *
  * Total: 144 bytes per 256 elements = 4.5 bits per element
  *
- * Dequantization formula for each sub-block:
- * weight = d * scale * quant + dmin * min
+ * Dequantization formula (from llama.cpp):
+ *   weight = (d * scales[i]) * quant - (dmin * mins[i])
+ *
+ * Where:
+ *   - d, dmin are FP16 super-block scales
+ *   - scales[i], mins[i] are 6-bit integers [0,63] (NOT normalized)
+ *   - quant is 4-bit integer [0,15] (NOT centered)
+ *
+ * Reference: llama.cpp ggml-quants.c dequantize_row_q4_K()
  */
 export function dequantizeQ4_K(buffer: Buffer, count: number): Float32Array {
   const result = new Float32Array(count);
@@ -216,8 +243,11 @@ export function dequantizeQ4_K(buffer: Buffer, count: number): Float32Array {
 
     // Process 8 sub-blocks
     for (let subBlock = 0; subBlock < 8 && resultOffset < count; subBlock++) {
-      const scale = d * (scales[subBlock] / 63.0); // Normalize 6-bit to [0,1]
-      const min = dmin * (mins[subBlock] / 63.0);
+      // llama.cpp formula: y = (d * sc) * quant - (dmin * m)
+      // Where sc, m are 6-bit values [0, 63] used as integers (NOT normalized)
+      // Reference: llama.cpp ggml-quants.c dequantize_row_q4_K
+      const scale = d * scales[subBlock];   // 6-bit scale used directly
+      const min = dmin * mins[subBlock];     // 6-bit min used directly
 
       // Read 32 elements (16 bytes, 4 bits per element)
       for (let i = 0; i < 32 && resultOffset < count; i++) {
@@ -226,9 +256,10 @@ export function dequantizeQ4_K(buffer: Buffer, count: number): Float32Array {
           ? (buffer[byteIndex] & 0x0F)
           : ((buffer[byteIndex] >> 4) & 0x0F);
 
-        // Dequantize: w = d * scale * (q - 8) + dmin * min
-        // Quant is [0,15], shifted to [-8, 7] signed range
-        result[resultOffset++] = scale * (nibble - 8) + min;
+        // Dequantize: w = scale * quant - min
+        // Quant is [0, 15], min term is subtracted (not added)
+        // d and dmin are FP16 super-block scales, already account for 6-bit range
+        result[resultOffset++] = scale * nibble - min;
       }
 
       bufferOffset += 16; // 16 bytes per 32 elements
