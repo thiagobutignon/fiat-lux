@@ -444,8 +444,9 @@ Fiat Lux includes a **Compositional AGI Architecture** based on recursive agent 
 - 📚 **Dynamic Knowledge Discovery**: Load knowledge slices on-demand through navigation
 - 💰 **Cost Tracking**: Transparent LLM usage and cost monitoring
 - 🧠 **Episodic Memory**: Long-term memory system that learns from past interactions
+- 🔄 **Self-Evolution**: Automatic knowledge base improvement through pattern learning
 
-### 🚀 20+ Emergent Innovations
+### 🚀 20 Emergent Innovations
 
 From this "toy" AGI system emerged groundbreaking innovations that challenge industry paradigms:
 
@@ -551,6 +552,33 @@ From this "toy" AGI system emerged groundbreaking innovations that challenge ind
     - Self-validation without circularity (uses external empirical data)
     - First AGI to prove its own philosophical foundations
 
+#### Autonomous Learning Innovations (Self-Improvement)
+
+18. **Self-Evolution System**
+    - AGI that **rewrites its own knowledge slices** based on episodic memory patterns
+    - Discovers recurring concept patterns (≥N frequency) automatically
+    - LLM-synthesizes new knowledge from user interaction data
+    - Constitutional validation ensures safe autonomous evolution
+    - Complete observability: logs, metrics, traces for all evolutions
+    - Atomic writes with automatic backups enable safe rollback
+    - 4 evolution types: CREATED, UPDATED, MERGED, DEPRECATED
+    - 4 evolution triggers: SCHEDULED, THRESHOLD, MANUAL, CONTINUOUS
+
+19. **Knowledge Distillation**
+    - Pattern discovery from episodic memory
+    - Knowledge gap identification from low-confidence episodes
+    - Systematic error detection for targeted improvements
+    - Representative query extraction for each pattern
+    - Confidence scoring based on frequency and success rate
+
+20. **Safe Autonomous Operations**
+    - Constitutional compliance scoring (0-1) for every candidate
+    - Approval gates: only `should_deploy=true` candidates deployed
+    - Atomic file operations: no partial updates possible
+    - Timestamped backups before every change
+    - Instant rollback capability for failed evolutions
+    - Full audit trail: what changed, when, why, by whom
+
 ### Impact Metrics
 
 ```yaml
@@ -573,7 +601,11 @@ src/agi-recursive/
 │   ├── anti-corruption-layer.ts          # Communication validation & safety
 │   ├── slice-navigator.ts                # Dynamic knowledge loading
 │   ├── attention-tracker.ts              # Interpretability: track decision influences
-│   └── attention-visualizer.ts           # Visualization & export utilities
+│   ├── attention-visualizer.ts           # Visualization & export utilities
+│   ├── observability.ts                  # Logging, metrics, distributed tracing
+│   ├── knowledge-distillation.ts         # Pattern discovery from episodic memory
+│   ├── slice-rewriter.ts                 # Safe atomic file operations with backups
+│   └── slice-evolution-engine.ts         # Self-evolution orchestrator
 ├── llm/                                  # LLM Integration
 │   └── anthropic-adapter.ts              # Centralized Claude API adapter
 ├── agents/                               # Specialized domain agents
@@ -586,7 +618,14 @@ src/agi-recursive/
 │   ├── financial/                        # Financial domain knowledge
 │   ├── biology/                          # Biology domain knowledge
 │   └── systems/                          # Systems theory knowledge
-└── examples/                             # Demonstrations
+├── demos/                                # Feature demonstrations
+│   └── self-evolution-demo.ts            # Self-evolution showcase (complete cycle)
+├── tests/                                # Test suites (TDD)
+│   ├── run-observability-tests.ts        # Observability layer tests (10/10)
+│   ├── run-slice-rewriter-tests.ts       # SliceRewriter tests (10/10)
+│   ├── run-knowledge-distillation-tests.ts # KnowledgeDistillation tests (10/10)
+│   └── run-slice-evolution-engine-tests.ts # SliceEvolutionEngine tests (10/10)
+└── examples/                             # Legacy demonstrations
     ├── anthropic-adapter-demo.ts         # LLM adapter showcase
     ├── budget-homeostasis.ts             # Emergent AGI demo
     ├── acl-protection-demo.ts            # Safety mechanisms demo
@@ -629,10 +668,13 @@ npm run agi:navigation
 # 5. Attention Tracking - Full interpretability showcase
 npm run agi:attention
 
-# 6. Thesis Validation - Validate "Idleness" and "Not Knowing" theses
+# 6. Self-Evolution - AGI that rewrites its own knowledge slices
+npm run agi:self-evolution
+
+# 7. Thesis Validation - Validate "Idleness" and "Not Knowing" theses
 npm run agi:validate-thesis
 
-# 7. Universal Grammar - Validate Chomsky's theory in software
+# 8. Universal Grammar - Validate Chomsky's theory in software
 npm run agi:validate-grammar
 ```
 
