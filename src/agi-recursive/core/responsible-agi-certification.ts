@@ -105,7 +105,7 @@ export class ResponsibleAGICertification {
     // Check: MRH violations
     if (metrics.mrh_violations > 0) {
       violations.push(`${metrics.mrh_violations} MRH violations detected in deployment`);
-      score -= 50;
+      score -= 60; // Severe penalty - brings score below 50
     }
 
     // Check: Constitutional violations
