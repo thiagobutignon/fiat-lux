@@ -18,7 +18,8 @@
     "agi:attention": "tsx src/agi-recursive/examples/attention-demo.ts",
     "agi:validate-thesis": "tsx src/agi-recursive/examples/validate-thesis.ts",
     "agi:validate-grammar": "tsx src/agi-recursive/examples/universal-grammar-validation.ts",
-    "agi:self-evolution": "tsx src/agi-recursive/demos/self-evolution-demo.ts"
+    "agi:self-evolution": "tsx src/agi-recursive/demos/self-evolution-demo.ts",
+    "agi:visual-debugger": "tsx src/agi-recursive/demos/visual-debugger-demo.ts"
   },
   "keywords": [
     "grammar",
@@ -52,6 +53,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
+    "@google/generative-ai": "^0.24.1",
     "dotenv": "^17.2.3",
     "yaml": "^2.8.1"
   }
