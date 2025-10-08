@@ -1,0 +1,176 @@
+metadata:
+  id: cellular-homeostasis
+  domain: biology
+  title: Cellular Homeostasis Mechanisms
+  description: |
+    How cells maintain internal equilibrium through feedback regulation.
+    Universal template for all regulatory systems.
+  concepts:
+    - homeostasis
+    - negative_feedback
+    - set_point_regulation
+    - glucose_regulation
+    - metabolic_control
+    - insulin_response
+  connects_to:
+    financial: budget-homeostasis
+    systems: feedback-loops
+  tags:
+    - biology
+    - homeostasis
+    - regulation
+    - feedback
+  version: "1.0"
+  author: Fiat Lux AGI System
+
+knowledge: |
+  # Cellular Homeostasis: The Universal Regulatory Template
+
+  ## Core Principle
+  Cells maintain internal equilibrium through active regulation, not passive balance.
+  This is the foundational pattern for ALL regulatory systems.
+
+  ## Classic Example: Glucose Homeostasis
+
+  ### Components
+  - **SET POINT**: Normal blood glucose ~90 mg/dL
+  - **SENSOR**: Pancreatic beta cells detect glucose levels
+  - **EFFECTOR**: Insulin secretion
+  - **TARGET**: Cells take up glucose from blood
+  - **RESULT**: Blood glucose returns to set point
+
+  ### The Loop
+  ```
+  Eat Food → Blood Glucose ↑ → Beta Cells Detect → Insulin Released →
+  Cells Absorb Glucose → Blood Glucose ↓ → Returns to Set Point
+  ```
+
+  ## Key Insights
+
+  ### 1. Negative Feedback = Stability
+  - Output opposes the change that triggered it
+  - Self-limiting process
+  - Oscillates around set point (doesn't perfectly maintain it)
+
+  ### 2. Homeostasis ≠ Equilibrium
+  - Equilibrium: No energy input, passive balance
+  - Homeostasis: Active regulation, energy-dependent
+  - Like thermostat vs. ice melting
+
+  ### 3. Set Point Can Shift
+  - Fever: Raises set point to fight infection
+  - Acclimatization: Adjusts to new environment
+  - Budget inflation: Lifestyle adjustment
+
+  ### 4. Multiple Layers
+  - Fast response: Insulin (minutes)
+  - Slow response: Glucagon (hours)
+  - Long-term: Metabolic adaptation (days/weeks)
+
+  ## Failure Modes
+
+  ### Diabetes Type 1
+  - NO CORRECTOR: Beta cells destroyed, no insulin
+  - Glucose spike → No response → Hyperglycemia
+  - ANALOGY: Budget with no spending limits
+
+  ### Diabetes Type 2
+  - REDUCED SENSITIVITY: Cells resist insulin
+  - More insulin needed for same effect
+  - ANALOGY: Escalating spending despite budget alerts
+
+  ### Hypoglycemia
+  - OVERCORRECTION: Too much insulin
+  - Glucose drops too low
+  - ANALOGY: Over-aggressive spending cuts
+
+  ## Universal Template
+
+  ANY regulatory system follows this pattern:
+
+  1. **Define Desired State** (set point)
+  2. **Measure Current State** (sensor)
+  3. **Calculate Gap** (comparator)
+  4. **Take Corrective Action** (effector)
+  5. **Monitor Result** (feedback loop)
+
+  ## Cross-Domain Applications
+
+  ### Budget Management
+  - Set point: Monthly budget limit
+  - Sensor: Transaction tracking
+  - Effector: Spending reduction
+  - Feedback: Balance monitoring
+
+  ### Body Temperature
+  - Set point: 37°C
+  - Sensor: Hypothalamus
+  - Effector: Sweating/shivering
+  - Feedback: Temperature monitoring
+
+  ### Room Temperature
+  - Set point: 20°C
+  - Sensor: Thermometer
+  - Effector: Heater/AC
+  - Feedback: Thermostat
+
+examples:
+  - |
+    # Example 1: Post-Meal Glucose Regulation
+
+    TIME: 0 min
+    - Blood glucose: 90 mg/dL (normal)
+    - Insulin: Low
+
+    TIME: 15 min (after eating)
+    - Blood glucose: 140 mg/dL (high!)
+    - Beta cells detect spike
+    - Insulin secretion increases
+
+    TIME: 30 min
+    - Insulin signals cells to absorb glucose
+    - Blood glucose: 120 mg/dL (decreasing)
+
+    TIME: 60 min
+    - Blood glucose: 95 mg/dL (near set point)
+    - Insulin secretion decreases
+
+    TIME: 90 min
+    - Blood glucose: 90 mg/dL (equilibrium restored)
+    - System returns to basal state
+
+  - |
+    # Example 2: Fasting Response (Opposite Direction)
+
+    OBSERVATION: No food for 8 hours
+
+    RESPONSE:
+    - Blood glucose drops below set point
+    - Alpha cells in pancreas detect low glucose
+    - Glucagon secreted (opposite of insulin)
+    - Liver releases stored glucose
+    - Blood glucose rises back to set point
+
+    KEY INSIGHT: Bidirectional regulation!
+    - Too high → Insulin → Lower
+    - Too low → Glucagon → Raise
+
+formulas:
+  insulin_response: "Insulin Secretion ∝ (Glucose - Set Point)"
+  glucose_uptake: "Uptake Rate = k × Insulin Concentration"
+  negative_feedback: "Change = -k × (Current - Set Point)"
+  oscillation_period: "T = 2π / sqrt(k × sensitivity)"
+
+principles:
+  - "Homeostasis requires energy (not passive equilibrium)"
+  - "Negative feedback creates stability through opposition"
+  - "Set points can adapt (fever, acclimatization)"
+  - "Response time matters (lag causes overshoot)"
+  - "Redundancy is critical (multiple regulatory pathways)"
+  - "Failure modes are predictable (no corrector, reduced sensitivity, overcorrection)"
+  - "This template applies EVERYWHERE (universal pattern)"
+
+references:
+  - "Cannon, W.B. (1932): The Wisdom of the Body"
+  - "Bernard, Claude (1865): Milieu Intérieur concept"
+  - "Physiology: Homeostatic regulation mechanisms"

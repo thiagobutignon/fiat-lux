@@ -9,6 +9,95 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Slice Navigator - Dynamic Knowledge Discovery (2025-10-07)
+
+**Core Infrastructure**
+- **`src/agi-recursive/core/slice-navigator.ts`**: Complete Slice Navigator implementation
+  - Dynamic knowledge loading system for AGI agents
+  - Load knowledge slices on demand instead of upfront
+  - Inverted index for fast concept search (O(1) lookup)
+  - Cross-domain navigation through explicit connections
+  - In-memory caching for performance optimization
+
+**Knowledge Slices**
+- **`src/agi-recursive/slices/`**: Structured knowledge base
+  - `financial/budget-homeostasis.slice.yaml`: Budget as homeostatic system
+  - `biology/cellular-homeostasis.slice.yaml`: Glucose regulation template
+  - `systems/feedback-loops.slice.yaml`: Feedback loop theory
+  - Each slice contains: metadata, knowledge, examples, formulas, principles, references
+
+**Slice Structure**
+- Metadata: id, domain, concepts, connections, tags
+- Content: knowledge (markdown), examples, formulas, principles
+- Connections: Explicit links to related slices in other domains
+- Discoverable: Agents search by concept and navigate through connections
+
+**Integration**
+- MetaAgent initializes SliceNavigator on startup
+- All SpecializedAgents have access to navigator
+- Agents can search concepts and load relevant knowledge dynamically
+- Enables compositional understanding across domains
+
+**Performance**
+- Inverted index: concept → slice_ids (fast lookup)
+- Domain index: domain → slice_ids (filtering)
+- Cache: Recently used slices stay in memory
+- BFS pathfinding: Find shortest connection between slices
+
+**Demonstration**
+- **`src/agi-recursive/examples/slice-navigation-demo.ts`**: Complete navigation demo
+  - 6 test cases showing search, loading, navigation, caching
+  - Agent knowledge discovery simulation
+  - Cross-domain connection finding
+  - Performance benchmarks (2.6x speedup from cache)
+
+**Benefits**
+- ✅ Scalable: Add knowledge without modifying code
+- ✅ Discoverable: Agents find relevant slices through search
+- ✅ Composable: Slices connect across domains
+- ✅ Performant: Caching and indexing for fast access
+- ✅ Structured: Consistent YAML format across all slices
+
+#### Anti-Corruption Layer for AGI System (2025-10-07)
+
+**Core ACL Infrastructure**
+- **`src/agi-recursive/core/anti-corruption-layer.ts`**: Complete Anti-Corruption Layer implementation
+  - Validates communication between agents to prevent domain corruption
+  - 5 critical validation checks: domain boundaries, constitutional compliance, loop detection, content safety, budget limits
+  - Prevents hallucination cascades, infinite recursion, cost explosions, prompt injection
+  - Full audit trail with invocation history and context hashing
+
+**Domain Translation System**
+- **DomainTranslator**: Semantic translation between agent domains
+  - Valid concept mappings (homeostasis → budget_equilibrium, feedback_loop → spending_monitoring)
+  - Forbidden translation detection (DNA → financial blocked)
+  - Prevents semantic corruption when concepts cross domain boundaries
+  - Available translations API for discovery
+
+**Safety Mechanisms**
+- Domain boundary enforcement: Prevents agents from speaking outside expertise
+- Loop detection: Identifies cycles (A→B→C→A) and consecutive same-agent invocations
+- Content safety filtering: Blocks dangerous patterns (SQL injection, rm -rf) with context awareness
+- Budget enforcement: Hard limits on depth (≤5), invocations (≤10), cost (≤$1.00)
+- Constitutional violation errors with severity levels (warning, error, fatal)
+
+**Integration with MetaAgent**
+- ACL validation added before Constitution checks in recursive processing
+- Fatal violations stop agent processing immediately
+- Warnings logged but allow continuation
+- Full integration with existing ConstitutionEnforcer
+
+**Demonstration**
+- **`src/agi-recursive/examples/acl-protection-demo.ts`**: Comprehensive ACL demonstration
+  - 7 test cases showing all protection mechanisms
+  - Domain boundary violations
+  - Valid and forbidden cross-domain translations
+  - Loop detection
+  - Content safety filtering
+  - Budget tracking
+  - Invocation history audit trail
+  - Educational output explaining each protection mechanism
+
 #### Universal Grammar Documentation (2025-10-07)
 - **`docs/UNIVERSAL_GRAMMAR_PATTERNS_EXTRACTED.md`**: Comprehensive 1462-line extraction of all Universal Grammar patterns from Fiat Lux research
   - 6 core patterns (DOM-001 through MAIN-001) with deep structure specifications

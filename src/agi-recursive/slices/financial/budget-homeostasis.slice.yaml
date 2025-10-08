@@ -1,0 +1,136 @@
+metadata:
+  id: budget-homeostasis
+  domain: financial
+  title: Budget as Homeostatic System
+  description: |
+    Budget management viewed through the lens of biological homeostasis.
+    Applies regulatory feedback mechanisms to maintain financial equilibrium.
+  concepts:
+    - budget_equilibrium
+    - spending_feedback
+    - financial_setpoint
+    - corrective_action
+    - budget_monitoring
+    - cashflow_regulation
+  connects_to:
+    biology: cellular-homeostasis
+    systems: feedback-loops
+  tags:
+    - budgeting
+    - homeostasis
+    - feedback
+    - regulation
+  version: "1.0"
+  author: Fiat Lux AGI System
+
+knowledge: |
+  # Budget Homeostasis Framework
+
+  ## Core Principle
+  A budget system functions identically to biological homeostasis:
+  - SET POINT: Target budget limit (e.g., R$5,000/month)
+  - SENSOR: Transaction monitoring system
+  - CORRECTOR: Spending reduction mechanism
+  - DISTURBANCE: Unexpected expenses or impulse purchases
+
+  ## Homeostatic Loop
+  ```
+  Spending Increase → Sensor Detects → Gap Calculated → Corrector Activated → Spending Reduced
+  ```
+
+  ## Failure Modes
+
+  ### No Corrector (Budget Diabetes)
+  - Glucose spike → No insulin → Hyperglycemia
+  - Spending spike → No intervention → Debt
+
+  ### Delayed Feedback
+  - Slow sensor → Late detection → Overshoot
+  - Monthly statements → Delayed awareness → Budget overrun
+
+  ### Set Point Drift
+  - Body adjusts to high baseline → New normal
+  - Lifestyle inflation → Budget expansion → New "normal"
+
+  ## Regulatory Mechanisms
+
+  ### Negative Feedback (Stabilizing)
+  - TRIGGER: Spending exceeds 80% of limit
+  - ACTION: Reduce discretionary spending
+  - GOAL: Return to set point
+
+  ### Positive Feedback (Destabilizing - AVOID)
+  - Stress → Emotional spending → More debt → More stress → MORE spending
+  - THIS IS A VICIOUS CYCLE - needs circuit breaker
+
+  ## Implementation
+
+  ### 1. Define Set Point
+  - Monthly budget limit (e.g., R$5,000)
+  - Category limits (food: R$1,500, transport: R$500)
+
+  ### 2. Install Sensor
+  - Real-time transaction tracking
+  - Daily balance checks
+  - Category spending alerts
+
+  ### 3. Configure Corrector
+  - Automatic spending freeze at 90% threshold
+  - Pre-approved alternative behaviors (e.g., cook instead of delivery)
+  - Weekly review and adjustment
+
+  ### 4. Handle Disturbances
+  - Emergency fund (buffer for unexpected expenses)
+  - Flexible category allocation (borrow from savings, not credit)
+
+examples:
+  - |
+    # Example 1: Friday Food Delivery Pattern
+
+    OBSERVATION: User spends 40% of food budget on Friday deliveries
+
+    HOMEOSTATIC DIAGNOSIS:
+    - SET POINT: R$1,500 food budget
+    - DISTURBANCE: Friday stress (metabolic trigger)
+    - SENSOR: Weekly spending tracking
+    - CORRECTOR: Missing! No automatic intervention
+
+    SOLUTION: Install corrector
+    - Pre-order groceries Thursday
+    - Schedule Friday meal prep
+    - Budget alert at R$1,200 (80% threshold)
+    - Alternative reward: Movie instead of food delivery
+
+  - |
+    # Example 2: Credit Card Debt Spiral
+
+    OBSERVATION: Minimum payments, growing debt
+
+    HOMEOSTATIC FAILURE:
+    - Positive feedback loop (debt → stress → spending → debt)
+    - No negative feedback corrector
+
+    SOLUTION: Install circuit breaker
+    - Freeze credit card
+    - Cash-only week
+    - Debt snowball method (negative feedback prioritization)
+
+formulas:
+  budget_gap: "Gap = Set Point - Current Spending"
+  corrector_strength: "Reduction = Gap × Sensitivity"
+  feedback_gain: "Gain = Change in Output / Change in Input"
+  stability_criterion: "Stable if Feedback Gain < 1.0"
+
+principles:
+  - "Budget is a control system, not just a number"
+  - "Negative feedback creates stability"
+  - "Positive feedback creates instability (vicious cycles)"
+  - "Sensor lag causes overshoot"
+  - "Set point drift is normal adaptation (not necessarily bad)"
+  - "Corrector must be automatic, not willpower-dependent"
+  - "Disturbances are inevitable - build buffers"
+
+references:
+  - "Homeostasis: A mechanism of equilibrium in biology"
+  - "Control Systems Theory: Feedback regulation"
+  - "Behavioral Economics: Present bias and hyperbolic discounting"

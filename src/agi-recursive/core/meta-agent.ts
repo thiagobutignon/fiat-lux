@@ -6,11 +6,19 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
+import path from 'path';
 import {
   ConstitutionEnforcer,
   ConstitutionCheckResult,
   ConstitutionViolation,
+  UniversalConstitution,
 } from './constitution';
+import {
+  AntiCorruptionLayer,
+  DomainTranslator,
+  ConstitutionalViolationError,
+} from './anti-corruption-layer';
+import { SliceNavigator } from './slice-navigator';
 
 // ============================================================================
 // Types
@@ -65,11 +73,19 @@ export abstract class SpecializedAgent {
   protected client: Anthropic;
   protected systemPrompt: string;
   protected defaultTemperature: number;
+  protected sliceNavigator?: SliceNavigator;
 
   constructor(apiKey: string, systemPrompt: string, temperature: number = 0.5) {
     this.client = new Anthropic({ apiKey });
     this.systemPrompt = systemPrompt;
     this.defaultTemperature = temperature;
+  }
+
+  /**
+   * Set slice navigator for dynamic knowledge loading
+   */
+  setSliceNavigator(navigator: SliceNavigator): void {
+    this.sliceNavigator = navigator;
   }
 
   abstract getDomain(): string;
@@ -149,6 +165,9 @@ export class MetaAgent {
   private maxInvocations: number;
   private maxCostUSD: number;
   private constitutionEnforcer: ConstitutionEnforcer;
+  private antiCorruptionLayer: AntiCorruptionLayer;
+  private domainTranslator: DomainTranslator;
+  private sliceNavigator: SliceNavigator;
 
   constructor(
     apiKey: string,
@@ -162,10 +181,25 @@ export class MetaAgent {
     this.maxInvocations = maxInvocations;
     this.maxCostUSD = maxCostUSD;
     this.constitutionEnforcer = new ConstitutionEnforcer();
+    this.antiCorruptionLayer = new AntiCorruptionLayer(new UniversalConstitution());
+    this.domainTranslator = new DomainTranslator();
+
+    // Initialize slice navigator
+    const slicesDir = path.join(__dirname, '..', 'slices');
+    this.sliceNavigator = new SliceNavigator(slicesDir);
+  }
+
+  /**
+   * Initialize the meta-agent (must be called before processing)
+   */
+  async initialize(): Promise<void> {
+    await this.sliceNavigator.initialize();
   }
 
   registerAgent(id: string, agent: SpecializedAgent): void {
     this.agents.set(id, agent);
+    // Give agent access to slice navigator
+    agent.setSliceNavigator(this.sliceNavigator);
   }
 
   /**
@@ -240,6 +274,29 @@ export class MetaAgent {
       state.previous_agents.push(domain);
 
       const response = await agent.process(query, state);
+
+      // Validate against Anti-Corruption Layer FIRST
+      try {
+        this.antiCorruptionLayer.validateResponse(response, agent.getDomain(), state);
+      } catch (error) {
+        if (error instanceof ConstitutionalViolationError) {
+          violations.push({
+            principle_id: error.principle_id,
+            severity: error.severity,
+            message: error.message,
+            context: error.context,
+            suggested_action: 'Review agent response for domain boundary violations',
+          });
+
+          // Fatal ACL violations stop processing
+          if (error.severity === 'fatal') {
+            state.depth--;
+            continue;
+          }
+        } else {
+          throw error;
+        }
+      }
 
       // Validate against Constitution
       const constitutionCheck = this.constitutionEnforcer.validate(domain, response, {
