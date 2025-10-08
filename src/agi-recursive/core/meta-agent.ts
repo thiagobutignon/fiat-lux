@@ -66,6 +66,45 @@ export interface CompositionResult {
 }
 
 // ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Extract JSON from markdown code blocks if present
+ * Handles multiple formats:
+ * - ```json\n{...}\n```
+ * - ```\n{...}\n```
+ * - Plain JSON
+ */
+function extractJSON(text: string): string {
+  const originalLength = text.length;
+
+  // Try to match markdown code blocks
+  const codeBlockRegex = /```(?:json)?\s*\n?([\s\S]*?)```/;
+  const match = text.match(codeBlockRegex);
+
+  if (match && match[1]) {
+    const extracted = match[1].trim();
+    console.log(`[extractJSON] Regex match found. Original: ${originalLength} chars, Extracted: ${extracted.length} chars`);
+    return extracted;
+  }
+
+  // Fallback: try to extract JSON by finding first { and last }
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    const extracted = text.substring(firstBrace, lastBrace + 1).trim();
+    console.log(`[extractJSON] Using fallback (braces). Original: ${originalLength} chars, Extracted: ${extracted.length} chars`);
+    return extracted;
+  }
+
+  // Last resort: return trimmed text
+  console.log(`[extractJSON] No extraction possible, returning trimmed text`);
+  return text.trim();
+}
+
+// ============================================================================
 // Base Agent Class
 // ============================================================================
 
@@ -123,7 +162,9 @@ You MUST respond with valid JSON:
     context.cost_so_far += llmResponse.usage.cost_usd;
 
     try {
-      const parsed = JSON.parse(llmResponse.text);
+      // Extract JSON from potential markdown code blocks
+      const cleanedText = extractJSON(llmResponse.text);
+      const parsed = JSON.parse(cleanedText);
       return {
         answer: parsed.answer || '',
         concepts: parsed.concepts || [],
@@ -386,7 +427,9 @@ Respond with JSON:
     state.cost_so_far += llmResponse.usage.cost_usd;
 
     try {
-      const parsed = JSON.parse(llmResponse.text);
+      // Extract JSON from potential markdown code blocks
+      const cleanedText = extractJSON(llmResponse.text);
+      const parsed = JSON.parse(cleanedText);
       return {
         domains: parsed.domains || availableDomains,
         reasoning: parsed.reasoning || '',
@@ -451,7 +494,9 @@ Respond with JSON:
     state.cost_so_far += llmResponse.usage.cost_usd;
 
     try {
-      const parsed = JSON.parse(llmResponse.text);
+      // Extract JSON from potential markdown code blocks
+      const cleanedText = extractJSON(llmResponse.text);
+      const parsed = JSON.parse(cleanedText);
       return {
         synthesis: parsed.synthesis || '',
         should_recurse: parsed.should_recurse || false,
@@ -506,7 +551,9 @@ IMPORTANT:
     state.cost_so_far += llmResponse.usage.cost_usd;
 
     try {
-      const parsed = JSON.parse(llmResponse.text);
+      // Extract JSON from potential markdown code blocks
+      const cleanedText = extractJSON(llmResponse.text);
+      const parsed = JSON.parse(cleanedText);
       return {
         answer: parsed.answer || llmResponse.text,
         concepts: parsed.concepts || [],
