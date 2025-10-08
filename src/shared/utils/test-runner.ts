@@ -302,6 +302,22 @@ export const expect = {
         expected: 'defined value'
       })
     }
+  },
+
+  /**
+   * Assert that numeric values are close (within tolerance)
+   */
+  toBeCloseTo(actual: number, expected: number, precision: number = 2): void {
+    const tolerance = Math.pow(10, -precision) / 2
+    const diff = Math.abs(actual - expected)
+
+    if (diff > tolerance) {
+      throw new AssertionError({
+        message: `Expected ${actual} to be close to ${expected} (precision: ${precision}, tolerance: ${tolerance})`,
+        actual,
+        expected
+      })
+    }
   }
 }
 
