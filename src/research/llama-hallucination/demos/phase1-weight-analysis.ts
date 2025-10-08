@@ -9,7 +9,7 @@
 
 import { WeightExtractor } from '../analysis/weight-extractor';
 import { WeightExtractionConfig } from '../domain/weight-statistics';
-import { NodeFileReader } from '../../../gguf-parser/data/file-reader/node-file-reader';
+import { NodeFileReader } from '../../../gguf-parser/data/use-cases/node-file-reader';
 import * as fs from 'fs';
 import * as path from 'path';
 

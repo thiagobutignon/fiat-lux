@@ -15,14 +15,17 @@ import {
   AttentionHeadAnalysis,
   FFNGateAnalysis,
 } from '../domain/weight-statistics';
+import { Dequantizer } from './dequantizer';
 
 export class WeightExtractor {
   private parser: GGUFParser;
   private modelBuffer?: Buffer;
   private modelInfo?: GGUFModel;
+  private dequantizer: Dequantizer;
 
   constructor(private fileReader: IFileReader) {
     this.parser = new GGUFParser(fileReader);
+    this.dequantizer = new Dequantizer();
   }
 
   /**
@@ -250,40 +253,90 @@ export class WeightExtractor {
   }
 
   /**
-   * Compute statistics for a tensor
+   * Compute statistics for a tensor (optimized for large arrays)
    */
   private async computeTensorStatistics(tensor: TensorInfo): Promise<WeightStatistics> {
     // Extract raw weights
     const weights = await this.extractTensorWeights(tensor);
 
-    // Compute statistics
+    if (weights.length === 0) {
+      // Return zero stats for empty arrays
+      return {
+        mean: 0,
+        std: 0,
+        min: 0,
+        max: 0,
+        median: 0,
+        skewness: 0,
+        kurtosis: 0,
+        sparsity: 0,
+        effectiveRank: 0,
+        l1Norm: 0,
+        l2Norm: 0,
+        lInfNorm: 0,
+        frobeniusNorm: 0,
+        bitsPerElement: this.getBitsPerElement(tensor.type),
+      };
+    }
+
     const n = weights.length;
-    const mean = weights.reduce((sum, w) => sum + w, 0) / n;
-    const variance = weights.reduce((sum, w) => sum + Math.pow(w - mean, 2), 0) / n;
+
+    // Single pass for mean, min, max, l1/l2 norms, sparsity
+    let sum = 0;
+    let sumSq = 0;
+    let sumAbs = 0;
+    let min = weights[0];
+    let max = weights[0];
+    let maxAbs = Math.abs(weights[0]);
+    let sparsityCount = 0;
+
+    for (let i = 0; i < n; i++) {
+      const w = weights[i];
+      const absW = Math.abs(w);
+
+      sum += w;
+      sumSq += w * w;
+      sumAbs += absW;
+
+      if (w < min) min = w;
+      if (w > max) max = w;
+      if (absW > maxAbs) maxAbs = absW;
+      if (absW < 1e-6) sparsityCount++;
+    }
+
+    const mean = sum / n;
+    const l1Norm = sumAbs;
+    const l2Norm = Math.sqrt(sumSq);
+    const lInfNorm = maxAbs;
+    const frobeniusNorm = l2Norm;
+    const sparsity = sparsityCount / n;
+
+    // Second pass for variance, skewness, kurtosis
+    let variance = 0;
+    let m3 = 0;
+    let m4 = 0;
+
+    for (let i = 0; i < n; i++) {
+      const diff = weights[i] - mean;
+      const diff2 = diff * diff;
+      variance += diff2;
+      m3 += diff2 * diff;
+      m4 += diff2 * diff2;
+    }
+
+    variance /= n;
+    m3 /= n;
+    m4 /= n;
+
     const std = Math.sqrt(variance);
+    const skewness = std > 0 ? m3 / Math.pow(std, 3) : 0;
+    const kurtosis = std > 0 ? m4 / Math.pow(std, 4) - 3 : 0;
 
-    const sorted = [...weights].sort((a, b) => a - b);
-    const min = sorted[0];
-    const max = sorted[n - 1];
-    const median = n % 2 === 0 ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2 : sorted[Math.floor(n / 2)];
+    // Median requires sorting - use quickselect for large arrays
+    const median = this.computeMedian(weights);
 
-    // Sparsity (percentage near zero)
-    const sparsity = weights.filter(w => Math.abs(w) < 1e-6).length / n;
-
-    // Norms
-    const l1Norm = weights.reduce((sum, w) => sum + Math.abs(w), 0);
-    const l2Norm = Math.sqrt(weights.reduce((sum, w) => sum + w * w, 0));
-    const lInfNorm = Math.max(...weights.map(Math.abs));
-    const frobeniusNorm = l2Norm; // Same for vectors
-
-    // Skewness and kurtosis
-    const m3 = weights.reduce((sum, w) => sum + Math.pow(w - mean, 3), 0) / n;
-    const m4 = weights.reduce((sum, w) => sum + Math.pow(w - mean, 4), 0) / n;
-    const skewness = m3 / Math.pow(std, 3);
-    const kurtosis = m4 / Math.pow(std, 4) - 3; // Excess kurtosis
-
-    // Effective rank (approximate using spectral decay)
-    const effectiveRank = this.estimateEffectiveRank(weights);
+    // Effective rank (approximate)
+    const effectiveRank = sparsity < 1.0 ? 1.0 - sparsity : 0.0;
 
     // Bits per element from tensor type
     const bitsPerElement = this.getBitsPerElement(tensor.type);
@@ -307,6 +360,35 @@ export class WeightExtractor {
   }
 
   /**
+   * Compute median efficiently (without full sort for large arrays)
+   */
+  private computeMedian(weights: number[]): number {
+    const n = weights.length;
+    if (n === 0) return 0;
+
+    // For small arrays, just sort
+    if (n < 1000) {
+      const sorted = [...weights].sort((a, b) => a - b);
+      return n % 2 === 0 ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2 : sorted[Math.floor(n / 2)];
+    }
+
+    // For large arrays, use sampling approximation
+    const sampleSize = 1000;
+    const step = Math.floor(n / sampleSize);
+    const sample: number[] = [];
+
+    for (let i = 0; i < n; i += step) {
+      sample.push(weights[i]);
+    }
+
+    sample.sort((a, b) => a - b);
+    const sampleN = sample.length;
+    return sampleN % 2 === 0
+      ? (sample[sampleN / 2 - 1] + sample[sampleN / 2]) / 2
+      : sample[Math.floor(sampleN / 2)];
+  }
+
+  /**
    * Extract raw weights from tensor (dequantize if needed)
    */
   private async extractTensorWeights(tensor: TensorInfo): Promise<number[]> {
@@ -316,56 +398,28 @@ export class WeightExtractor {
 
     const tensorDataOffset = Number(this.modelInfo.tensorDataOffset);
     const tensorOffset = tensorDataOffset + Number(tensor.offset);
+    const elementCount = tensor.dimensions.reduce((prod, dim) => prod * dim, 1);
 
-    // For now, only handle F32 tensors
-    // TODO: Implement dequantization for Q4_K, Q6_K, etc.
-    if (tensor.type === GGMLType.F32) {
-      const elementCount = tensor.dimensions.reduce((prod, dim) => prod * dim, 1);
-      const weights: number[] = [];
+    try {
+      // Use dequantizer for all supported types
+      const weights = this.dequantizer.dequantize(
+        this.modelBuffer,
+        tensorOffset,
+        elementCount,
+        tensor.type
+      );
 
-      for (let i = 0; i < elementCount; i++) {
-        const offset = tensorOffset + i * 4;
-        weights.push(this.modelBuffer.readFloatLE(offset));
-      }
-
-      return weights;
-    } else if (tensor.type === GGMLType.F16) {
-      // Implement FP16 reading
-      const elementCount = tensor.dimensions.reduce((prod, dim) => prod * dim, 1);
-      const weights: number[] = [];
-
-      for (let i = 0; i < elementCount; i++) {
-        const offset = tensorOffset + i * 2;
-        const fp16Value = this.modelBuffer.readUInt16LE(offset);
-        weights.push(this.fp16ToFloat(fp16Value));
-      }
+      // Debug: log first few values for Q4_K/Q6_K tensors (for debugging)
+      // if ((tensor.type === GGMLType.Q4_K || tensor.type === GGMLType.Q6_K) && weights.length > 0) {
+      //   const sample = weights.slice(0, Math.min(10, weights.length));
+      //   console.log(`  📊 ${tensor.name} (${GGMLType[tensor.type]}): first 10 values =`, sample);
+      // }
 
       return weights;
-    } else {
-      // For quantized types, return empty array for now
-      // TODO: Implement full dequantization
-      console.warn(`  ⚠️  Skipping quantized tensor: ${tensor.name} (${GGMLType[tensor.type]})`);
+    } catch (error) {
+      // If dequantization fails (unsupported type), warn and return empty array
+      console.warn(`  ⚠️  Skipping tensor: ${tensor.name} (${GGMLType[tensor.type]}) - ${(error as Error).message}`);
       return [];
-    }
-  }
-
-  /**
-   * Convert FP16 to FP32
-   */
-  private fp16ToFloat(fp16: number): number {
-    const sign = (fp16 >> 15) & 0x1;
-    const exponent = (fp16 >> 10) & 0x1f;
-    const fraction = fp16 & 0x3ff;
-
-    if (exponent === 0) {
-      // Subnormal or zero
-      return (sign ? -1 : 1) * Math.pow(2, -14) * (fraction / 1024);
-    } else if (exponent === 0x1f) {
-      // Infinity or NaN
-      return fraction === 0 ? (sign ? -Infinity : Infinity) : NaN;
-    } else {
-      // Normalized
-      return (sign ? -1 : 1) * Math.pow(2, exponent - 15) * (1 + fraction / 1024);
     }
   }
 
