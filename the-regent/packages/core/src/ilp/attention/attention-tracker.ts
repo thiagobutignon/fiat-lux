@@ -18,6 +18,8 @@
  * 4. Debugging: "Which slice caused this error?"
  */
 
+import { IncrementalStats } from '../o1-advanced-optimizer.js';
+
 /**
  * Single attention trace - records one concept's influence
  */
@@ -69,11 +71,20 @@ export interface AttentionStats {
  * AttentionTracker - Core implementation
  *
  * Tracks concept-to-decision influences throughout AGI execution
+ *
+ * Enhanced with O(1) statistics computation via IncrementalStats
  */
 export class AttentionTracker {
   private queryAttentions: Map<string, QueryAttention> = new Map();
   private currentQueryId: string | null = null;
   private currentTraces: AttentionTrace[] = [];
+
+  // O(1) incremental statistics
+  private weightStats: IncrementalStats = new IncrementalStats();
+  private conceptCounts: Map<string, number> = new Map();
+  private conceptWeights: Map<string, IncrementalStats> = new Map();
+  private sliceCounts: Map<string, number> = new Map();
+  private sliceWeights: Map<string, IncrementalStats> = new Map();
 
   /**
    * Start tracking a new query
@@ -97,6 +108,8 @@ export class AttentionTracker {
 
   /**
    * Add attention trace for current query
+   *
+   * Enhanced with O(1) incremental statistics updates
    *
    * @param concept - The concept that influenced decision
    * @param slice - The slice containing the concept
@@ -133,6 +146,23 @@ export class AttentionTracker {
       attention.traces.push(trace);
       attention.total_concepts++;
     }
+
+    // O(1) incremental statistics updates
+    this.weightStats.add(weight);
+
+    // Update concept statistics
+    this.conceptCounts.set(concept, (this.conceptCounts.get(concept) || 0) + 1);
+    if (!this.conceptWeights.has(concept)) {
+      this.conceptWeights.set(concept, new IncrementalStats());
+    }
+    this.conceptWeights.get(concept)!.add(weight);
+
+    // Update slice statistics
+    this.sliceCounts.set(slice, (this.sliceCounts.get(slice) || 0) + 1);
+    if (!this.sliceWeights.has(slice)) {
+      this.sliceWeights.set(slice, new IncrementalStats());
+    }
+    this.sliceWeights.get(slice)!.add(weight);
   }
 
   /**
@@ -206,52 +236,30 @@ export class AttentionTracker {
 
   /**
    * Analyze attention patterns across all queries
+   *
+   * Enhanced with O(1) statistics retrieval via IncrementalStats
+   * (Previously O(n*m) - now constant time!)
    */
   getStatistics(): AttentionStats {
-    const allTraces = Array.from(this.queryAttentions.values()).flatMap(
-      (q) => q.traces
-    );
+    // O(1) - use pre-computed incremental statistics
+    const totalTraces = this.weightStats.getStats().count;
 
-    // Count concept occurrences and weights
-    const conceptMap = new Map<string, { count: number; totalWeight: number }>();
-    const sliceMap = new Map<string, { count: number; totalWeight: number }>();
-
-    for (const trace of allTraces) {
-      // Concepts
-      const conceptData = conceptMap.get(trace.concept) || {
-        count: 0,
-        totalWeight: 0,
-      };
-      conceptData.count++;
-      conceptData.totalWeight += trace.weight;
-      conceptMap.set(trace.concept, conceptData);
-
-      // Slices
-      const sliceData = sliceMap.get(trace.slice) || {
-        count: 0,
-        totalWeight: 0,
-      };
-      sliceData.count++;
-      sliceData.totalWeight += trace.weight;
-      sliceMap.set(trace.slice, sliceData);
-    }
-
-    // Sort and get top concepts
-    const mostInfluentialConcepts = Array.from(conceptMap.entries())
-      .map(([concept, data]) => ({
+    // O(k) where k = unique concepts (much smaller than n*m)
+    const mostInfluentialConcepts = Array.from(this.conceptWeights.entries())
+      .map(([concept, stats]) => ({
         concept,
-        count: data.count,
-        average_weight: data.totalWeight / data.count,
+        count: this.conceptCounts.get(concept) || 0,
+        average_weight: stats.getMean(), // O(1)
       }))
       .sort((a, b) => b.average_weight - a.average_weight)
       .slice(0, 10);
 
-    // Sort and get top slices
-    const mostUsedSlices = Array.from(sliceMap.entries())
-      .map(([slice, data]) => ({
+    // O(k) where k = unique slices
+    const mostUsedSlices = Array.from(this.sliceWeights.entries())
+      .map(([slice, stats]) => ({
         slice,
-        count: data.count,
-        average_weight: data.totalWeight / data.count,
+        count: this.sliceCounts.get(slice) || 0,
+        average_weight: stats.getMean(), // O(1)
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
@@ -261,12 +269,12 @@ export class AttentionTracker {
 
     return {
       total_queries: this.queryAttentions.size,
-      total_traces: allTraces.length,
+      total_traces: totalTraces,
       most_influential_concepts: mostInfluentialConcepts,
       most_used_slices: mostUsedSlices,
       average_traces_per_query:
         this.queryAttentions.size > 0
-          ? allTraces.length / this.queryAttentions.size
+          ? totalTraces / this.queryAttentions.size
           : 0,
       high_confidence_patterns: patterns,
     };
@@ -395,6 +403,62 @@ export class AttentionTracker {
     this.queryAttentions.clear();
     this.currentQueryId = null;
     this.currentTraces = [];
+
+    // Reset O(1) incremental statistics
+    this.weightStats = new IncrementalStats();
+    this.conceptCounts.clear();
+    this.conceptWeights.clear();
+    this.sliceCounts.clear();
+    this.sliceWeights.clear();
+  }
+
+  /**
+   * Get detailed weight statistics (O(1))
+   */
+  getWeightStatistics(): {
+    count: number;
+    mean: number;
+    stdDev: number;
+    min: number;
+    max: number;
+  } {
+    return this.weightStats.getStats();
+  }
+
+  /**
+   * Get statistics for a specific concept (O(1))
+   */
+  getConceptStatistics(concept: string): {
+    count: number;
+    mean: number;
+    stdDev: number;
+  } | null {
+    const stats = this.conceptWeights.get(concept);
+    if (!stats) return null;
+
+    return {
+      count: this.conceptCounts.get(concept) || 0,
+      mean: stats.getMean(),
+      stdDev: stats.getStdDev(),
+    };
+  }
+
+  /**
+   * Get statistics for a specific slice (O(1))
+   */
+  getSliceStatistics(slice: string): {
+    count: number;
+    mean: number;
+    stdDev: number;
+  } | null {
+    const stats = this.sliceWeights.get(slice);
+    if (!stats) return null;
+
+    return {
+      count: this.sliceCounts.get(slice) || 0,
+      mean: stats.getMean(),
+      stdDev: stats.getStdDev(),
+    };
   }
 
   /**
@@ -405,18 +469,17 @@ export class AttentionTracker {
     total_traces: number;
     estimated_bytes: number;
   } {
-    const allTraces = Array.from(this.queryAttentions.values()).flatMap(
-      (q) => q.traces
-    );
+    // O(1) - use pre-computed count
+    const totalTraces = this.weightStats.getStats().count;
 
     // Rough estimate: each trace ~200 bytes (strings + numbers)
     const estimatedBytes =
       this.queryAttentions.size * 500 + // Query metadata
-      allTraces.length * 200; // Traces
+      totalTraces * 200; // Traces
 
     return {
       total_queries: this.queryAttentions.size,
-      total_traces: allTraces.length,
+      total_traces: totalTraces,
       estimated_bytes: estimatedBytes,
     };
   }

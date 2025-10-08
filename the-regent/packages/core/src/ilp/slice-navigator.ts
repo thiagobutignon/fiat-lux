@@ -20,6 +20,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+import { BloomFilter, ConceptTrie } from './o1-advanced-optimizer.js';
 
 // ============================================================================
 // Types
@@ -76,6 +77,8 @@ export class SliceNavigator {
   private slicesDirectory: string;
   private conceptIndex: Map<string, Set<string>>; // concept -> slice_ids
   private domainIndex: Map<string, Set<string>>; // domain -> slice_ids
+  private sliceBloomFilter: BloomFilter; // O(k) slice existence check
+  private conceptTrie: ConceptTrie; // O(m+k) prefix-based concept search
 
   constructor(slicesDirectory: string) {
     this.index = new Map();
@@ -83,6 +86,8 @@ export class SliceNavigator {
     this.slicesDirectory = slicesDirectory;
     this.conceptIndex = new Map();
     this.domainIndex = new Map();
+    this.sliceBloomFilter = new BloomFilter(10000, 0.01); // 10k slices, 1% FPR
+    this.conceptTrie = new ConceptTrie();
   }
 
   /**
@@ -142,6 +147,14 @@ export class SliceNavigator {
         };
 
         this.index.set(metadata.id, metadata);
+
+        // O(k) bloom filter insertion for fast existence checks
+        this.sliceBloomFilter.add(metadata.id);
+
+        // O(m*c) trie insertion for prefix-based concept search
+        for (const concept of metadata.concepts) {
+          this.conceptTrie.insert(concept, metadata.id);
+        }
       }
     } catch (error) {
       console.error(`Failed to load slice metadata from ${filePath}:`, error);
@@ -181,9 +194,24 @@ export class SliceNavigator {
   }
 
   /**
+   * Fast slice existence check using Bloom Filter (O(k))
+   *
+   * Returns false if slice DEFINITELY doesn't exist.
+   * Returns true if slice MIGHT exist (need to check index).
+   */
+  mightHaveSlice(sliceId: string): boolean {
+    return this.sliceBloomFilter.mightContain(sliceId);
+  }
+
+  /**
    * Load full slice content (with caching)
    */
   async loadSlice(sliceId: string): Promise<SliceContext> {
+    // O(k) Bloom filter check - fast rejection of invalid slices
+    if (!this.mightHaveSlice(sliceId)) {
+      throw new Error(`Slice not found: ${sliceId}`);
+    }
+
     // Check cache first
     if (this.sliceCache.has(sliceId)) {
       const slice = this.sliceCache.get(sliceId)!;
@@ -289,12 +317,14 @@ export class SliceNavigator {
 
   /**
    * Search for slices by concept
+   *
+   * Enhanced with O(m+k) Trie-based prefix search
    */
   async search(concept: string): Promise<SearchResult[]> {
     const normalizedConcept = concept.toLowerCase();
     const results: SearchResult[] = [];
 
-    // Exact concept match
+    // Exact concept match (O(1) hash lookup)
     const exactMatches = this.conceptIndex.get(normalizedConcept);
     if (exactMatches) {
       for (const sliceId of exactMatches) {
@@ -308,18 +338,20 @@ export class SliceNavigator {
       }
     }
 
-    // Partial concept match
-    for (const [indexedConcept, sliceIds] of this.conceptIndex.entries()) {
-      if (indexedConcept.includes(normalizedConcept) && !exactMatches?.size) {
-        for (const sliceId of sliceIds) {
-          const metadata = this.index.get(sliceId)!;
-          results.push({
-            slice_id: sliceId,
-            relevance_score: 0.7,
-            matched_concepts: [indexedConcept],
-            metadata,
-          });
-        }
+    // O(m + k) Trie-based prefix search (much faster than O(n) linear scan)
+    const prefixMatches = this.conceptTrie.findByPrefix(normalizedConcept);
+    for (const [matchedConcept, sliceIds] of prefixMatches.entries()) {
+      for (const sliceId of sliceIds) {
+        // Avoid duplicates from exact match
+        if (results.some((r) => r.slice_id === sliceId)) continue;
+
+        const metadata = this.index.get(sliceId)!;
+        results.push({
+          slice_id: sliceId,
+          relevance_score: 0.8,
+          matched_concepts: [matchedConcept],
+          metadata,
+        });
       }
     }
 
@@ -327,6 +359,24 @@ export class SliceNavigator {
     results.sort((a, b) => b.relevance_score - a.relevance_score);
 
     return results;
+  }
+
+  /**
+   * Get autocomplete suggestions for concept prefix (O(m + k))
+   *
+   * Uses Trie for efficient prefix matching
+   */
+  autocomplete(prefix: string, limit: number = 5): string[] {
+    return this.conceptTrie.autocomplete(prefix, limit);
+  }
+
+  /**
+   * Search concepts by exact prefix (O(m + k))
+   *
+   * Returns all concepts starting with the given prefix
+   */
+  searchByPrefix(prefix: string): Map<string, Set<string>> {
+    return this.conceptTrie.findByPrefix(prefix);
   }
 
   /**

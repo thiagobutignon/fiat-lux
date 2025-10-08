@@ -56,3 +56,8 @@ landing/models/
 # External projects (other instances working)
 gemini-cli-fork/
 the-regent/
+
+# Research models (too large for git)
+models/
+research-output/
+external/
