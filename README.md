@@ -790,6 +790,7 @@ src/agi-recursive/
 │   ├── slice-navigator.ts                # Dynamic knowledge loading
 │   ├── attention-tracker.ts              # Interpretability: track decision influences
 │   ├── attention-visualizer.ts           # Visualization & export utilities
+│   ├── visual-debugger.ts                # Black box → Glass box transformation
 │   ├── observability.ts                  # Logging, metrics, distributed tracing
 │   ├── knowledge-distillation.ts         # Pattern discovery from episodic memory
 │   ├── slice-rewriter.ts                 # Safe atomic file operations with backups
@@ -807,8 +808,10 @@ src/agi-recursive/
 │   ├── biology/                          # Biology domain knowledge
 │   └── systems/                          # Systems theory knowledge
 ├── demos/                                # Feature demonstrations
-│   └── self-evolution-demo.ts            # Self-evolution showcase (complete cycle)
+│   ├── self-evolution-demo.ts            # Self-evolution showcase (complete cycle)
+│   └── visual-debugger-demo.ts           # Visual debugger with full transparency
 ├── tests/                                # Test suites (TDD)
+│   ├── visual-debugger.test.ts           # Visual debugger tests (23/23)
 │   ├── run-observability-tests.ts        # Observability layer tests (10/10)
 │   ├── run-slice-rewriter-tests.ts       # SliceRewriter tests (10/10)
 │   ├── run-knowledge-distillation-tests.ts # KnowledgeDistillation tests (10/10)
@@ -859,10 +862,13 @@ npm run agi:attention
 # 6. Self-Evolution - AGI that rewrites its own knowledge slices
 npm run agi:self-evolution
 
-# 7. Thesis Validation - Validate "Idleness" and "Not Knowing" theses
+# 7. Visual Debugger - Black box → Glass box transformation
+npm run agi:visual-debugger
+
+# 8. Thesis Validation - Validate "Idleness" and "Not Knowing" theses
 npm run agi:validate-thesis
 
-# 8. Universal Grammar - Validate Chomsky's theory in software
+# 9. Universal Grammar - Validate Chomsky's theory in software
 npm run agi:validate-grammar
 ```
 
