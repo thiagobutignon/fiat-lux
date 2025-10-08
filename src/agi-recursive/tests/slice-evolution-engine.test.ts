@@ -532,7 +532,7 @@ describe('SliceEvolutionEngine', () => {
     it('should calculate average constitutional score', () => {
       const metrics = engine.getMetrics();
 
-      expect(metrics.avg_constitutional_score).toBe(0.85); // (0.8 + 0.9) / 2
+      expect(metrics.avg_constitutional_score).toBeCloseTo(0.85, 2); // (0.8 + 0.9) / 2
     });
 
     it('should track knowledge growth', () => {
