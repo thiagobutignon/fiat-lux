@@ -14,7 +14,11 @@
     "agi:adapter": "tsx src/agi-recursive/examples/anthropic-adapter-demo.ts",
     "agi:navigation": "tsx src/agi-recursive/examples/slice-navigation-demo.ts",
     "agi:acl": "tsx src/agi-recursive/examples/acl-protection-demo.ts",
-    "agi:homeostasis": "tsx src/agi-recursive/examples/budget-homeostasis.ts"
+    "agi:homeostasis": "tsx src/agi-recursive/examples/budget-homeostasis.ts",
+    "agi:attention": "tsx src/agi-recursive/examples/attention-demo.ts",
+    "agi:validate-thesis": "tsx src/agi-recursive/examples/validate-thesis.ts",
+    "agi:validate-grammar": "tsx src/agi-recursive/examples/universal-grammar-validation.ts",
+    "agi:self-evolution": "tsx src/agi-recursive/demos/self-evolution-demo.ts"
   },
   "keywords": [
     "grammar",

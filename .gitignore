@@ -44,3 +44,15 @@ tmp/
 temp/
 *.tmp
 landing/models/
+
+# LaTeX temporary files
+*.aux
+*.out
+*.log
+*.toc
+*.lof
+*.lot
+
+# External projects (other instances working)
+gemini-cli-fork/
+the-regent/
