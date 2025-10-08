@@ -77,16 +77,12 @@ export interface CompositionResult {
  * - Plain JSON
  */
 function extractJSON(text: string): string {
-  const originalLength = text.length;
-
   // Try to match markdown code blocks
   const codeBlockRegex = /```(?:json)?\s*\n?([\s\S]*?)```/;
   const match = text.match(codeBlockRegex);
 
   if (match && match[1]) {
-    const extracted = match[1].trim();
-    console.log(`[extractJSON] Regex match found. Original: ${originalLength} chars, Extracted: ${extracted.length} chars`);
-    return extracted;
+    return match[1].trim();
   }
 
   // Fallback: try to extract JSON by finding first { and last }
@@ -94,13 +90,10 @@ function extractJSON(text: string): string {
   const lastBrace = text.lastIndexOf('}');
 
   if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    const extracted = text.substring(firstBrace, lastBrace + 1).trim();
-    console.log(`[extractJSON] Using fallback (braces). Original: ${originalLength} chars, Extracted: ${extracted.length} chars`);
-    return extracted;
+    return text.substring(firstBrace, lastBrace + 1).trim();
   }
 
   // Last resort: return trimmed text
-  console.log(`[extractJSON] No extraction possible, returning trimmed text`);
   return text.trim();
 }
 
