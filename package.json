@@ -18,7 +18,8 @@
     "agi:attention": "tsx src/agi-recursive/examples/attention-demo.ts",
     "agi:validate-thesis": "tsx src/agi-recursive/examples/validate-thesis.ts",
     "agi:validate-grammar": "tsx src/agi-recursive/examples/universal-grammar-validation.ts",
-    "agi:self-evolution": "tsx src/agi-recursive/demos/self-evolution-demo.ts"
+    "agi:self-evolution": "tsx src/agi-recursive/demos/self-evolution-demo.ts",
+    "research:hallucination:phase1": "tsx src/research/llama-hallucination/demos/phase1-weight-analysis.ts"
   },
   "keywords": [
     "grammar",
