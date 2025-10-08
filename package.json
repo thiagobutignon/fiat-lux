@@ -9,7 +9,12 @@
     "test": "ts-node src/test.ts",
     "test:watch": "nodemon --exec ts-node src/test.ts",
     "build": "tsc",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "agi:all": "./scripts/run-agi-demos.sh",
+    "agi:adapter": "tsx src/agi-recursive/examples/anthropic-adapter-demo.ts",
+    "agi:navigation": "tsx src/agi-recursive/examples/slice-navigation-demo.ts",
+    "agi:acl": "tsx src/agi-recursive/examples/acl-protection-demo.ts",
+    "agi:homeostasis": "tsx src/agi-recursive/examples/budget-homeostasis.ts"
   },
   "keywords": [
     "grammar",
