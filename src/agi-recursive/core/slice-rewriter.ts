@@ -238,10 +238,22 @@ export class SliceRewriter {
   }
 
   /**
-   * Get slice file path
+   * Get slice file path (with path traversal protection)
    */
   private getSlicePath(sliceId: string): string {
-    return path.join(this.slicesDir, `${sliceId}.yml`);
+    // Sanitize slice ID to prevent path traversal attacks
+    const sanitized = sliceId.replace(/[^a-z0-9-_]/gi, '-');
+    const fullPath = path.join(this.slicesDir, `${sanitized}.yml`);
+
+    // Verify path is within slicesDir (prevent path traversal)
+    const resolvedPath = path.resolve(fullPath);
+    const resolvedSlicesDir = path.resolve(this.slicesDir);
+
+    if (!resolvedPath.startsWith(resolvedSlicesDir)) {
+      throw new Error(`Invalid slice ID: ${sliceId} (path traversal detected)`);
+    }
+
+    return fullPath;
   }
 
   /**
@@ -257,9 +269,11 @@ export class SliceRewriter {
 
   /**
    * Atomic write (write to temp file, then rename)
+   * Uses PID + timestamp to prevent race conditions
    */
   private async atomicWrite(filePath: string, content: string): Promise<void> {
-    const tempPath = `${filePath}.tmp`;
+    // Use PID + timestamp to ensure unique temp filename (prevents race conditions)
+    const tempPath = `${filePath}.tmp.${process.pid}.${Date.now()}`;
 
     try {
       // Write to temp file

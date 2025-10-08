@@ -11,6 +11,7 @@
 import { EpisodicMemory, Episode } from './episodic-memory';
 import { AnthropicAdapter } from '../llm/anthropic-adapter';
 import { Observability } from './observability';
+import yaml from 'yaml';
 
 // ============================================================================
 // Types
@@ -305,19 +306,44 @@ content: |
       });
 
       // Extract YAML from markdown code block if present
-      let yaml = response.text;
-      const codeBlockMatch = yaml.match(/```(?:yaml)?\s*\n([\s\S]*?)\n```/);
+      let yamlContent = response.text;
+      const codeBlockMatch = yamlContent.match(/```(?:yaml)?\s*\n([\s\S]*?)\n```/);
       if (codeBlockMatch) {
-        yaml = codeBlockMatch[1];
+        yamlContent = codeBlockMatch[1];
       }
 
-      this.observability.log('info', 'knowledge_synthesized', {
-        concepts: pattern.concepts,
-        cost: response.usage.cost_usd,
-      });
+      // Validate YAML structure before returning
+      try {
+        const parsed = yaml.parse(yamlContent);
 
-      span.setTag('cost', response.usage.cost_usd);
-      return yaml;
+        // Validate required fields
+        if (!parsed.id || typeof parsed.id !== 'string') {
+          throw new Error('Missing or invalid "id" field');
+        }
+        if (!parsed.title || typeof parsed.title !== 'string') {
+          throw new Error('Missing or invalid "title" field');
+        }
+        if (!Array.isArray(parsed.concepts) || parsed.concepts.length === 0) {
+          throw new Error('Missing or invalid "concepts" field (must be non-empty array)');
+        }
+
+        this.observability.log('info', 'knowledge_synthesized', {
+          concepts: pattern.concepts,
+          cost: response.usage.cost_usd,
+          validated: true,
+        });
+
+        span.setTag('cost', response.usage.cost_usd);
+        span.setTag('validated', true);
+        return yamlContent;
+      } catch (error) {
+        this.observability.log('error', 'synthesis_validation_failed', {
+          error: (error as Error).message,
+          yaml_preview: yamlContent.substring(0, 200),
+        });
+        span.setTag('validation_error', (error as Error).message);
+        throw new Error(`Invalid YAML generated: ${(error as Error).message}`);
+      }
     } finally {
       span.end();
     }
