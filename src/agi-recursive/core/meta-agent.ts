@@ -19,6 +19,12 @@ import {
 } from './anti-corruption-layer';
 import { SliceNavigator } from './slice-navigator';
 import { AnthropicAdapter, LLMResponse, ClaudeModel } from '../llm/anthropic-adapter';
+import {
+  AttentionTracker,
+  QueryAttention,
+  computeInfluenceWeight,
+  extractInfluentialConcepts,
+} from './attention-tracker';
 
 // ============================================================================
 // Types
@@ -209,6 +215,7 @@ export class MetaAgent {
   private antiCorruptionLayer: AntiCorruptionLayer;
   private domainTranslator: DomainTranslator;
   private sliceNavigator: SliceNavigator;
+  private attentionTracker: AttentionTracker;
 
   constructor(
     apiKey: string,
@@ -224,6 +231,7 @@ export class MetaAgent {
     this.constitutionEnforcer = new ConstitutionEnforcer();
     this.antiCorruptionLayer = new AntiCorruptionLayer(new UniversalConstitution());
     this.domainTranslator = new DomainTranslator();
+    this.attentionTracker = new AttentionTracker();
 
     // Initialize slice navigator
     const slicesDir = path.join(__dirname, '..', 'slices');
@@ -252,6 +260,7 @@ export class MetaAgent {
     emergent_insights: string[];
     reasoning_path: string;
     constitution_violations: ConstitutionViolation[];
+    attention: QueryAttention | null;
   }> {
     const state: RecursionState = {
       depth: 0,
@@ -262,11 +271,18 @@ export class MetaAgent {
       insights: new Map(),
     };
 
+    // Start attention tracking
+    const queryId = `query_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    this.attentionTracker.startQuery(queryId, query);
+
     const allViolations: ConstitutionViolation[] = [];
 
     await this.recursiveProcess(query, state, allViolations);
 
     const synthesis = await this.synthesizeFinal(state);
+
+    // End attention tracking
+    const attention = this.attentionTracker.endQuery();
 
     return {
       final_answer: synthesis.answer,
@@ -274,6 +290,7 @@ export class MetaAgent {
       emergent_insights: this.extractEmergentInsights(state),
       reasoning_path: this.formatReasoningPath(state),
       constitution_violations: allViolations,
+      attention,
     };
   }
 
@@ -304,6 +321,21 @@ export class MetaAgent {
 
     // Step 1: Decompose query
     const decomposition = await this.decomposeQuery(query, state);
+
+    // Track query decomposition decision
+    this.attentionTracker.addDecisionPoint(
+      `Query decomposed into domains: ${decomposition.domains.join(', ')}`
+    );
+
+    // Track domain selection as attention traces
+    for (const domain of decomposition.domains) {
+      this.attentionTracker.addTrace(
+        'domain_selection',
+        `meta-agent/decomposition`,
+        0.8, // High weight as this is a critical decision
+        `Selected ${domain} based on: ${decomposition.reasoning}`
+      );
+    }
 
     // Step 2: Invoke specialist agents
     for (const domain of decomposition.domains) {
@@ -379,11 +411,53 @@ export class MetaAgent {
       state.traces.push(trace);
       state.insights.set(domain, response);
 
+      // Track attention: which concepts from this agent influenced the decision
+      this.attentionTracker.addDecisionPoint(
+        `Agent ${domain} invoked with confidence ${response.confidence}`
+      );
+
+      for (const concept of response.concepts) {
+        // Weight based on agent confidence and concept relevance
+        const weight = response.confidence;
+        this.attentionTracker.addTrace(
+          concept,
+          `agent/${domain}`,
+          weight,
+          `${domain} contributed concept "${concept}": ${response.reasoning.substring(0, 100)}...`
+        );
+      }
+
+      // Track references if available
+      if (response.references) {
+        for (const reference of response.references) {
+          this.attentionTracker.addTrace(
+            'knowledge_reference',
+            reference,
+            response.confidence * 0.7, // Slightly lower weight for references
+            `${domain} referenced: ${reference}`
+          );
+        }
+      }
+
       state.depth--;
     }
 
     // Step 3: Check if composition suggests recursion
     const composition = await this.composeInsights(state);
+
+    // Track composition decision
+    this.attentionTracker.addDecisionPoint(
+      `Composition confidence: ${composition.confidence}, should_recurse: ${composition.should_recurse}`
+    );
+
+    if (composition.should_recurse) {
+      this.attentionTracker.addTrace(
+        'composition_recursion',
+        'meta-agent/composition',
+        composition.confidence,
+        `Composition suggests recursion due to: ${composition.missing_perspectives?.join(', ') || 'further exploration needed'}`
+      );
+    }
 
     if (composition.should_recurse && state.depth < this.maxDepth) {
       await this.recursiveProcess(composition.synthesis, state, violations);
@@ -630,5 +704,33 @@ IMPORTANT:
    */
   getTotalRequests(): number {
     return this.llm.getTotalRequests();
+  }
+
+  /**
+   * Get the attention tracker for interpretability analysis
+   */
+  getAttentionTracker(): AttentionTracker {
+    return this.attentionTracker;
+  }
+
+  /**
+   * Export attention data for regulatory auditing
+   */
+  exportAttentionForAudit() {
+    return this.attentionTracker.exportForAudit();
+  }
+
+  /**
+   * Get human-readable explanation of a query's reasoning
+   */
+  explainQuery(queryId: string): string {
+    return this.attentionTracker.explainQuery(queryId);
+  }
+
+  /**
+   * Get attention statistics across all queries
+   */
+  getAttentionStats() {
+    return this.attentionTracker.getStatistics();
   }
 }
