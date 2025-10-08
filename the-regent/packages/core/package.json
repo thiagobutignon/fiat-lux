@@ -20,7 +20,7 @@
     "dist"
   ],
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.37.2",
+    "@anthropic-ai/sdk": "^0.65.0",
     "@google/genai": "1.16.0",
     "@google-cloud/opentelemetry-cloud-monitoring-exporter": "^0.21.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^3.0.0",

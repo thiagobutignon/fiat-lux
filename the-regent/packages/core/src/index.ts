@@ -135,3 +135,4 @@ export * from './ilp/llm/anthropic-adapter.js';
 export * from './ilp/meta-agent.js';
 export * from './ilp/slice-navigator.js';
 export * from './ilp/o1-optimizer.js'; // O(1) performance layer
+export * from './ilp/o1-advanced-optimizer.js'; // Advanced O(1) data structures
