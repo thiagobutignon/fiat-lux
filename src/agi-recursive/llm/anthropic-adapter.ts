@@ -46,6 +46,17 @@ export interface LLMConfig {
 }
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+// Cost estimation constants
+const AVG_CHARS_PER_TOKEN = 4;
+const DEFAULT_ESTIMATED_OUTPUT_TOKENS = 1000;
+
+// Input validation limits
+const MAX_PROMPT_CHARS = 400000; // ~100k tokens (Claude's context window)
+
+// ============================================================================
 // Model Pricing (as of 2025-01-01)
 // ============================================================================
 
@@ -92,6 +103,22 @@ export class AnthropicAdapter {
     query: string,
     config: LLMConfig = { model: 'claude-sonnet-4-5' }
   ): Promise<LLMResponse> {
+    // Input validation
+    if (!systemPrompt || systemPrompt.trim().length === 0) {
+      throw new Error('System prompt cannot be empty');
+    }
+    if (!query || query.trim().length === 0) {
+      throw new Error('Query cannot be empty');
+    }
+
+    // Check for excessively long prompts
+    const totalChars = systemPrompt.length + query.length;
+    if (totalChars > MAX_PROMPT_CHARS) {
+      throw new Error(
+        `Prompt too long: ${totalChars} chars exceeds limit of ${MAX_PROMPT_CHARS} (~100k tokens)`
+      );
+    }
+
     const modelId = MODEL_IDS[config.model];
 
     try {
@@ -243,11 +270,12 @@ export class AnthropicAdapter {
   estimateCost(
     systemPrompt: string,
     query: string,
-    model: ClaudeModel = 'claude-sonnet-4-5'
+    model: ClaudeModel = 'claude-sonnet-4-5',
+    estimatedOutputTokens: number = DEFAULT_ESTIMATED_OUTPUT_TOKENS
   ): { estimated_cost: number; note: string } {
-    // Rough estimate: ~4 chars per token
-    const estimatedInputTokens = Math.ceil((systemPrompt.length + query.length) / 4);
-    const estimatedOutputTokens = 1000; // Assume average response
+    const estimatedInputTokens = Math.ceil(
+      (systemPrompt.length + query.length) / AVG_CHARS_PER_TOKEN
+    );
 
     const cost = this.calculateCost(
       {
@@ -259,7 +287,7 @@ export class AnthropicAdapter {
 
     return {
       estimated_cost: cost,
-      note: 'Rough estimate based on ~4 chars/token, actual may vary',
+      note: `Rough estimate based on ~${AVG_CHARS_PER_TOKEN} chars/token, actual may vary`,
     };
   }
 

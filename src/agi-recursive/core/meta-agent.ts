@@ -133,11 +133,15 @@ You MUST respond with valid JSON:
       };
     } catch (e) {
       // Fallback if not valid JSON
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+      console.warn(`❌ Failed to parse JSON from ${this.getDomain()}:`, errorMessage);
+      console.warn('Raw response (first 200 chars):', llmResponse.text.substring(0, 200));
+
       return {
         answer: llmResponse.text,
         concepts: [],
         confidence: 0.3,
-        reasoning: 'Failed to parse JSON response',
+        reasoning: `Failed to parse JSON response: ${errorMessage}`,
       };
     }
   }
@@ -389,10 +393,15 @@ Respond with JSON:
         primary_domain: parsed.primary_domain,
       };
     } catch (e) {
-      // Default to all domains
+      // Fallback: use first 2 domains instead of all to limit cost
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+      console.warn('❌ Query decomposition failed:', errorMessage);
+      console.warn('Raw response (first 200 chars):', llmResponse.text.substring(0, 200));
+
+      const fallbackDomains = availableDomains.slice(0, 2);
       return {
-        domains: availableDomains,
-        reasoning: 'Failed to decompose, using all domains',
+        domains: fallbackDomains,
+        reasoning: `Failed to decompose: ${errorMessage}. Using fallback strategy (first ${fallbackDomains.length} domains).`,
       };
     }
   }
@@ -450,6 +459,10 @@ Respond with JSON:
         confidence: parsed.confidence || 0.5,
       };
     } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+      console.warn('❌ Failed to parse composition response:', errorMessage);
+      console.warn('Raw response (first 200 chars):', llmResponse.text.substring(0, 200));
+
       return {
         synthesis: llmResponse.text,
         should_recurse: false,
@@ -501,11 +514,15 @@ IMPORTANT:
         reasoning: parsed.reasoning || '',
       };
     } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+      console.warn('❌ Failed to parse final synthesis:', errorMessage);
+      console.warn('Raw response (first 200 chars):', llmResponse.text.substring(0, 200));
+
       return {
         answer: llmResponse.text,
         concepts: [],
         confidence: 0.3,
-        reasoning: 'Failed to parse final synthesis',
+        reasoning: `Failed to parse final synthesis: ${errorMessage}`,
       };
     }
   }
