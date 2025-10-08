@@ -9,6 +9,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Anthropic LLM Adapter - Centralized LLM Integration (2025-10-07)
+
+**Core Infrastructure**
+- **`src/agi-recursive/llm/anthropic-adapter.ts`**: Complete Anthropic Claude API adapter
+  - Centralized LLM integration for all Claude API calls
+  - Support for Claude Opus 4 and Sonnet 4.5
+  - Automatic cost calculation and tracking
+  - Token usage monitoring (input/output)
+  - Streaming support for real-time responses
+  - Cost estimation without API calls
+  - Model comparison utilities
+
+**Model Support**
+- **Claude Opus 4**: Latest, most capable model
+  - Best for complex reasoning and creative tasks
+  - Pricing: $15/1M input tokens, $75/1M output tokens
+  - Model ID: `claude-opus-4-20250514`
+- **Claude Sonnet 4.5**: Balanced, cost-effective model (default)
+  - Fast and efficient for most tasks
+  - Pricing: $3/1M input tokens, $15/1M output tokens
+  - Model ID: `claude-sonnet-4-5-20250929`
+
+**Cost Tracking**
+- Automatic tracking of all API calls
+- Real-time cumulative cost monitoring
+- Per-request cost calculation
+- Total requests counter
+- Cost comparison between models
+- Estimation tool for planning
+
+**Integration with AGI System**
+- **MetaAgent**: Updated to use AnthropicAdapter for all LLM calls
+  - Query decomposition now uses adapter
+  - Insight composition uses adapter
+  - Final synthesis uses adapter
+  - Actual cost tracking instead of estimates
+- **SpecializedAgent**: Base class updated with adapter
+  - All agents now use centralized LLM integration
+  - Configurable model selection per agent
+  - Automatic cost updates to recursion state
+  - Backward compatible with existing agents
+
+**API Features**
+- `invoke()`: Standard request/response
+- `invokeStream()`: Streaming with async generator
+- `estimateCost()`: Pre-call cost estimation
+- `compareCosts()`: Compare cost between models
+- `getTotalCost()`: Cumulative cost across all calls
+- `getTotalRequests()`: Total number of API calls
+- `resetStats()`: Reset cost tracking
+
+**Demonstration**
+- **`src/agi-recursive/examples/anthropic-adapter-demo.ts`**: Comprehensive adapter demo
+  - Model recommendations by task type
+  - Cost estimation before API calls
+  - Actual invocations with Sonnet 4.5
+  - Cost comparison between Opus and Sonnet
+  - Streaming response demonstration
+  - Cumulative cost tracking
+  - Multiple requests cost accumulation
+  - Full statistics reporting
+
+**Benefits**
+- ✅ Single point of LLM integration (no scattered API calls)
+- ✅ Transparent cost tracking (know exactly what you're spending)
+- ✅ Easy model switching (change one config, update everywhere)
+- ✅ Production-ready (error handling, type safety, streaming)
+- ✅ Cost optimization (compare models, estimate before calling)
+- ✅ Future-proof (easy to add new models)
+
 #### Slice Navigator - Dynamic Knowledge Discovery (2025-10-07)
 
 **Core Infrastructure**

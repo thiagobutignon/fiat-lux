@@ -5,7 +5,6 @@
  * Intelligence emerges from composition, not model size.
  */
 
-import Anthropic from '@anthropic-ai/sdk';
 import path from 'path';
 import {
   ConstitutionEnforcer,
@@ -19,6 +18,7 @@ import {
   ConstitutionalViolationError,
 } from './anti-corruption-layer';
 import { SliceNavigator } from './slice-navigator';
+import { AnthropicAdapter, LLMResponse, ClaudeModel } from '../llm/anthropic-adapter';
 
 // ============================================================================
 // Types
@@ -66,19 +66,58 @@ export interface CompositionResult {
 }
 
 // ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Extract JSON from markdown code blocks if present
+ * Handles multiple formats:
+ * - ```json\n{...}\n```
+ * - ```\n{...}\n```
+ * - Plain JSON
+ */
+function extractJSON(text: string): string {
+  // Try to match markdown code blocks
+  const codeBlockRegex = /```(?:json)?\s*\n?([\s\S]*?)```/;
+  const match = text.match(codeBlockRegex);
+
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+
+  // Fallback: try to extract JSON by finding first { and last }
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    return text.substring(firstBrace, lastBrace + 1).trim();
+  }
+
+  // Last resort: return trimmed text
+  return text.trim();
+}
+
+// ============================================================================
 // Base Agent Class
 // ============================================================================
 
 export abstract class SpecializedAgent {
-  protected client: Anthropic;
+  protected llm: AnthropicAdapter;
   protected systemPrompt: string;
   protected defaultTemperature: number;
+  protected defaultModel: ClaudeModel;
   protected sliceNavigator?: SliceNavigator;
 
-  constructor(apiKey: string, systemPrompt: string, temperature: number = 0.5) {
-    this.client = new Anthropic({ apiKey });
+  constructor(
+    apiKey: string,
+    systemPrompt: string,
+    temperature: number = 0.5,
+    model: ClaudeModel = 'claude-sonnet-4-5'
+  ) {
+    this.llm = new AnthropicAdapter(apiKey);
     this.systemPrompt = systemPrompt;
     this.defaultTemperature = temperature;
+    this.defaultModel = model;
   }
 
   /**
@@ -93,15 +132,7 @@ export abstract class SpecializedAgent {
   async process(query: string, context: RecursionState): Promise<AgentResponse> {
     const contextPrompt = this.buildContextPrompt(context);
 
-    const message = await this.client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 2000,
-      temperature: this.defaultTemperature,
-      system: this.systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: `${contextPrompt}
+    const fullPrompt = `${contextPrompt}
 
 QUERY: ${query}
 
@@ -112,15 +143,21 @@ You MUST respond with valid JSON:
   "suggestions_to_invoke": ["agent_id"],
   "confidence": 0.85,
   "reasoning": "explain your thought process"
-}`,
-        },
-      ],
+}`;
+
+    const llmResponse = await this.llm.invoke(this.systemPrompt, fullPrompt, {
+      model: this.defaultModel,
+      max_tokens: 2000,
+      temperature: this.defaultTemperature,
     });
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    // Update context with actual cost
+    context.cost_so_far += llmResponse.usage.cost_usd;
 
     try {
-      const parsed = JSON.parse(responseText);
+      // Extract JSON from potential markdown code blocks
+      const cleanedText = extractJSON(llmResponse.text);
+      const parsed = JSON.parse(cleanedText);
       return {
         answer: parsed.answer || '',
         concepts: parsed.concepts || [],
@@ -130,11 +167,15 @@ You MUST respond with valid JSON:
       };
     } catch (e) {
       // Fallback if not valid JSON
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+      console.warn(`❌ Failed to parse JSON from ${this.getDomain()}:`, errorMessage);
+      console.warn('Raw response (first 200 chars):', llmResponse.text.substring(0, 200));
+
       return {
-        answer: responseText,
+        answer: llmResponse.text,
         concepts: [],
         confidence: 0.3,
-        reasoning: 'Failed to parse JSON response',
+        reasoning: `Failed to parse JSON response: ${errorMessage}`,
       };
     }
   }
@@ -159,7 +200,7 @@ PREVIOUS AGENTS: ${context.previous_agents.join(' → ')}`;
 // ============================================================================
 
 export class MetaAgent {
-  private client: Anthropic;
+  private llm: AnthropicAdapter;
   private agents: Map<string, SpecializedAgent>;
   private maxDepth: number;
   private maxInvocations: number;
@@ -175,7 +216,7 @@ export class MetaAgent {
     maxInvocations: number = 10,
     maxCostUSD: number = 1.0
   ) {
-    this.client = new Anthropic({ apiKey });
+    this.llm = new AnthropicAdapter(apiKey);
     this.agents = new Map();
     this.maxDepth = maxDepth;
     this.maxInvocations = maxInvocations;
@@ -273,7 +314,13 @@ export class MetaAgent {
       state.depth++;
       state.previous_agents.push(domain);
 
+      // Track cost before agent call
+      const costBefore = state.cost_so_far;
+
       const response = await agent.process(query, state);
+
+      // Calculate actual cost (agent.process updates state.cost_so_far)
+      const actualCost = state.cost_so_far - costBefore;
 
       // Validate against Anti-Corruption Layer FIRST
       try {
@@ -326,12 +373,11 @@ export class MetaAgent {
         query,
         response,
         timestamp: Date.now(),
-        cost_estimate: this.estimateCost(response),
+        cost_estimate: actualCost,
       };
 
       state.traces.push(trace);
       state.insights.set(domain, response);
-      state.cost_so_far += trace.cost_estimate;
 
       state.depth--;
     }
@@ -353,11 +399,7 @@ export class MetaAgent {
   ): Promise<QueryDecomposition> {
     const availableDomains = Array.from(this.agents.keys());
 
-    const message = await this.client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1000,
-      temperature: 0.3,
-      system: `You are a meta-reasoning system. Your job is to decompose queries into relevant domains.
+    const systemPrompt = `You are a meta-reasoning system. Your job is to decompose queries into relevant domains.
 
 Available domains: ${availableDomains.join(', ')}
 
@@ -366,29 +408,36 @@ Respond with JSON:
   "domains": ["domain1", "domain2"],
   "reasoning": "why these domains",
   "primary_domain": "most relevant domain"
-}`,
-      messages: [
-        {
-          role: 'user',
-          content: query,
-        },
-      ],
+}`;
+
+    const llmResponse = await this.llm.invoke(systemPrompt, query, {
+      model: 'claude-sonnet-4-5',
+      max_tokens: 1000,
+      temperature: 0.3,
     });
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    // Update cost tracking
+    state.cost_so_far += llmResponse.usage.cost_usd;
 
     try {
-      const parsed = JSON.parse(responseText);
+      // Extract JSON from potential markdown code blocks
+      const cleanedText = extractJSON(llmResponse.text);
+      const parsed = JSON.parse(cleanedText);
       return {
         domains: parsed.domains || availableDomains,
         reasoning: parsed.reasoning || '',
         primary_domain: parsed.primary_domain,
       };
     } catch (e) {
-      // Default to all domains
+      // Fallback: use first 2 domains instead of all to limit cost
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+      console.warn('❌ Query decomposition failed:', errorMessage);
+      console.warn('Raw response (first 200 chars):', llmResponse.text.substring(0, 200));
+
+      const fallbackDomains = availableDomains.slice(0, 2);
       return {
-        domains: availableDomains,
-        reasoning: 'Failed to decompose, using all domains',
+        domains: fallbackDomains,
+        reasoning: `Failed to decompose: ${errorMessage}. Using fallback strategy (first ${fallbackDomains.length} domains).`,
       };
     }
   }
@@ -409,11 +458,7 @@ Respond with JSON:
       .map(([agent, response]) => `[${agent}]:\n${response.answer}\nConfidence: ${response.confidence}\nConcepts: ${response.concepts.join(', ')}`)
       .join('\n\n');
 
-    const message = await this.client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 2000,
-      temperature: 0.7,
-      system: `You are a synthesis engine. Your job is to compose insights from multiple specialists.
+    const systemPrompt = `You are a synthesis engine. Your job is to compose insights from multiple specialists.
 
 Look for:
 - Emergent patterns (what no single agent saw)
@@ -426,19 +471,25 @@ Respond with JSON:
   "should_recurse": false,
   "missing_perspectives": ["domain"],
   "confidence": 0.9
-}`,
-      messages: [
-        {
-          role: 'user',
-          content: `INSIGHTS FROM SPECIALISTS:\n\n${insightsText}\n\nCompose these insights. Should we recurse to explore further?`,
-        },
-      ],
-    });
+}`;
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    const llmResponse = await this.llm.invoke(
+      systemPrompt,
+      `INSIGHTS FROM SPECIALISTS:\n\n${insightsText}\n\nCompose these insights. Should we recurse to explore further?`,
+      {
+        model: 'claude-sonnet-4-5',
+        max_tokens: 2000,
+        temperature: 0.7,
+      }
+    );
+
+    // Update cost tracking
+    state.cost_so_far += llmResponse.usage.cost_usd;
 
     try {
-      const parsed = JSON.parse(responseText);
+      // Extract JSON from potential markdown code blocks
+      const cleanedText = extractJSON(llmResponse.text);
+      const parsed = JSON.parse(cleanedText);
       return {
         synthesis: parsed.synthesis || '',
         should_recurse: parsed.should_recurse || false,
@@ -446,8 +497,12 @@ Respond with JSON:
         confidence: parsed.confidence || 0.5,
       };
     } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+      console.warn('❌ Failed to parse composition response:', errorMessage);
+      console.warn('Raw response (first 200 chars):', llmResponse.text.substring(0, 200));
+
       return {
-        synthesis: responseText,
+        synthesis: llmResponse.text,
         should_recurse: false,
         confidence: 0.3,
       };
@@ -462,46 +517,52 @@ Respond with JSON:
       .map((t) => `[Depth ${t.depth}] ${t.agent_id}: ${t.response.answer}`)
       .join('\n\n');
 
-    const message = await this.client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 3000,
-      temperature: 0.5,
-      system: `You are the final synthesis agent. Compose all insights into a coherent answer.
+    const systemPrompt = `You are the final synthesis agent. Compose all insights into a coherent answer.
 
 IMPORTANT:
 - Highlight emergent insights (what no single agent could see)
 - Show how different perspectives combined
-- Provide actionable recommendations`,
-      messages: [
-        {
-          role: 'user',
-          content: `FULL REASONING TRACE:\n\n${traceText}\n\nProvide final synthesis as JSON:
+- Provide actionable recommendations`;
+
+    const llmResponse = await this.llm.invoke(
+      systemPrompt,
+      `FULL REASONING TRACE:\n\n${traceText}\n\nProvide final synthesis as JSON:
 {
   "answer": "comprehensive answer",
   "concepts": ["emergent concepts"],
   "confidence": 0.95,
   "reasoning": "how insights were composed"
 }`,
-        },
-      ],
-    });
+      {
+        model: 'claude-sonnet-4-5',
+        max_tokens: 3000,
+        temperature: 0.5,
+      }
+    );
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    // Update cost tracking
+    state.cost_so_far += llmResponse.usage.cost_usd;
 
     try {
-      const parsed = JSON.parse(responseText);
+      // Extract JSON from potential markdown code blocks
+      const cleanedText = extractJSON(llmResponse.text);
+      const parsed = JSON.parse(cleanedText);
       return {
-        answer: parsed.answer || responseText,
+        answer: parsed.answer || llmResponse.text,
         concepts: parsed.concepts || [],
         confidence: parsed.confidence || 0.5,
         reasoning: parsed.reasoning || '',
       };
     } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+      console.warn('❌ Failed to parse final synthesis:', errorMessage);
+      console.warn('Raw response (first 200 chars):', llmResponse.text.substring(0, 200));
+
       return {
-        answer: responseText,
+        answer: llmResponse.text,
         concepts: [],
         confidence: 0.3,
-        reasoning: 'Failed to parse final synthesis',
+        reasoning: `Failed to parse final synthesis: ${errorMessage}`,
       };
     }
   }
@@ -558,11 +619,16 @@ IMPORTANT:
   }
 
   /**
-   * Estimate cost of API call (rough heuristic)
+   * Get total cost spent across all LLM calls
    */
-  private estimateCost(response: AgentResponse): number {
-    // Rough estimate: $0.01 per 1000 tokens
-    // Average response ~500 tokens
-    return 0.005;
+  getTotalCost(): number {
+    return this.llm.getTotalCost();
+  }
+
+  /**
+   * Get total number of LLM requests made
+   */
+  getTotalRequests(): number {
+    return this.llm.getTotalRequests();
   }
 }

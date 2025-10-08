@@ -11,6 +11,7 @@
  * This is the "immune system" of the AGI architecture.
  */
 
+import 'dotenv/config';
 import {
   AntiCorruptionLayer,
   DomainTranslator,

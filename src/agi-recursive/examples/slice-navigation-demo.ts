@@ -11,6 +11,7 @@
  * 5. Knowledge composition
  */
 
+import 'dotenv/config';
 import path from 'path';
 import { SliceNavigator } from '../core/slice-navigator';
 
