@@ -556,7 +556,7 @@ Baseada em Chomsky: línguas naturais compartilham gramática universal (estrutu
 
 \subsection{Inovações Emergentes}
 
-Do sistema AGI ``brinquedinho'' emergiram \textbf{15+ inovações}:
+Do sistema AGI ``brinquedinho'' emergiram \textbf{20+ inovações}:
 
 \subsubsection{Inovações Arquiteturais}
 
@@ -584,6 +584,26 @@ Do sistema AGI ``brinquedinho'' emergiram \textbf{15+ inovações}:
     \item \textbf{Cache 90\%}: Reutilização agressiva de slices = 40\% economia adicional
     \item \textbf{Memória Episódica}: Cache de queries = 100\% economia em hits
 \end{enumerate}
+
+\subsubsection{Inovações em Interpretabilidade}
+
+\begin{enumerate}
+    \item \textbf{Attention Tracking}: Rastreia EXATAMENTE quais conceitos de quais slices influenciaram cada decisão
+    \item \textbf{Caixa Preta $\rightarrow$ Caixa de Vidro}: Sistema completamente interpretável e auditável
+    \item \textbf{Pesos de Influência}: Cada conceito possui peso 0-1 indicando força de influência
+    \item \textbf{Caminho de Decisão}: Sequência completa de decisões do início ao fim
+    \item \textbf{Exportação para Auditoria}: Compliance regulatório via traces completos
+\end{enumerate}
+
+\textbf{Casos de Uso}:
+\begin{itemize}
+    \item \textit{Desenvolvedor}: ``Por que o sistema deu essa resposta?'' $\rightarrow$ Vê exatamente
+    \item \textit{Auditor}: ``Quais dados influenciaram essa decisão financeira?'' $\rightarrow$ Exportação completa
+    \item \textit{Pesquisador}: ``Quais padrões emergem no raciocínio cross-domain?'' $\rightarrow$ Estatísticas agregadas
+    \item \textit{Usuário}: ``Como você chegou nessa conclusão?'' $\rightarrow$ Explicação passo-a-passo
+\end{itemize}
+
+\textbf{Overhead}: $<$1\% do tempo de execução, ~200 bytes por trace.
 
 \subsubsection{Meta-Inovação}
 
