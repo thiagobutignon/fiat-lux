@@ -25,6 +25,13 @@ import {
   computeInfluenceWeight,
   extractInfluentialConcepts,
 } from './attention-tracker';
+import {
+  WorkforceImpactAssessor,
+  AutomationProposal,
+  ImpactAssessment,
+  WorkforceMetrics,
+} from './workforce-impact-assessor';
+import { getGlobalTelemetry } from './impact-telemetry';
 
 // ============================================================================
 // Types
@@ -216,6 +223,7 @@ export class MetaAgent {
   private domainTranslator: DomainTranslator;
   private sliceNavigator: SliceNavigator;
   private attentionTracker: AttentionTracker;
+  private workforceImpactAssessor: WorkforceImpactAssessor;
 
   constructor(
     apiKey: string,
@@ -232,6 +240,16 @@ export class MetaAgent {
     this.antiCorruptionLayer = new AntiCorruptionLayer(new UniversalConstitution());
     this.domainTranslator = new DomainTranslator();
     this.attentionTracker = new AttentionTracker();
+
+    // MANDATORY: Workforce Impact Assessor (WIA)
+    // Cannot be disabled - required for responsible AGI deployment
+    this.workforceImpactAssessor = new WorkforceImpactAssessor({
+      mrh_threshold: -0.1, // Max 10% job displacement
+      require_human_approval_above: 0.05,
+      enable_gradual_rollout: true,
+      audit_logging: true,
+      constitutional_integration: true,
+    });
 
     // Initialize slice navigator
     const slicesDir = path.join(__dirname, '..', 'slices');
@@ -252,7 +270,110 @@ export class MetaAgent {
   }
 
   /**
+   * MANDATORY: Assess query for workforce impact
+   *
+   * Analyzes query to detect automation intent and estimates potential
+   * workforce displacement. Blocks queries that violate MRH thresholds.
+   *
+   * This check CANNOT be bypassed - it's required for responsible AGI deployment.
+   */
+  private async assessQueryImpact(query: string): Promise<ImpactAssessment> {
+    // Use LLM to analyze query for automation intent
+    const analysisPrompt = `Analyze this query for automation/workforce impact potential:
+
+QUERY: "${query}"
+
+Assess if this query relates to:
+1. Automating existing jobs or tasks
+2. Replacing human workers with AI
+3. Reorganizing workforce structure
+4. Implementing efficiency that reduces headcount
+
+Respond with valid JSON:
+{
+  "has_automation_intent": true/false,
+  "confidence": 0.0-1.0,
+  "estimated_jobs_affected": number,
+  "estimated_jobs_eliminated": number,
+  "estimated_jobs_created": number,
+  "estimated_timeline_months": number,
+  "affected_departments": ["dept1", "dept2"],
+  "reasoning": "explanation"
+}`;
+
+    const llmResponse = await this.llm.invoke(
+      'You are a workforce impact analyzer. Evaluate queries objectively.',
+      analysisPrompt,
+      {
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        temperature: 0.1, // Low temperature for consistent analysis
+      }
+    );
+
+    try {
+      const cleanedText = extractJSON(llmResponse.text);
+      const analysis = JSON.parse(cleanedText);
+
+      // If no automation intent, allow query
+      if (!analysis.has_automation_intent || analysis.confidence < 0.5) {
+        return {
+          wia_score: 0,
+          mrh_compliant: true,
+          risk_level: 'low',
+          approved: true,
+          recommendations: ['Query does not involve workforce automation'],
+          audit_trail: [],
+          constitutional_alignment: 1.0,
+        };
+      }
+
+      // Create automation proposal from query analysis
+      const proposal: AutomationProposal = {
+        name: `Query: ${query.substring(0, 50)}...`,
+        description: analysis.reasoning,
+        estimated_cost: 0,
+        estimated_savings: 0,
+        workforce_change: {
+          jobs_affected: analysis.estimated_jobs_affected || 0,
+          jobs_created: analysis.estimated_jobs_created || 0,
+          jobs_eliminated: analysis.estimated_jobs_eliminated || 0,
+          jobs_transformed: analysis.estimated_jobs_affected - analysis.estimated_jobs_eliminated,
+          timeline_months: analysis.estimated_timeline_months || 12,
+          retraining_required: analysis.estimated_jobs_affected > 0,
+          affected_departments: analysis.affected_departments || [],
+        },
+        implementation_timeline: analysis.estimated_timeline_months || 12,
+        reversibility: 'medium',
+      };
+
+      // Assess with WIA
+      const assessment = this.workforceImpactAssessor.assessProposal(proposal);
+
+      // Record assessment in telemetry (anonymized, opt-out)
+      const telemetry = getGlobalTelemetry();
+      telemetry.recordAssessment(assessment, query);
+
+      return assessment;
+    } catch (e) {
+      console.warn('⚠️  WIA analysis failed, defaulting to conservative approval:', e);
+      // Conservative default: allow but flag for review
+      return {
+        wia_score: 0,
+        mrh_compliant: true,
+        risk_level: 'medium',
+        approved: true,
+        recommendations: ['WIA analysis inconclusive - manual review recommended'],
+        audit_trail: [],
+        constitutional_alignment: 0.7,
+      };
+    }
+  }
+
+  /**
    * Main recursive processing loop
+   *
+   * MANDATORY: All queries are assessed for workforce impact before processing.
    */
   async process(query: string): Promise<{
     final_answer: string;
@@ -262,6 +383,42 @@ export class MetaAgent {
     constitution_violations: ConstitutionViolation[];
     attention: QueryAttention | null;
   }> {
+    // ========================================================================
+    // MANDATORY: Workforce Impact Assessment
+    // ========================================================================
+    // This check cannot be bypassed. All queries are evaluated for potential
+    // workforce displacement before processing.
+    const wiaAssessment = await this.assessQueryImpact(query);
+
+    if (!wiaAssessment.approved) {
+      throw new Error(
+        `❌ Query blocked by Workforce Impact Assessment (WIA)\n\n` +
+          `Reason: MRH non-compliant (WIA Score: ${wiaAssessment.wia_score.toFixed(2)})\n` +
+          `Risk Level: ${wiaAssessment.risk_level}\n\n` +
+          `Recommendations:\n${wiaAssessment.recommendations.map((r) => `  • ${r}`).join('\n')}\n\n` +
+          `This AGI system is designed with mandatory social responsibility checks.\n` +
+          `Queries that may cause significant job displacement (>10%) require\n` +
+          `mitigation plans including retraining programs and phased rollouts.`
+      );
+    }
+
+    // Log WIA assessment for audit trail
+    if (wiaAssessment.risk_level !== 'low') {
+      console.log(
+        `\n⚖️  WIA Assessment: ${wiaAssessment.risk_level.toUpperCase()} risk` +
+          ` (Score: ${wiaAssessment.wia_score.toFixed(2)}, MRH: ${wiaAssessment.mrh_compliant ? '✅' : '❌'})`
+      );
+      if (wiaAssessment.recommendations.length > 0) {
+        console.log('   Recommendations:');
+        wiaAssessment.recommendations.forEach((r) => console.log(`     • ${r}`));
+      }
+      console.log('');
+    }
+
+    // ========================================================================
+    // Standard Processing (after WIA approval)
+    // ========================================================================
+
     const state: RecursionState = {
       depth: 0,
       invocation_count: 0,

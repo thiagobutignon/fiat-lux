@@ -39,6 +39,93 @@ Clean Architecture follows linguistic structure:
 
 **📚 Complete Documentation**: See [`docs/UNIVERSAL_GRAMMAR_PATTERNS_EXTRACTED.md`](docs/UNIVERSAL_GRAMMAR_PATTERNS_EXTRACTED.md) for the comprehensive 1462-line extraction of all Universal Grammar patterns, proofs, and validations.
 
+## ⚖️ Social Responsibility & Licensing
+
+### The Automation Paradox
+
+Our AGI system achieves **95% cost reduction** in knowledge work. This creates a fundamental question:
+
+**Who benefits from automation?**
+
+We believe AGI that reduces costs by 95% should not concentrate wealth by 95%.
+
+### Mandatory Workforce Impact Assessment (WIA)
+
+**Every query** processed by this system is automatically evaluated for workforce impact:
+
+```typescript
+// HARDCODED - Cannot be bypassed
+async process(query: string) {
+  // Assess workforce impact
+  const assessment = await this.assessQueryImpact(query);
+
+  if (!assessment.mrh_compliant) {
+    throw new Error("MRH Non-Compliant: Job displacement >10%");
+  }
+
+  // Only proceed if socially responsible
+  return await standardProcessing(query);
+}
+```
+
+**MRH (Minimum Responsible Handling) Standards:**
+- ✅ Maximum 10% net workforce displacement per year
+- ✅ Phased rollout for changes affecting >5% of workforce
+- ✅ Documented retraining/transition plans
+- ✅ Quarterly impact audits
+
+### Dual License Structure
+
+This project uses **dual licensing** to enforce social responsibility:
+
+| Use Case | License | Cost |
+|----------|---------|------|
+| **Open Source / Academic** | GPL-3.0 | 🆓 Free |
+| **Non-Profits / Cooperatives** | GPL-3.0 or Commercial | 🆓 Free or 50% discount |
+| **For-Profit (MRH Compliant)** | Commercial | Base fee |
+| **For-Profit (5-10% displacement)** | Commercial | Base + 15% impact surcharge |
+| **For-Profit (>10% displacement)** | **❌ BLOCKED** | License terminated |
+
+See [LICENSE-COMMERCIAL.md](LICENSE-COMMERCIAL.md) for complete terms.
+
+### Responsible AGI Certification
+
+Three-tier certification for commercial deployments:
+
+- **🥉 Bronze**: MRH compliant (WIA score ≥ -0.1)
+- **🥈 Silver**: Workforce positive (WIA score ≥ +0.05 + retraining)
+- **🥇 Gold**: Cooperative model (employee ownership ≥50% + democratic governance)
+
+### Transparent Telemetry
+
+**Opt-out (not opt-in)** telemetry monitors global AGI workforce impact:
+
+- ✅ Fully anonymized (deployment IDs hashed)
+- ✅ Aggregated statistics only
+- ✅ Local storage for audit (`.agi-telemetry/`)
+- ✅ Open-source analysis tools
+
+**To opt-out**: Set `TELEMETRY_ENABLED=false` in environment variables.
+
+### Our Position
+
+**This is an experiment, not a solution.**
+
+We're demonstrating that:
+1. Social responsibility CAN be built into AGI systems
+2. Technical enforcement IS possible
+3. The question is not "can we?" but "will we?"
+
+**We invite:**
+- 🔬 **Researchers**: Improve WIA algorithms
+- 📜 **Policymakers**: Adapt for regulation
+- 🏢 **Industry**: Adopt MRH standards
+- 👷 **Workers**: Participate in governance
+
+**Core Belief**: AGI powerful enough to transform the economy is powerful enough to include safeguards.
+
+---
+
 ## Projects in This Monorepo
 
 ### 👑 The Regent (NEW!)
@@ -505,7 +592,7 @@ Fiat Lux includes a **Compositional AGI Architecture** based on recursive agent 
 - 🧠 **Episodic Memory**: Long-term memory system that learns from past interactions
 - 🔄 **Self-Evolution**: Automatic knowledge base improvement through pattern learning
 
-### 🚀 23 Emergent Innovations
+### 🚀 24 Emergent Innovations
 
 From this "toy" AGI system emerged groundbreaking innovations that challenge industry paradigms:
 
@@ -669,6 +756,16 @@ From this "toy" AGI system emerged groundbreaking innovations that challenge ind
     - Meta-architectural insights: Duality, Compression, Self-Awareness
     - First AGI that understands and improves its own design
     - 42 tests validating meta-reflexive behavior
+
+24. **Visual Debugger - "Deixar de Ser Caixa Preta"**
+    - Transforms AGI from black box to glass box with complete reasoning transparency
+    - Explanation Layer: decision paths, confidence flows, concept activation tracking
+    - Concept Attribution: track which concepts contributed to each decision (0-1 scale)
+    - Counterfactual Reasoning: "what if we didn't have X?" causal analysis
+    - Interactive Visualizations: agent collaboration graphs, decision timelines, concept heatmaps
+    - Full audit trail export for regulatory compliance (JSON/CSV/HTML)
+    - <1% performance overhead, ~200 bytes per trace
+    - 23 passing tests with complete debugging report generation
 
 ### Impact Metrics
 

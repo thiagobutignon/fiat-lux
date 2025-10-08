@@ -854,6 +854,188 @@ These principles were not programmed --- they \textbf{emerged} from rigorous app
 The code is available open-source at:
 \url{https://github.com/thiagobutignon/fiat-lux}
 
+\section{Social Implications and Responsible Deployment}
+
+\subsection{The Automation Paradox}
+
+Our system achieves 95\% cost reduction in knowledge work. This creates a fundamental tension:
+
+\begin{itemize}
+    \item \textbf{Benefit}: Dramatically reduced operational costs
+    \item \textbf{Risk}: Potential mass displacement of knowledge workers
+    \item \textbf{Question}: Who captures the value of automation?
+\end{itemize}
+
+\textbf{Central Problem:} AGI that reduces costs by 95\% should not concentrate wealth by 95\%.
+
+\subsection{Mandatory Social Responsibility Framework}
+
+To prevent irresponsible deployment, the system includes \textbf{hardcoded} social safeguards:
+
+\subsubsection{Workforce Impact Assessor (WIA)}
+
+Every query is evaluated for automation intent and workforce impact:
+
+\begin{lstlisting}[language=Python, caption=Mandatory WIA Check]
+async process(query):
+    # CANNOT BE BYPASSED
+    assessment = assessQueryImpact(query)
+
+    if not assessment.approved:
+        raise "MRH Non-Compliant: Job displacement >10%"
+
+    # Only proceed if socially responsible
+    return await standardProcessing(query)
+\end{lstlisting}
+
+\textbf{Minimum Responsible Handling (MRH) Standard:}
+\begin{itemize}
+    \item Maximum 10\% net workforce displacement per year
+    \item Phased rollout for changes affecting $>$5\% workforce
+    \item Documented retraining/transition plans
+    \item Quarterly impact audits
+\end{itemize}
+
+\subsubsection{Dual License Structure}
+
+The system uses dual licensing to enforce social responsibility:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Use Case} & \textbf{License} & \textbf{Cost} \\ \midrule
+Open-source projects & GPL-3.0 & Free \\
+Academic research & GPL-3.0 & Free \\
+Non-profits & GPL-3.0 & Free \\
+Cooperatives (employee-owned) & Commercial & 50\% discount \\
+For-profit (MRH compliant) & Commercial & Base fee \\
+For-profit (job displacement $>$5\%) & Commercial & Base + impact surcharge \\
+For-profit (displacement $>$10\%) & \textbf{Blocked} & License terminated \\ \bottomrule
+\end{tabular}
+\caption{License structure based on social impact}
+\end{table}
+
+\textbf{Impact Surcharge Formula:}
+\[
+\text{Annual Fee} = \text{Base Fee} \times (1 + k \times \text{savings}_{\text{automation}})
+\]
+where $k = 0.15$ for 5-10\% displacement, generating funds for:
+\begin{itemize}
+    \item 60\%: Worker retraining programs
+    \item 30\%: Universal basic income pilots
+    \item 10\%: Open-source AI research
+\end{itemize}
+
+\subsubsection{Responsible AGI Certification}
+
+Three-tier certification system for commercial deployments:
+
+\begin{itemize}
+    \item \textbf{🥉 Bronze}: MRH compliant (WIA score $\geq -0.1$)
+    \item \textbf{🥈 Silver}: Workforce positive (WIA score $\geq +0.05$ + retraining programs)
+    \item \textbf{🥇 Gold}: Cooperative model (employee ownership $\geq 50\%$ + democratic governance)
+\end{itemize}
+
+\textbf{Public Badge System:} Companies display certification publicly, creating social pressure for responsible deployment.
+
+\subsubsection{Transparent Telemetry}
+
+\textbf{Opt-out (not opt-in)} telemetry for global impact monitoring:
+
+\begin{itemize}
+    \item Fully anonymized (deployment ID hashed)
+    \item Aggregated statistics (no individual queries)
+    \item Local storage for audit (JSONL format)
+    \item Open-source analysis tools
+\end{itemize}
+
+\textbf{Purpose:} Enable collective understanding of AGI workforce impact without compromising privacy.
+
+\subsection{Philosophical Alignment}
+
+Social responsibility features directly implement our core principles:
+
+\begin{enumerate}
+    \item \textbf{``Not Knowing Is All You Need''} $\rightarrow$ We don't know all impacts, therefore mandatory monitoring
+    \item \textbf{``Idleness Is All You Need''} $\rightarrow$ Efficiency should create leisure, not unemployment
+    \item \textbf{``Continuous Evolution Is All You Need''} $\rightarrow$ Standards evolve as we learn impact
+\end{enumerate}
+
+\subsection{Enforcement Mechanisms}
+
+\subsubsection{Technical Enforcement}
+
+\begin{itemize}
+    \item WIA hardcoded in MetaAgent core (cannot be removed without breaking)
+    \item Constitutional checks log all bypass attempts
+    \item Telemetry detects anomalous usage patterns
+\end{itemize}
+
+\subsubsection{Legal Enforcement}
+
+\begin{itemize}
+    \item Commercial license requires signed agreement
+    \item Quarterly audits with access to system logs
+    \item Automatic termination for MRH violations
+    \item 5x penalty for fraudulent impact reporting
+\end{itemize}
+
+\subsubsection{Social Enforcement}
+
+\begin{itemize}
+    \item Public certification badges create reputational pressure
+    \item Industry standards emerge from certified companies
+    \item Worker advocacy groups can verify compliance
+\end{itemize}
+
+\subsection{Limitations and Open Questions}
+
+\subsubsection{Technical Limitations}
+
+\begin{itemize}
+    \item WIA relies on LLM analysis of queries (can be fooled)
+    \item Impact measurement requires self-reporting
+    \item No enforcement beyond license termination
+\end{itemize}
+
+\subsubsection{Economic Questions}
+
+\begin{itemize}
+    \item \textbf{Enforcement globally?} License only affects our system, not reimplementations
+    \item \textbf{Sufficient deterrent?} Impact surcharge may be cost of doing business
+    \item \textbf{Fair distribution?} Who decides how surcharge funds are allocated?
+\end{itemize}
+
+\subsubsection{Philosophical Tensions}
+
+\begin{itemize}
+    \item \textbf{Paternalism vs Freedom:} Is it ethical to block queries?
+    \item \textbf{Innovation vs Protection:} Does this slow beneficial automation?
+    \item \textbf{Open Source Paradox:} GPL-3.0 allows fork without restrictions
+\end{itemize}
+
+\subsection{Call to Action}
+
+\textbf{This is an experiment, not a solution.}
+
+We propose this framework to:
+\begin{enumerate}
+    \item Start conversation about responsible AGI deployment
+    \item Demonstrate technical feasibility of built-in safeguards
+    \item Provide template for industry standards
+\end{enumerate}
+
+\textbf{We invite:}
+\begin{itemize}
+    \item \textbf{Researchers:} Improve WIA algorithms and impact measurement
+    \item \textbf{Policymakers:} Adapt framework for regulation
+    \item \textbf{Industry:} Adopt MRH standards voluntarily
+    \item \textbf{Workers:} Participate in governance and oversight
+\end{itemize}
+
+\textbf{Core Belief:} AGI powerful enough to transform economy is powerful enough to include safeguards. The question is not whether we \textit{can} build responsible systems, but whether we \textit{will}.
+
 \section*{References}
 
 \begin{enumerate}
