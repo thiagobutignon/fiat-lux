@@ -12,6 +12,7 @@
  * 6. Cost estimation
  */
 
+import 'dotenv/config';
 import { createAdapter, getRecommendedModel } from '../llm/anthropic-adapter';
 
 console.log('═══════════════════════════════════════════════════════════════');

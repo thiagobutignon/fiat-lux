@@ -14,6 +14,7 @@
  * This is AGI through composition, not model size.
  */
 
+import 'dotenv/config';
 import { MetaAgent } from '../core/meta-agent';
 import { FinancialAgent } from '../agents/financial-agent';
 import { BiologyAgent } from '../agents/biology-agent';
