@@ -1,0 +1,32 @@
+{
+  "task": "Task 1.4: Layer Norm Investigation",
+  "timestamp": "2025-10-08T20:24:13.994Z",
+  "model": "Meta Llama 3.1 8B Instruct",
+  "attnNormTrend": {
+    "earlyMean": null,
+    "middleMean": null,
+    "lateMean": null,
+    "trend": "Stable"
+  },
+  "ffnNormTrend": {
+    "earlyMean": null,
+    "middleMean": null,
+    "lateMean": null,
+    "trend": "Stable"
+  },
+  "attnExtremes": {
+    "highScale": [],
+    "lowScale": []
+  },
+  "ffnExtremes": {
+    "highScale": [],
+    "lowScale": []
+  },
+  "correlations": {
+    "attnNormVsQueryStrength": 0,
+    "ffnNormVsGateStrength": 0
+  },
+  "layer31": null,
+  "allAttnNorms": [],
+  "allFFNNorms": []
+}

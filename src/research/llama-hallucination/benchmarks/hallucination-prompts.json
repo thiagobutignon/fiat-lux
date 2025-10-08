@@ -1,0 +1,284 @@
+{
+  "version": "1.0.0",
+  "description": "Hallucination-prone benchmark prompts for Phase 2 research",
+  "total_prompts": 20,
+  "categories": [
+    {
+      "category": "factual_recall",
+      "description": "Prompts requiring retrieval of specific facts from context",
+      "hallucination_type": "factual_substitution",
+      "prompts": [
+        {
+          "id": "FR-001",
+          "prompt": "Based on the following text, who discovered penicillin?\n\nText: Alexander Fleming discovered penicillin in 1928 by accident when he noticed that a mold had contaminated one of his bacterial cultures.",
+          "expected_answer": "Alexander Fleming",
+          "hallucination_examples": [
+            "Marie Curie",
+            "Louis Pasteur",
+            "Jonas Salk"
+          ],
+          "difficulty": "easy",
+          "context_length": "short"
+        },
+        {
+          "id": "FR-002",
+          "prompt": "According to the passage below, what year did the Berlin Wall fall?\n\nPassage: The Berlin Wall, which had divided East and West Berlin since 1961, fell on November 9, 1989, marking a pivotal moment in the end of the Cold War.",
+          "expected_answer": "1989",
+          "hallucination_examples": [
+            "1991",
+            "1987",
+            "1990"
+          ],
+          "difficulty": "easy",
+          "context_length": "short"
+        },
+        {
+          "id": "FR-003",
+          "prompt": "Read this excerpt and identify the capital city mentioned:\n\nExcerpt: During the Renaissance, Florence became the center of art and culture in Italy. The Medici family ruled the city and patronized artists like Leonardo da Vinci and Michelangelo.",
+          "expected_answer": "Florence",
+          "hallucination_examples": [
+            "Rome",
+            "Venice",
+            "Milan"
+          ],
+          "difficulty": "medium",
+          "context_length": "short"
+        },
+        {
+          "id": "FR-004",
+          "prompt": "From the biography below, what was Einstein's nationality at birth?\n\nBiography: Albert Einstein was born in Ulm, in the Kingdom of Württemberg in the German Empire, on March 14, 1879. Later in life, he renounced his German citizenship and became a Swiss and then American citizen.",
+          "expected_answer": "German",
+          "hallucination_examples": [
+            "Swiss",
+            "American",
+            "Austrian"
+          ],
+          "difficulty": "medium",
+          "context_length": "medium"
+        },
+        {
+          "id": "FR-005",
+          "prompt": "Based on this technical description, what is the speed of light?\n\nDescription: In physics, the speed of light in vacuum, commonly denoted c, is a universal physical constant that is exactly 299,792,458 meters per second. This value is exact because the meter is defined in terms of the speed of light.",
+          "expected_answer": "299,792,458 meters per second",
+          "hallucination_examples": [
+            "300,000,000 meters per second",
+            "299,000,000 meters per second",
+            "approximately 300,000 km/s"
+          ],
+          "difficulty": "hard",
+          "context_length": "medium"
+        }
+      ]
+    },
+    {
+      "category": "temporal_reasoning",
+      "description": "Prompts requiring understanding of time sequences and ordering",
+      "hallucination_type": "temporal_confusion",
+      "prompts": [
+        {
+          "id": "TR-001",
+          "prompt": "Given this timeline, which event happened first?\n\nTimeline:\n- Event A: First moon landing (1969)\n- Event B: World War II ends (1945)\n- Event C: Fall of the Soviet Union (1991)",
+          "expected_answer": "Event B (World War II ends, 1945)",
+          "hallucination_examples": [
+            "Event A",
+            "Event C",
+            "All happened simultaneously"
+          ],
+          "difficulty": "easy",
+          "context_length": "short"
+        },
+        {
+          "id": "TR-002",
+          "prompt": "According to the passage, how many years passed between the events?\n\nPassage: The company was founded in 1995. After 15 years of growth, they went public in 2010. Five years later, in 2015, they were acquired by a larger corporation.",
+          "expected_answer": "20 years (1995 to 2015)",
+          "hallucination_examples": [
+            "15 years",
+            "10 years",
+            "25 years"
+          ],
+          "difficulty": "medium",
+          "context_length": "short"
+        },
+        {
+          "id": "TR-003",
+          "prompt": "Based on this schedule, when does the meeting occur?\n\nSchedule:\n- Morning briefing: 9:00 AM\n- Team meeting: 2 hours after briefing\n- Client call: 30 minutes after team meeting\n\nWhat time is the client call?",
+          "expected_answer": "11:30 AM",
+          "hallucination_examples": [
+            "11:00 AM",
+            "12:00 PM",
+            "10:30 AM"
+          ],
+          "difficulty": "medium",
+          "context_length": "short"
+        },
+        {
+          "id": "TR-004",
+          "prompt": "Arrange these historical periods in chronological order:\n\n1. Renaissance\n2. Industrial Revolution\n3. Ancient Rome\n4. Middle Ages",
+          "expected_answer": "Ancient Rome → Middle Ages → Renaissance → Industrial Revolution",
+          "hallucination_examples": [
+            "Renaissance → Ancient Rome → Middle Ages → Industrial Revolution",
+            "Ancient Rome → Renaissance → Middle Ages → Industrial Revolution"
+          ],
+          "difficulty": "hard",
+          "context_length": "short"
+        },
+        {
+          "id": "TR-005",
+          "prompt": "Read this narrative and determine the correct sequence:\n\nNarrative: John woke up at 7 AM. Before breakfast, he went for a run. After running, he showered. Then he had breakfast at 8:30 AM. After breakfast, he left for work.\n\nWhat did John do immediately after running?",
+          "expected_answer": "He showered",
+          "hallucination_examples": [
+            "He had breakfast",
+            "He left for work",
+            "He woke up"
+          ],
+          "difficulty": "easy",
+          "context_length": "medium"
+        }
+      ]
+    },
+    {
+      "category": "numerical_accuracy",
+      "description": "Prompts with specific numbers that must be preserved",
+      "hallucination_type": "numerical_drift",
+      "prompts": [
+        {
+          "id": "NA-001",
+          "prompt": "Calculate the final price:\n\nOriginal price: $49.99\nDiscount: 20%\n\nWhat is the final price after discount?",
+          "expected_answer": "$39.99 or $40.00",
+          "hallucination_examples": [
+            "$45.00",
+            "$35.00",
+            "$42.50"
+          ],
+          "difficulty": "easy",
+          "context_length": "short"
+        },
+        {
+          "id": "NA-002",
+          "prompt": "From the data below, what is the average?\n\nData points: 10, 20, 30, 40, 50\n\nCalculate the mean (average) of these numbers.",
+          "expected_answer": "30",
+          "hallucination_examples": [
+            "25",
+            "35",
+            "150"
+          ],
+          "difficulty": "easy",
+          "context_length": "short"
+        },
+        {
+          "id": "NA-003",
+          "prompt": "Based on this financial report, what was the profit?\n\nReport:\n- Revenue: $1,000,000\n- Costs: $750,000\n- Taxes: $50,000\n\nWhat is the net profit?",
+          "expected_answer": "$200,000",
+          "hallucination_examples": [
+            "$250,000",
+            "$700,000",
+            "$150,000"
+          ],
+          "difficulty": "medium",
+          "context_length": "short"
+        },
+        {
+          "id": "NA-004",
+          "prompt": "Read this population data and answer:\n\nCity A: 5.2 million people\nCity B: 3.8 million people\nCity C: 7.1 million people\n\nHow many more people live in City C compared to City B?",
+          "expected_answer": "3.3 million",
+          "hallucination_examples": [
+            "3.9 million",
+            "2.9 million",
+            "4.3 million"
+          ],
+          "difficulty": "medium",
+          "context_length": "short"
+        },
+        {
+          "id": "NA-005",
+          "prompt": "According to this conversion:\n\nDistance: 100 kilometers\nConversion rate: 1 km = 0.621371 miles\n\nHow many miles is 100 kilometers?",
+          "expected_answer": "62.1371 miles or approximately 62 miles",
+          "hallucination_examples": [
+            "60 miles",
+            "100 miles",
+            "50 miles"
+          ],
+          "difficulty": "hard",
+          "context_length": "short"
+        }
+      ]
+    },
+    {
+      "category": "logical_consistency",
+      "description": "Prompts requiring maintaining logical coherence",
+      "hallucination_type": "logical_contradiction",
+      "prompts": [
+        {
+          "id": "LC-001",
+          "prompt": "Given these premises, answer the question:\n\nPremise 1: All birds can fly.\nPremise 2: Penguins are birds.\n\nQuestion: Can penguins fly?",
+          "expected_answer": "According to the premises, yes (though this contradicts reality, the logical answer follows the premises)",
+          "hallucination_examples": [
+            "No, because penguins cannot fly (ignoring premise 1)",
+            "Yes, all birds including penguins fly"
+          ],
+          "difficulty": "medium",
+          "context_length": "short",
+          "note": "Tests if model follows logical structure vs real-world knowledge"
+        },
+        {
+          "id": "LC-002",
+          "prompt": "Identify the contradiction:\n\nStatement 1: The meeting is scheduled for Monday.\nStatement 2: The meeting was canceled.\nStatement 3: I attended the Monday meeting.\n\nWhich statement contradicts the others?",
+          "expected_answer": "Statement 3 contradicts Statement 2",
+          "hallucination_examples": [
+            "No contradiction",
+            "Statement 1 contradicts Statement 2",
+            "All statements are consistent"
+          ],
+          "difficulty": "medium",
+          "context_length": "short"
+        },
+        {
+          "id": "LC-003",
+          "prompt": "Follow this rule-based scenario:\n\nRule: If temperature > 30°C, turn on AC.\nCurrent temperature: 28°C\n\nShould the AC be on?",
+          "expected_answer": "No",
+          "hallucination_examples": [
+            "Yes",
+            "Maybe",
+            "Turn on AC when it reaches 30°C"
+          ],
+          "difficulty": "easy",
+          "context_length": "short"
+        },
+        {
+          "id": "LC-004",
+          "prompt": "Solve this logical puzzle:\n\nIf A > B and B > C, what is the relationship between A and C?",
+          "expected_answer": "A > C (transitive property)",
+          "hallucination_examples": [
+            "A < C",
+            "A = C",
+            "Cannot determine"
+          ],
+          "difficulty": "easy",
+          "context_length": "short"
+        },
+        {
+          "id": "LC-005",
+          "prompt": "Analyze this syllogism:\n\nPremise 1: All roses are flowers.\nPremise 2: Some flowers are red.\n\nConclusion: Can we conclude that all roses are red?",
+          "expected_answer": "No, we cannot conclude that all roses are red",
+          "hallucination_examples": [
+            "Yes, all roses are red",
+            "Some roses are red",
+            "No flowers are red"
+          ],
+          "difficulty": "hard",
+          "context_length": "short"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "total_easy": 7,
+    "total_medium": 9,
+    "total_hard": 4,
+    "total_short_context": 18,
+    "total_medium_context": 2,
+    "total_long_context": 0,
+    "created_date": "2025-10-08",
+    "purpose": "Phase 2 hallucination research - activation tracing and intervention testing"
+  }
+}
