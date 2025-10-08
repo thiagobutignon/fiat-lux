@@ -1,6 +1,6 @@
 {
-  "name": "@google/gemini-cli",
-  "version": "0.9.0-nightly.20251001.163dba7e",
+  "name": "@the-regent/cli",
+  "version": "0.1.0-alpha",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -11,7 +11,7 @@
   "private": "true",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/google-gemini/gemini-cli.git"
+    "url": "git+https://github.com/thiagobutignon/fiat-lux.git"
   },
   "config": {
     "sandboxImageUri": "us-docker.pkg.dev/gemini-code-dev/gemini-cli/sandbox:0.9.0-nightly.20251001.163dba7e"
@@ -62,7 +62,8 @@
     }
   },
   "bin": {
-    "gemini": "bundle/gemini.js"
+    "regent": "bundle/regent.js",
+    "the-regent": "bundle/regent.js"
   },
   "files": [
     "bundle/",
