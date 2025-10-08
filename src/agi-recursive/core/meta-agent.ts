@@ -90,12 +90,20 @@ export interface CompositionResult {
  * - Plain JSON
  */
 function extractJSON(text: string): string {
-  // Try to match markdown code blocks
-  const codeBlockRegex = /```(?:json)?\s*\n?([\s\S]*?)```/;
-  const match = text.match(codeBlockRegex);
+  // Try to match markdown code blocks (greedy to get all content)
+  const codeBlockRegex = /```(?:json)?\s*\n?([\s\S]*?)```/g;
+  const matches = [...text.matchAll(codeBlockRegex)];
 
-  if (match && match[1]) {
-    return match[1].trim();
+  if (matches.length > 0) {
+    // Use the first match that looks like valid JSON
+    for (const match of matches) {
+      if (match[1]) {
+        const candidate = match[1].trim();
+        if (candidate.startsWith('{') || candidate.startsWith('[')) {
+          return candidate;
+        }
+      }
+    }
   }
 
   // Fallback: try to extract JSON by finding first { and last }

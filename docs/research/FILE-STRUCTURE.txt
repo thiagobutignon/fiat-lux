@@ -1,0 +1,90 @@
+AgentCoin Documentation Structure
+==================================
+
+📂 docs/research/
+│
+├── 🚀 START HERE FIRST
+│   ├── START-HERE.md (4.2KB) ⭐ [5 min read]
+│   └── EXECUTIVE-SUMMARY-PRAGMATIC.md (6.8KB) [5 min read]
+│
+├── 📘 PRAGMATIC VERSION (Current - Read These)
+│   ├── ai-ubi-thesis-PRAGMATIC.md (22KB) ⭐⭐ [Main document, 30-60 min]
+│   ├── README-PRAGMATIC-REVISION.md (8.9KB) [Guide to revision]
+│   ├── ERRATA-critical-revisions.md (11KB) [10 errors corrected]
+│   └── REVISION-SUMMARY.md (9KB) [Complete summary of changes]
+│
+├── 📚 ORIGINAL VERSION (Historical Reference - Read with Caution)
+│   ├── ai-ubi-thesis.md (~30KB) ⚠️ Superseded
+│   ├── bitcoin-to-agentcoin-technical-analysis.md (~50KB) ⚠️ Overkill
+│   ├── agentcoin-token-economics.md (~40KB) ⚠️ Unrealistic projections
+│   ├── agentcoin-social-welfare-validation.md (~45KB) ⚠️ Valid philosophy, excessive tech faith
+│   └── agentcoin-implementation-roadmap.md (~35KB) ⚠️ Obsolete
+│
+└── 🔧 Bitcoin Clone
+    └── external/bitcoin/
+        ├── AGENTCOIN-README.md [Why we probably won't use this]
+        └── [Full Bitcoin Core codebase, ~5GB]
+
+Reading Paths
+=============
+
+🏃 FAST TRACK (15 minutes):
+1. START-HERE.md
+2. EXECUTIVE-SUMMARY-PRAGMATIC.md
+3. Decision: Done! Go build or advocate.
+
+🚶 NORMAL TRACK (2 hours):
+1. START-HERE.md
+2. EXECUTIVE-SUMMARY-PRAGMATIC.md
+3. ai-ubi-thesis-PRAGMATIC.md
+4. ERRATA-critical-revisions.md
+5. Decision time.
+
+🐌 DEEP DIVE (4+ hours):
+1. All pragmatic docs above
+2. Compare with original docs (see evolution)
+3. Bitcoin technical analysis (if curious)
+4. Ready to lead the project.
+
+Key Differences: Before vs After
+=================================
+
+BEFORE (Optimistic/Naive):
+- Focus: 90% tech, 10% politics
+- Strategy: Bitcoin fork, voluntary crypto adoption
+- Scale: 100M users in 5 years
+- Budget: $4M in 18 months
+- Promise: "Blockchain solves inequality"
+
+AFTER (Realistic/Honest):
+- Focus: 70% politics, 20% pilot, 10% transparency
+- Strategy: Lobby for AI Tax legislation
+- Scale: 100 users (pilot) → 1M via law in 10 years
+- Budget: $1.5M over 5 years
+- Truth: "Politics solves inequality, tech enables transparency"
+
+Next Steps
+==========
+
+THIS WEEK:
+□ Read pragmatic docs
+□ Decide: Option A (pilot + advocacy) or B (100% advocacy)
+□ Present to stakeholders
+□ Get feedback from economists/politicians
+
+MONTH 1-3:
+□ If A: Setup tech (Stripe + PostgreSQL, not blockchain)
+□ If B: Write policy paper (50+ pages)
+□ Start conversations with legislators
+□ Build coalition (NGOs, unions)
+
+YEAR 1-10:
+□ Relentless political advocacy
+□ Build social movement
+□ Measure legislative progress
+□ AI Tax passed in 1+ country = SUCCESS
+
+Status: Ready for Decision
+Contact: [Add if relevant]
+Last Updated: 2025-10-08
+

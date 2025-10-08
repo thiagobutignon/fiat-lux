@@ -1,0 +1,559 @@
+{
+  "timestamp": 1759958083922,
+  "model": "Meta Llama 3.1 8B Instruct",
+  "quantization": "F32, Q4_K, Q6_K",
+  "totalParameters": 8030261312,
+  "globalStatistics": {
+    "avgAttentionStrength": 62.83692819789768,
+    "avgFFNStrength": 969497.432581755,
+    "avgValueSparsity": 0.015285782516002655,
+    "avgQKRatio": 1.3646284799388098,
+    "avgFFNNorm": 0.36692426959108815
+  },
+  "hallucinationRisks": [
+    {
+      "layer": 30,
+      "totalRisk": 33.64419320250034,
+      "components": {
+        "valueSparsityRisk": 58.054447174072266,
+        "attentionWeakeningRisk": 15.040195797542722,
+        "valueAmplificationRisk": 38.944068411589875,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 55.558190447705
+      },
+      "dominanceRatio": 22441.733038502243,
+      "predictedAttentionStrength": 53.38613116377253,
+      "predictedFFNStrength": 1198077.3035358482
+    },
+    {
+      "layer": 29,
+      "totalRisk": 30.313344186627162,
+      "components": {
+        "valueSparsityRisk": 56.748390197753906,
+        "attentionWeakeningRisk": 6.863352906185838,
+        "valueAmplificationRisk": 32.774088735824584,
+        "keyMatchingRisk": 0.5806377463178691,
+        "normAmplificationRisk": 53.88420506348686
+      },
+      "dominanceRatio": 19378.275937205908,
+      "predictedAttentionStrength": 58.52420806026936,
+      "predictedFFNStrength": 1134098.2527983498
+    },
+    {
+      "layer": 28,
+      "totalRisk": 30.054640722101393,
+      "components": {
+        "valueSparsityRisk": 57.33013153076172,
+        "attentionWeakeningRisk": 8.956292704113867,
+        "valueAmplificationRisk": 31.62731378231972,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 50.70257694749496
+      },
+      "dominanceRatio": 19168.495028309648,
+      "predictedAttentionStrength": 57.209068982220096,
+      "predictedFFNStrength": 1096611.7543599096
+    },
+    {
+      "layer": 27,
+      "totalRisk": 28.32720542838739,
+      "components": {
+        "valueSparsityRisk": 56.876182556152344,
+        "attentionWeakeningRisk": 6.517765607621873,
+        "valueAmplificationRisk": 30.581149645583043,
+        "keyMatchingRisk": 0.3164143011503917,
+        "normAmplificationRisk": 44.167292523188294
+      },
+      "dominanceRatio": 18208.315922864593,
+      "predictedAttentionStrength": 58.74136450292905,
+      "predictedFFNStrength": 1069581.322609476
+    },
+    {
+      "layer": 0,
+      "totalRisk": 27.94341943972962,
+      "components": {
+        "valueSparsityRisk": 100,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 14.717097198648107,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 12080.118071183455,
+      "predictedAttentionStrength": 65.62963716557236,
+      "predictedFFNStrength": 792813.765929044
+    },
+    {
+      "layer": 31,
+      "totalRisk": 26.784285383937153,
+      "components": {
+        "valueSparsityRisk": 55.945396423339844,
+        "attentionWeakeningRisk": 6.6020054115075055,
+        "valueAmplificationRisk": 34.39039077621979,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 30.66304693704489
+      },
+      "dominanceRatio": 27173.977242551682,
+      "predictedAttentionStrength": 58.68843079784739,
+      "predictedFFNStrength": 1594798.0829017742
+    },
+    {
+      "layer": 24,
+      "totalRisk": 25.000495536830364,
+      "components": {
+        "valueSparsityRisk": 56.430816650390625,
+        "attentionWeakeningRisk": 5.885822492299598,
+        "valueAmplificationRisk": 27.271903363233573,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 28.40830802084049
+      },
+      "dominanceRatio": 16920.1244401212,
+      "predictedAttentionStrength": 59.13845814455567,
+      "predictedFFNStrength": 1000630.0710027809
+    },
+    {
+      "layer": 21,
+      "totalRisk": 21.056870213395133,
+      "components": {
+        "valueSparsityRisk": 55.60874938964844,
+        "attentionWeakeningRisk": 0.08325260690060787,
+        "valueAmplificationRisk": 22.522874974459643,
+        "keyMatchingRisk": 0.15235163749599545,
+        "normAmplificationRisk": 17.35324681474517
+      },
+      "dominanceRatio": 15546.656422251752,
+      "predictedAttentionStrength": 62.784614817076665,
+      "predictedFFNStrength": 976090.8351645074
+    },
+    {
+      "layer": 1,
+      "totalRisk": 19.947393694819084,
+      "components": {
+        "valueSparsityRisk": 65.19412994384766,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 18.24430604428585,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 12394.524973686055,
+      "predictedAttentionStrength": 66.85641653688172,
+      "predictedFFNStrength": 828653.5244175378
+    },
+    {
+      "layer": 19,
+      "totalRisk": 19.381243500743125,
+      "components": {
+        "valueSparsityRisk": 55.35745620727539,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 20.78072698486708,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 9.23822701300574
+      },
+      "dominanceRatio": 15010.25609706878,
+      "predictedAttentionStrength": 63.77104307475455,
+      "predictedFFNStrength": 957219.6881292702
+    },
+    {
+      "layer": 13,
+      "totalRisk": 18.302373058245415,
+      "components": {
+        "valueSparsityRisk": 54.20827865600586,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 19.329305171244744,
+        "keyMatchingRisk": 4.4222117999749955,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 14444.85474797455,
+      "predictedAttentionStrength": 64.14535511722023,
+      "predictedFFNStrength": 926570.3374254924
+    },
+    {
+      "layer": 10,
+      "totalRisk": 18.185555396392335,
+      "components": {
+        "valueSparsityRisk": 56.49614334106445,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 18.009731324894062,
+        "keyMatchingRisk": 2.297866480737032,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 13820.814065828084,
+      "predictedAttentionStrength": 65.31721227153089,
+      "predictedFFNStrength": 902737.0461030529
+    },
+    {
+      "layer": 16,
+      "totalRisk": 17.838897787639887,
+      "components": {
+        "valueSparsityRisk": 55.60636520385742,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 19.68653243337766,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 14749.078311153136,
+      "predictedAttentionStrength": 64.74630862094195,
+      "predictedFFNStrength": 954948.3762083622
+    },
+    {
+      "layer": 2,
+      "totalRisk": 17.660134392879364,
+      "components": {
+        "valueSparsityRisk": 56.789398193359375,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 15.11829078574143,
+        "keyMatchingRisk": 2.195633436956168,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 12799.875139326936,
+      "predictedAttentionStrength": 66.14952256788933,
+      "predictedFFNStrength": 846705.6293950728
+    },
+    {
+      "layer": 3,
+      "totalRisk": 17.6161706316488,
+      "components": {
+        "valueSparsityRisk": 55.022239685058594,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 17.804052725699506,
+        "keyMatchingRisk": 1.4990008262212418,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 12951.344149873996,
+      "predictedAttentionStrength": 66.26640600663448,
+      "predictedFFNStrength": 858239.0297672006
+    },
+    {
+      "layer": 6,
+      "totalRisk": 17.15095872527113,
+      "components": {
+        "valueSparsityRisk": 54.724693298339844,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 17.281129671866818,
+        "keyMatchingRisk": 0.06779733156403456,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 13200.803519293248,
+      "predictedAttentionStrength": 66.02748064671604,
+      "predictedFFNStrength": 871615.798891236
+    },
+    {
+      "layer": 26,
+      "totalRisk": 12.525129613919018,
+      "components": {
+        "valueSparsityRisk": 0.15735626220703125,
+        "attentionWeakeningRisk": 5.218989994334167,
+        "valueAmplificationRisk": 28.591558894171275,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 38.15787180444114
+      },
+      "dominanceRatio": 17472.478873017557,
+      "predictedAttentionStrength": 59.55747520250245,
+      "predictedFFNStrength": 1040616.727205991
+    },
+    {
+      "layer": 25,
+      "totalRisk": 11.81727250432008,
+      "components": {
+        "valueSparsityRisk": 0.18787384033203125,
+        "attentionWeakeningRisk": 6.7241799536610465,
+        "valueAmplificationRisk": 27.376914782114447,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 33.00056731387981
+      },
+      "dominanceRatio": 17400.059097967525,
+      "predictedAttentionStrength": 58.611660068518255,
+      "predictedFFNStrength": 1019846.3490222009
+    },
+    {
+      "layer": 23,
+      "totalRisk": 9.245455775854722,
+      "components": {
+        "valueSparsityRisk": 0.2040863037109375,
+        "attentionWeakeningRisk": 2.7740012440861994,
+        "valueAmplificationRisk": 24.97889449473391,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 24.292367014419767
+      },
+      "dominanceRatio": 16192.628173968476,
+      "predictedAttentionStrength": 61.09383102794244,
+      "predictedFFNStrength": 989269.6895587302
+    },
+    {
+      "layer": 22,
+      "totalRisk": 8.474849454997678,
+      "components": {
+        "valueSparsityRisk": 0.2155303955078125,
+        "attentionWeakeningRisk": 2.6060932005101733,
+        "valueAmplificationRisk": 23.729917864142486,
+        "keyMatchingRisk": 0.19178890285758143,
+        "normAmplificationRisk": 20.769379084124505
+      },
+      "dominanceRatio": 16035.297947945235,
+      "predictedAttentionStrength": 61.199339284722804,
+      "predictedFFNStrength": 981349.6396479198
+    },
+    {
+      "layer": 20,
+      "totalRisk": 6.332344135331353,
+      "components": {
+        "valueSparsityRisk": 0.26988983154296875,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 21.88181042580851,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 12.590063948559393
+      },
+      "dominanceRatio": 15295.86980454134,
+      "predictedAttentionStrength": 62.94622250103027,
+      "predictedFFNStrength": 962817.2240634495
+    },
+    {
+      "layer": 18,
+      "totalRisk": 5.380233324662652,
+      "components": {
+        "valueSparsityRisk": 0.232696533203125,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 19.67258880754696,
+        "keyMatchingRisk": 2.6391189040894214,
+        "normAmplificationRisk": 5.731450993563958
+      },
+      "dominanceRatio": 14672.83349579713,
+      "predictedAttentionStrength": 65.1922132143655,
+      "predictedFFNStrength": 956554.4897168903
+    },
+    {
+      "layer": 14,
+      "totalRisk": 4.995703224767933,
+      "components": {
+        "valueSparsityRisk": 0.27561187744140625,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 19.126094322350657,
+        "keyMatchingRisk": 5.507906954687247,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 14907.901755208572,
+      "predictedAttentionStrength": 63.22532730702585,
+      "predictedFFNStrength": 942556.9679340471
+    },
+    {
+      "layer": 11,
+      "totalRisk": 4.7945426243596385,
+      "components": {
+        "valueSparsityRisk": 0.28228759765625,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 17.70937153242987,
+        "keyMatchingRisk": 5.910482092298008,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 14231.315222944688,
+      "predictedAttentionStrength": 63.37845979068938,
+      "predictedFFNStrength": 901958.8396260255
+    },
+    {
+      "layer": 9,
+      "totalRisk": 4.7879007219291685,
+      "components": {
+        "valueSparsityRisk": 0.26035308837890625,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 20.826872363652186,
+        "keyMatchingRisk": 2.787189885520025,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 13946.560280350324,
+      "predictedAttentionStrength": 64.36787784410431,
+      "predictedFFNStrength": 897710.4884710269
+    },
+    {
+      "layer": 12,
+      "totalRisk": 4.7366996868331785,
+      "components": {
+        "valueSparsityRisk": 0.2040863037109375,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 20.775657813672034,
+        "keyMatchingRisk": 2.6527327408551904,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 14622.06169683992,
+      "predictedAttentionStrength": 62.96126456101156,
+      "predictedFFNStrength": 920623.4949221719
+    },
+    {
+      "layer": 17,
+      "totalRisk": 4.627248251576868,
+      "components": {
+        "valueSparsityRisk": 0.247955322265625,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 21.54724223393607,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 1.7054064948216485
+      },
+      "dominanceRatio": 14784.572675694315,
+      "predictedAttentionStrength": 64.93542377114153,
+      "predictedFFNStrength": 960042.4919714502
+    },
+    {
+      "layer": 7,
+      "totalRisk": 4.439880703605086,
+      "components": {
+        "valueSparsityRisk": 0.25844573974609375,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 17.061927371588347,
+        "keyMatchingRisk": 4.814418971754463,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 13489.679020517024,
+      "predictedAttentionStrength": 65.07201329068377,
+      "predictedFFNStrength": 877800.5725101418
+    },
+    {
+      "layer": 8,
+      "totalRisk": 4.264180266516064,
+      "components": {
+        "valueSparsityRisk": 0.28896331787109375,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 17.988536078304858,
+        "keyMatchingRisk": 2.971161106936593,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 13571.049363002703,
+      "predictedAttentionStrength": 64.54110218712992,
+      "predictedFFNStrength": 875890.483724142
+    },
+    {
+      "layer": 15,
+      "totalRisk": 4.223847245783292,
+      "components": {
+        "valueSparsityRisk": 0.23937225341796875,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 20.820020912143995,
+        "keyMatchingRisk": 0,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 14593.947864442544,
+      "predictedAttentionStrength": 65.52670645378475,
+      "predictedFFNStrength": 956293.3377151655
+    },
+    {
+      "layer": 4,
+      "totalRisk": 4.12585810708417,
+      "components": {
+        "valueSparsityRisk": 0.232696533203125,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 19.06207887889055,
+        "keyMatchingRisk": 1.2763409900263922,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 13168.184888963657,
+      "predictedAttentionStrength": 65.44305019757073,
+      "predictedFFNStrength": 861766.1846993408
+    },
+    {
+      "layer": 5,
+      "totalRisk": 3.636918868520181,
+      "components": {
+        "valueSparsityRisk": 0.32901763916015625,
+        "attentionWeakeningRisk": 0,
+        "valueAmplificationRisk": 15.923746850565893,
+        "keyMatchingRisk": 1.8495754430848166,
+        "normAmplificationRisk": 0
+      },
+      "dominanceRatio": 13304.600243152778,
+      "predictedAttentionStrength": 65.3480771536901,
+      "predictedFFNStrength": 869430.0431885518
+    }
+  ],
+  "hypothesisValidations": [
+    {
+      "hypothesis": "Bimodal Value Sparsity",
+      "validated": true,
+      "confidence": 100,
+      "evidence": [
+        "Low cluster mean: 0.012%",
+        "High cluster mean: 3.045%",
+        "Separation: 3.033%",
+        "Layers in low cluster: 16",
+        "Layers in high cluster: 16"
+      ],
+      "quantitativeMetrics": {
+        "lowClusterMean": 0.0001214444637298584,
+        "highClusterMean": 0.03045012056827545,
+        "separation": 0.030328676104545593,
+        "lowClusterSize": 16,
+        "highClusterSize": 16
+      }
+    },
+    {
+      "hypothesis": "Progressive Attention Weakening",
+      "validated": false,
+      "confidence": -19.023556294735233,
+      "evidence": [
+        "Early layers (0-10) avg Q/K ratio: 1.345483",
+        "Late layers (21-31) avg Q/K ratio: 1.396675",
+        "Decline: -3.80%",
+        "Trend: Strengthening"
+      ],
+      "quantitativeMetrics": {
+        "earlyAverage": 1.3454829989344148,
+        "lateAverage": 1.3966747420820909,
+        "decline": -0.038047112589470466,
+        "percentDecline": -3.8047112589470466
+      }
+    },
+    {
+      "hypothesis": "Value Amplification",
+      "validated": true,
+      "confidence": 100,
+      "evidence": [
+        "Layer 0 value norm: 14.72",
+        "Layer 31 value norm: 34.39",
+        "Amplification: 133.68%",
+        "Trend: Increasing"
+      ],
+      "quantitativeMetrics": {
+        "firstLayerNorm": 14.717097198648107,
+        "lastLayerNorm": 34.39039077621979,
+        "amplification": 1.3367645339312462,
+        "percentAmplification": 133.6764533931246
+      }
+    },
+    {
+      "hypothesis": "Key Matching Deterioration",
+      "validated": false,
+      "confidence": 36.214390311230694,
+      "evidence": [
+        "Early layers (0-10) avg Q-K alignment: 0.743556",
+        "Late layers (21-31) avg Q-K alignment: 0.716628",
+        "Deterioration: 3.62%",
+        "Trend: Deteriorating"
+      ],
+      "quantitativeMetrics": {
+        "earlyAverage": 0.7435557074302784,
+        "lateAverage": 0.7166282908232551,
+        "deterioration": 0.03621439031123069,
+        "percentDeterioration": 3.621439031123069
+      }
+    },
+    {
+      "hypothesis": "Layer Norm Amplification",
+      "validated": true,
+      "confidence": 91.98914081113467,
+      "evidence": [
+        "Average FFN norm across all layers: 0.366924",
+        "Layer 31 FFN norm: 0.479434",
+        "Layer 31 amplification: 30.66%",
+        "Late layers (21-31) avg amplification: 36.09%"
+      ],
+      "quantitativeMetrics": {
+        "globalAverage": 0.36692426959108815,
+        "layer31Norm": 0.47943443059921265,
+        "layer31Amplification": 0.3066304693704489,
+        "lateLayersAmplification": 0.3608700472467008,
+        "percentAmplification": 30.66304693704489
+      }
+    }
+  ],
+  "summary": {
+    "totalLayers": 32,
+    "highRiskLayers": 0,
+    "validatedHypotheses": 3,
+    "validationRate": 0.6
+  }
+}

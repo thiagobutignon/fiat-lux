@@ -19,7 +19,10 @@
     "agi:validate-thesis": "tsx src/agi-recursive/examples/validate-thesis.ts",
     "agi:validate-grammar": "tsx src/agi-recursive/examples/universal-grammar-validation.ts",
     "agi:self-evolution": "tsx src/agi-recursive/demos/self-evolution-demo.ts",
-    "agi:visual-debugger": "tsx src/agi-recursive/demos/visual-debugger-demo.ts"
+    "agi:visual-debugger": "tsx src/agi-recursive/demos/visual-debugger-demo.ts",
+    "agi:social-responsibility": "tsx src/agi-recursive/demos/social-responsibility-demo.ts",
+    "agi:new-innovations": "tsx src/agi-recursive/demos/new-innovations-demo.ts",
+    "agi:benchmark": "tsx scripts/benchmark/run-agi-benchmark.ts"
   },
   "keywords": [
     "grammar",

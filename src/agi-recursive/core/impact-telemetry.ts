@@ -82,11 +82,11 @@ export class ImpactTelemetry {
       sample_rate: config?.sample_rate ?? 1.0,
     };
 
+    // Local storage for telemetry (must be set before generateDeploymentId)
+    this.localStoragePath = path.join(process.cwd(), '.agi-telemetry');
+
     // Generate anonymous deployment ID (persistent across runs)
     this.deploymentId = this.generateDeploymentId();
-
-    // Local storage for telemetry
-    this.localStoragePath = path.join(process.cwd(), '.agi-telemetry');
 
     // Auto-flush every 5 minutes
     if (this.config.enabled) {
