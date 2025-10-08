@@ -586,3 +586,8 @@ export class ConstitutionEnforcer {
     return report;
   }
 }
+
+/**
+ * Alias for UniversalConstitution for convenience
+ */
+export const Constitution = UniversalConstitution;
