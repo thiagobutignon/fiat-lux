@@ -1,0 +1,217 @@
+metadata:
+  id: feedback-loops
+  domain: systems
+  title: Feedback Loops - The DNA of Systems
+  description: |
+    Feedback loops are the fundamental structure of all dynamic systems.
+    Understanding loops = understanding system behavior.
+  concepts:
+    - negative_feedback
+    - positive_feedback
+    - reinforcing_loop
+    - balancing_loop
+    - system_dynamics
+    - causal_loop
+  connects_to:
+    biology: cellular-homeostasis
+    financial: budget-homeostasis
+  tags:
+    - systems_theory
+    - feedback
+    - dynamics
+    - causality
+  version: "1.0"
+  author: Fiat Lux AGI System
+
+knowledge: |
+  # Feedback Loops: The Structure of System Behavior
+
+  ## Core Insight
+  "System structure determines system behavior" - Donella Meadows
+
+  Feedback loops ARE the structure. Find the loops → Predict the behavior.
+
+  ## Two Types of Loops
+
+  ### 1. Negative Feedback (⊖ Balancing)
+  **Purpose**: Maintain equilibrium, resist change, stabilize
+
+  **Structure**:
+  ```
+  Gap = Goal - Current State
+  Action = k × Gap
+  Current State changes in direction to close Gap
+  ```
+
+  **Examples**:
+  - Thermostat (maintains temperature)
+  - Homeostasis (maintains glucose)
+  - Budget correction (maintains spending limit)
+
+  **Behavior**: Oscillates around goal, self-limiting, stable
+
+  **Symbol**: ⊖ or B (Balancing)
+
+  ### 2. Positive Feedback (⊕ Reinforcing)
+  **Purpose**: Amplify change, exponential growth/collapse, destabilize
+
+  **Structure**:
+  ```
+  Change → More Change → Even More Change → ...
+  ```
+
+  **Examples**:
+  - Compound interest (growth)
+  - Debt spiral (collapse)
+  - Viral spread (exponential)
+  - Panic buying (cascade)
+
+  **Behavior**: Exponential, self-amplifying, unstable
+
+  **Symbol**: ⊕ or R (Reinforcing)
+
+  ## Identification Rules
+
+  ### How to Spot Negative Feedback
+  1. There's a GOAL or SET POINT
+  2. System RESISTS change from goal
+  3. Action OPPOSES the disturbance
+  4. Behavior: Oscillation around goal
+
+  ### How to Spot Positive Feedback
+  1. NO goal (or goal keeps moving)
+  2. System AMPLIFIES change
+  3. Action REINFORCES the disturbance
+  4. Behavior: Exponential growth or collapse
+
+  ## Causal Loop Diagrams
+
+  ### Notation
+  - Arrow →: X influences Y
+  - (+) sign: Same direction (X ↑ → Y ↑)
+  - (−) sign: Opposite direction (X ↑ → Y ↓)
+
+  ### Example: Thermostat (Negative Feedback)
+  ```
+  Room Temp → (+) Gap Detected
+  Gap Detected → (+) Heater Activation
+  Heater Activation → (+) Heat Output
+  Heat Output → (+) Room Temp
+  Room Temp → (−) Gap Detected  ← NEGATIVE LINK closes loop
+  ```
+
+  Result: Even number of negative links → Balancing loop ⊖
+
+  ### Example: Debt Spiral (Positive Feedback)
+  ```
+  Debt → (+) Interest Payments
+  Interest Payments → (+) Financial Stress
+  Financial Stress → (+) Poor Decisions
+  Poor Decisions → (+) More Debt  ← CLOSES LOOP
+  ```
+
+  Result: Zero negative links → Reinforcing loop ⊕
+
+  ## Loop Dominance
+
+  Most real systems have MULTIPLE loops. Behavior depends on which loop dominates.
+
+  ### Example: Population Dynamics
+  - **Reinforcing**: Births → Population ↑ → More Births (R)
+  - **Balancing**: Population ↑ → Resource Scarcity → Deaths ↑ (B)
+
+  **Early stage**: R dominates → Exponential growth
+  **Late stage**: B dominates → Stabilization
+  **Result**: S-curve (logistic growth)
+
+  ## Delays
+
+  Delays in feedback loops cause:
+  - **Overshoot**: System overshoots goal before correcting
+  - **Oscillation**: Perpetual swings around set point
+  - **Instability**: Can even cause collapse if delay too long
+
+  ### Example: Shower Temperature
+  - Turn hot knob → Wait for hot water → Still cold → Turn MORE →
+  - Wait → SCALDING → Turn cold → Wait → Freezing → ...
+
+  Delay between action and effect causes wild oscillation.
+
+  ## Intervention Points
+
+  ### To Stabilize a System (Add Negative Feedback)
+  1. Define clear goal/set point
+  2. Add sensor (measure current state)
+  3. Add corrector (action that opposes gap)
+  4. Reduce delays (faster feedback)
+
+  ### To Break a Vicious Cycle (Break Positive Feedback)
+  1. Identify the reinforcing link
+  2. Block or reverse that link
+  3. Add a balancing loop to counteract
+
+  ### Example: Friday Food Delivery Problem
+  **Current**: Stress → Delivery → Debt → More Stress (R)
+
+  **Intervention**:
+  - Block link: Freeze credit card (can't order)
+  - Add balancing: Budget alert (negative feedback)
+  - Reduce delay: Real-time spending tracker (faster feedback)
+
+examples:
+  - |
+    # Example 1: Coffee Shop Wait Time
+
+    OBSERVATION: Long lines at coffee shop
+
+    LOOPS:
+
+    Reinforcing (⊕):
+    - Long Line → Reputation for Quality → More Customers → Longer Line
+
+    Balancing (⊖):
+    - Long Line → Wait Time ↑ → Customer Satisfaction ↓ → Fewer Customers
+
+    DOMINANCE:
+    - Early: R dominates (reputation effect)
+    - Late: B dominates (wait time effect)
+    - Result: Equilibrium line length
+
+  - |
+    # Example 2: Budget-as-Homeostasis
+
+    BALANCING LOOP (⊖):
+    Spending → (−) Bank Balance
+    Bank Balance → (+) Budget Alert
+    Budget Alert → (−) Spending  ← CLOSES LOOP
+
+    REINFORCING LOOP (⊕):
+    Debt → (+) Stress
+    Stress → (+) Emotional Spending
+    Emotional Spending → (+) Debt  ← CLOSES LOOP
+
+    INTERVENTION:
+    - Strengthen B loop: Add automatic spending freeze
+    - Break R loop: Alternative stress relief (not spending-based)
+
+formulas:
+  negative_feedback: "Action = −k × (Current − Goal)"
+  positive_feedback: "Change = k × Current"
+  loop_polarity: "Negative if odd number of (−) links, else Positive"
+  stability_criterion: "|Loop Gain| < 1 for stability"
+  oscillation_period: "T ≈ 2 × Delay"
+
+principles:
+  - "Structure determines behavior (loops create patterns)"
+  - "Negative feedback → Stability (oscillation around goal)"
+  - "Positive feedback → Instability (exponential change)"
+  - "Delays cause overshoot and oscillation"
+  - "Most systems have multiple loops (dominance shifts over time)"
+  - "Can't understand system without mapping loops"
+  - "Intervention = Change loop structure, not just push variables"
+
+references:
+  - "Meadows, Donella (2008): Thinking in Systems"
+  - "Senge, Peter (1990): The Fifth Discipline"
+  - "Forrester, Jay (1961): Industrial Dynamics"
+  - "Control Systems Theory: Feedback analysis"

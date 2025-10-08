@@ -9,6 +9,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Slice Navigator - Dynamic Knowledge Discovery (2025-10-07)
+
+**Core Infrastructure**
+- **`src/agi-recursive/core/slice-navigator.ts`**: Complete Slice Navigator implementation
+  - Dynamic knowledge loading system for AGI agents
+  - Load knowledge slices on demand instead of upfront
+  - Inverted index for fast concept search (O(1) lookup)
+  - Cross-domain navigation through explicit connections
+  - In-memory caching for performance optimization
+
+**Knowledge Slices**
+- **`src/agi-recursive/slices/`**: Structured knowledge base
+  - `financial/budget-homeostasis.slice.yaml`: Budget as homeostatic system
+  - `biology/cellular-homeostasis.slice.yaml`: Glucose regulation template
+  - `systems/feedback-loops.slice.yaml`: Feedback loop theory
+  - Each slice contains: metadata, knowledge, examples, formulas, principles, references
+
+**Slice Structure**
+- Metadata: id, domain, concepts, connections, tags
+- Content: knowledge (markdown), examples, formulas, principles
+- Connections: Explicit links to related slices in other domains
+- Discoverable: Agents search by concept and navigate through connections
+
+**Integration**
+- MetaAgent initializes SliceNavigator on startup
+- All SpecializedAgents have access to navigator
+- Agents can search concepts and load relevant knowledge dynamically
+- Enables compositional understanding across domains
+
+**Performance**
+- Inverted index: concept → slice_ids (fast lookup)
+- Domain index: domain → slice_ids (filtering)
+- Cache: Recently used slices stay in memory
+- BFS pathfinding: Find shortest connection between slices
+
+**Demonstration**
+- **`src/agi-recursive/examples/slice-navigation-demo.ts`**: Complete navigation demo
+  - 6 test cases showing search, loading, navigation, caching
+  - Agent knowledge discovery simulation
+  - Cross-domain connection finding
+  - Performance benchmarks (2.6x speedup from cache)
+
+**Benefits**
+- ✅ Scalable: Add knowledge without modifying code
+- ✅ Discoverable: Agents find relevant slices through search
+- ✅ Composable: Slices connect across domains
+- ✅ Performant: Caching and indexing for fast access
+- ✅ Structured: Consistent YAML format across all slices
+
 #### Anti-Corruption Layer for AGI System (2025-10-07)
 
 **Core ACL Infrastructure**
