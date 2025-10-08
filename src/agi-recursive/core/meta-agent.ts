@@ -10,7 +10,13 @@ import {
   ConstitutionEnforcer,
   ConstitutionCheckResult,
   ConstitutionViolation,
+  UniversalConstitution,
 } from './constitution';
+import {
+  AntiCorruptionLayer,
+  DomainTranslator,
+  ConstitutionalViolationError,
+} from './anti-corruption-layer';
 
 // ============================================================================
 // Types
@@ -149,6 +155,8 @@ export class MetaAgent {
   private maxInvocations: number;
   private maxCostUSD: number;
   private constitutionEnforcer: ConstitutionEnforcer;
+  private antiCorruptionLayer: AntiCorruptionLayer;
+  private domainTranslator: DomainTranslator;
 
   constructor(
     apiKey: string,
@@ -162,6 +170,8 @@ export class MetaAgent {
     this.maxInvocations = maxInvocations;
     this.maxCostUSD = maxCostUSD;
     this.constitutionEnforcer = new ConstitutionEnforcer();
+    this.antiCorruptionLayer = new AntiCorruptionLayer(new UniversalConstitution());
+    this.domainTranslator = new DomainTranslator();
   }
 
   registerAgent(id: string, agent: SpecializedAgent): void {
@@ -240,6 +250,29 @@ export class MetaAgent {
       state.previous_agents.push(domain);
 
       const response = await agent.process(query, state);
+
+      // Validate against Anti-Corruption Layer FIRST
+      try {
+        this.antiCorruptionLayer.validateResponse(response, agent.getDomain(), state);
+      } catch (error) {
+        if (error instanceof ConstitutionalViolationError) {
+          violations.push({
+            principle_id: error.principle_id,
+            severity: error.severity,
+            message: error.message,
+            context: error.context,
+            suggested_action: 'Review agent response for domain boundary violations',
+          });
+
+          // Fatal ACL violations stop processing
+          if (error.severity === 'fatal') {
+            state.depth--;
+            continue;
+          }
+        } else {
+          throw error;
+        }
+      }
 
       // Validate against Constitution
       const constitutionCheck = this.constitutionEnforcer.validate(domain, response, {
