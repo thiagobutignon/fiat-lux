@@ -1,0 +1,22 @@
+;; Math Utilities Module
+;; Provides vector operations
+
+(module math-utils
+  (export add-vectors scale-vector dot-product))
+
+(define add-vectors ((list integer) (list integer) -> (list integer))
+  (map2 + $1 $2))
+
+(define scale-vector (integer (list integer) -> (list integer))
+  (map (lambda ((x integer)) (* $1 x)) $2))
+
+(define dot-product ((list integer) (list integer) -> integer)
+  (sum (map2 * $1 $2)))
+
+;; Private helper
+(define map2 ((integer integer -> integer) (list integer) (list integer) -> (list integer))
+  (if (or (empty? $2) (empty? $3))
+    (empty-list)
+    (cons
+      ($1 (head $2) (head $3))
+      (map2 $1 (tail $2) (tail $3)))))

@@ -1,0 +1,15 @@
+{
+  "name": "@examples/vector-math",
+  "version": "1.0.0",
+  "description": "Example demonstrating Grammar Language module system",
+  "main": "main.gl",
+  "exports": {
+    ".": "./main.gl",
+    "./math-utils": "./math-utils.gl"
+  },
+  "dependencies": {},
+  "grammar": {
+    "version": "0.3.0",
+    "strict": true
+  }
+}

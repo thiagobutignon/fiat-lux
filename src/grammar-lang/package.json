@@ -1,6 +1,6 @@
 {
   "name": "@chomsky/grammar-lang",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Programming language for AGI self-evolution",
   "main": "compiler/compiler.ts",
   "scripts": {
@@ -8,10 +8,13 @@
     "repl:basic": "tsx tools/repl.ts",
     "test": "tsx test.ts",
     "test:stdlib": "tsx stdlib/test-stdlib.ts",
-    "compile": "tsx -e \"import {compile} from './compiler/compiler'; const result = compile(JSON.parse(process.argv[1])); console.log(result.code);\""
+    "test:modules": "tsx test-modules.ts",
+    "compile": "tsx tools/glc.ts"
   },
   "bin": {
-    "gl": "tools/repl-improved.ts"
+    "gl": "tools/repl-improved.ts",
+    "glc": "tools/glc.ts",
+    "glpm": "tools/glpm.ts"
   },
   "keywords": [
     "grammar",

@@ -1,0 +1,27 @@
+;; Main Module - Using math-utils
+
+(import math-utils (add-vectors scale-vector dot-product))
+
+(module main
+  (export test-vectors))
+
+(define test-vectors (unit -> unit)
+  (let v1 (list integer) [1 2 3])
+  (let v2 (list integer) [4 5 6])
+
+  ;; Test add-vectors
+  (let sum (list integer) (add-vectors v1 v2))
+  (println (concat "v1 + v2 = " (to-string sum)))
+
+  ;; Test scale-vector
+  (let scaled (list integer) (scale-vector 2 v1))
+  (println (concat "2 * v1 = " (to-string scaled)))
+
+  ;; Test dot-product
+  (let dot integer (dot-product v1 v2))
+  (println (concat "v1 · v2 = " (to-string dot)))
+
+  unit)
+
+;; Run test
+(test-vectors unit)

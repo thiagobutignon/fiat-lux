@@ -294,25 +294,88 @@ export function parseDefinition(sexpr: SExpr): Definition {
     };
   }
 
-  // (module name (definitions))
+  // (module name (export ...) definitions...)
+  // OR (module name definitions...)
   if (kind === 'module') {
     if (args.length < 1) {
       throw new ParseError('Module requires name', sexpr);
     }
-    const [nameExpr, ...defsExpr] = args;
+    const [nameExpr, ...rest] = args;
 
     if (typeof nameExpr !== 'string') {
       throw new ParseError('Module name must be string', nameExpr);
     }
 
-    const definitions = defsExpr.map(parseDefinition);
+    let exports: string[] = [];
+    let defsStart = 0;
+
+    // Check if second arg is export declaration: (export name1 name2 ...)
+    if (rest.length > 0 && Array.isArray(rest[0]) && rest[0][0] === 'export') {
+      const exportExpr = rest[0];
+      exports = exportExpr.slice(1).map(e => {
+        if (typeof e !== 'string') {
+          throw new ParseError('Export name must be string', e);
+        }
+        return e;
+      });
+      defsStart = 1;
+    }
+
+    const definitions = rest.slice(defsStart).map(parseDefinition);
+
+    // Mark exported definitions
+    for (const def of definitions) {
+      if (def.kind !== 'module' && exports.includes(def.name)) {
+        def.exported = true;
+      }
+    }
 
     return {
       kind: 'module',
       name: nameExpr,
       imports: [],
-      exports: [],
+      exports,
       definitions
+    };
+  }
+
+  // (import module (names...))
+  // OR (import (std module) (names...))
+  if (kind === 'import') {
+    if (args.length !== 2) {
+      throw new ParseError('Import requires 2 arguments: module and names', sexpr);
+    }
+    const [moduleExpr, namesExpr] = args;
+
+    let moduleName: string;
+    if (typeof moduleExpr === 'string') {
+      moduleName = moduleExpr;
+    } else if (Array.isArray(moduleExpr)) {
+      // (std module) format
+      moduleName = moduleExpr.join('/');
+    } else {
+      throw new ParseError('Module name must be string or list', moduleExpr);
+    }
+
+    if (!Array.isArray(namesExpr)) {
+      throw new ParseError('Import names must be list', namesExpr);
+    }
+
+    const names = namesExpr.map(n => {
+      if (typeof n !== 'string') {
+        throw new ParseError('Import name must be string', n);
+      }
+      return n;
+    });
+
+    // Import is not a full definition, store as placeholder
+    // Will be handled specially in module resolution
+    return {
+      kind: 'module',
+      name: '__import__',
+      imports: [{ module: moduleName, names }],
+      exports: [],
+      definitions: []
     };
   }
 

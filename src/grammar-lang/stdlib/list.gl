@@ -1,0 +1,47 @@
+;; Standard Library - List Module
+;; Provides list manipulation functions
+
+(module (std list)
+  (export map filter fold reverse append length head tail empty? cons))
+
+;; Map function over list
+(define map ((a -> b) (list a) -> (list b))
+  (if (empty? $2)
+    (empty-list)
+    (cons
+      ($1 (head $2))
+      (map $1 (tail $2)))))
+
+;; Filter list by predicate
+(define filter ((a -> boolean) (list a) -> (list a))
+  (if (empty? $2)
+    (empty-list)
+    (if ($1 (head $2))
+      (cons (head $2) (filter $1 (tail $2)))
+      (filter $1 (tail $2)))))
+
+;; Fold (reduce) list
+(define fold ((b a -> b) b (list a) -> b)
+  (if (empty? $3)
+    $2
+    (fold $1 ($1 $2 (head $3)) (tail $3))))
+
+;; Reverse list
+(define reverse ((list a) -> (list a))
+  (fold
+    (lambda ((acc (list a)) (x a)) (cons x acc))
+    (empty-list)
+    $1))
+
+;; Append two lists
+(define append ((list a) (list a) -> (list a))
+  (if (empty? $1)
+    $2
+    (cons (head $1) (append (tail $1) $2))))
+
+;; List length
+(define length ((list a) -> integer)
+  (fold
+    (lambda ((acc integer) (x a)) (+ acc 1))
+    0
+    $1))
