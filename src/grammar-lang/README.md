@@ -11,7 +11,7 @@ Programming language for AGI self-evolution.
 
 ## Status
 
-**Phase 1: Core Implementation** (In Progress)
+**Phase 1: Core Implementation** ✅ COMPLETE
 
 - [x] Type system (O(1) checking)
 - [x] AST definitions
@@ -19,9 +19,17 @@ Programming language for AGI self-evolution.
 - [x] Parser (S-expression → AST)
 - [x] Transpiler (AST → JavaScript)
 - [x] Compiler (main entry point)
-- [ ] Standard library
-- [ ] REPL
-- [ ] Tests
+- [x] Standard library (24 built-ins + 50+ stdlib functions)
+- [x] Tests (all passing)
+- [ ] REPL (basic version exists)
+
+**Phase 1.5: Standard Library** ✅ COMPLETE
+
+- [x] 24 built-in primitives (arithmetic, lists, strings, IO)
+- [x] core.gl stdlib (50+ functions)
+- [x] Type checker integration
+- [x] Examples (fibonacci, quicksort)
+- [x] Documentation
 
 ## Quick Start
 
