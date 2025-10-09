@@ -280,12 +280,13 @@ npm run compile
 - [x] Standard library
 - [x] Tests
 
-### Q2 2025: Module System ✅
+### Q2 2025: Module System & Tooling ✅
 - [x] Module imports/exports
 - [x] Package manager (glpm)
 - [x] Compiler CLI (glc)
 - [x] Dependency resolution
-- [ ] LSP server
+- [x] LSP server (editor integration)
+- [x] VS Code extension
 - [ ] Documentation generator
 
 ### Q3 2025: Self-Hosting
@@ -299,11 +300,41 @@ npm run compile
 - [ ] Performance optimization
 - [ ] Production deployment
 
+## Editor Integration
+
+### VS Code
+
+Install the official extension:
+
+```bash
+cd vscode-extension
+npm install
+npm run compile
+# Press F5 to launch
+```
+
+Features:
+- ✅ Real-time type checking (O(1))
+- ✅ Go to definition (F12)
+- ✅ Autocomplete (Ctrl+Space)
+- ✅ Hover documentation
+- ✅ Syntax highlighting
+
+### Other Editors
+
+The LSP server works with any LSP-compatible editor:
+- **Vim/Neovim:** Use CoC or vim-lsp
+- **Emacs:** Use lsp-mode
+- **Sublime:** Use LSP package
+
+See [LSP docs](docs/LSP.md) for configuration.
+
 ## Documentation
 
 - **Getting Started:** [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)
 - **Advanced Features:** [docs/ADVANCED.md](docs/ADVANCED.md)
 - **Module System:** [docs/MODULES.md](docs/MODULES.md)
+- **LSP Server:** [docs/LSP.md](docs/LSP.md)
 - **Standard Library:** [stdlib/README.md](stdlib/README.md)
 
 ## Related

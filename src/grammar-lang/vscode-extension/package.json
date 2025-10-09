@@ -1,0 +1,86 @@
+{
+  "name": "grammar-language-vscode",
+  "displayName": "Grammar Language",
+  "description": "Grammar Language support for VS Code - O(1) type checking for AGI",
+  "version": "0.3.0",
+  "publisher": "agi-recursive",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "grammar-language",
+    "agi",
+    "type-checking",
+    "functional"
+  ],
+  "activationEvents": [
+    "onLanguage:grammar-language"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "grammar-language",
+        "aliases": [
+          "Grammar Language",
+          "gl"
+        ],
+        "extensions": [
+          ".gl"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "grammar-language",
+        "scopeName": "source.gl",
+        "path": "./syntaxes/grammar-language.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Grammar Language",
+      "properties": {
+        "grammarLanguage.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the language server."
+        },
+        "grammarLanguage.typeCheck": {
+          "scope": "window",
+          "type": "boolean",
+          "default": true,
+          "description": "Enable type checking"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/node": "^18.x",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
