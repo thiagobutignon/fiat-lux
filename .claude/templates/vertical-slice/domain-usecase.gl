@@ -1,0 +1,62 @@
+;; ============================================================================
+;; TEMPLATE: Domain Use-Case (VERB - Action)
+;; GRAMMAR ROLE: Transitive verb requiring subject and object
+;; ============================================================================
+
+;; Use-Case: {{VERB}} {{ENTITY}}
+;; Action: {{DESCRIPTION}}
+
+(module {{module-name}}/{{use-case-name}}/domain/use-cases/{{use-case-name}}
+  (export [{{UseCaseName}} {{UseCaseName}}Params {{UseCaseName}}Result])
+
+  ;; Use-Case Interface (Abstract Verb)
+  (type {{UseCaseName}}
+    (interface
+      (execute ({{UseCaseName}}Params -> (result {{UseCaseName}}Result string)))))
+
+  ;; Parameters (Direct Object of Verb)
+  (type {{UseCaseName}}Params
+    (record
+      {{PARAM_FIELDS}}
+      ;; Examples:
+      ;; (name string)
+      ;; (email string)
+      ;; (password string)
+      ))
+
+  ;; Result (Predicate/Outcome)
+  (type {{UseCaseName}}Result
+    {{RESULT_TYPE}}
+    ;; Examples:
+    ;; User
+    ;; (record (id string) (created boolean))
+    ;; unit
+    )
+)
+
+;; ============================================================================
+;; GRAMMAR STRUCTURE
+;; ============================================================================
+;; Subject:  {{EntityName}} (from domain/entities)
+;; Verb:     {{UseCaseName}} (this interface)
+;; Object:   {{UseCaseName}}Params (input)
+;; Predicate: {{UseCaseName}}Result (output)
+;;
+;; Example Sentence:
+;; "System creates user with params, resulting in user entity"
+;;  ^Subject ^Verb  ^Object ^Adverb      ^Predicate
+;; ============================================================================
+
+;; ============================================================================
+;; USAGE EXAMPLE
+;; ============================================================================
+;; (import user/create-user/domain/use-cases/create-user
+;;   [CreateUser CreateUserParams CreateUserResult])
+;;
+;; ;; In implementation:
+;; (define DbCreateUser (UserRepository -> CreateUser)
+;;   (record
+;;     (repository $1)
+;;     (execute (lambda ((params CreateUserParams))
+;;       ;; Use repository to execute action
+;;       ...))))

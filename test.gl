@@ -1,0 +1,24 @@
+;; Simple Grammar Language test
+;; Test O(1) execution with GSX
+
+;; Define a function
+(define add (lambda (a b) (+ a b)))
+
+;; Use it
+(console-log "Testing GSX...")
+(console-log "2 + 3 =" (add 2 3))
+
+;; Math operations
+(console-log "10 * 5 =" (* 10 5))
+(console-log "2 ** 8 =" (** 2 8))
+
+;; Conditionals
+(if (> 5 3)
+  (console-log "5 is greater than 3")
+  (console-log "This won't print"))
+
+;; Variables
+(define name "Grammar Language")
+(console-log "Language:" name)
+
+(console-log "✅ GSX test complete!")

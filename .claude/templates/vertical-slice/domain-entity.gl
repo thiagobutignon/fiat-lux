@@ -1,0 +1,72 @@
+;; ============================================================================
+;; TEMPLATE: Domain Entity (NOUN - Subject/Object)
+;; GRAMMAR ROLE: Subject of sentences, object of actions
+;; ============================================================================
+
+;; Entity: {{ENTITY_NAME}}
+;; Represents: {{DESCRIPTION}}
+
+(module {{module-name}}/{{use-case-name}}/domain/entities/{{entity-name}}
+  (export [{{EntityName}} create-{{entity-name}} validate-{{entity-name}}])
+
+  ;; Entity Type Definition
+  (type {{EntityName}}
+    (record
+      {{FIELDS}}
+      ;; Examples:
+      ;; (id string)
+      ;; (name string)
+      ;; (email string)
+      ;; (created-at integer)
+      ;; (updated-at integer)
+      ))
+
+  ;; Constructor (Smart Constructor Pattern)
+  (define create-{{entity-name}} ({{PARAM_TYPES}} -> (result {{EntityName}} string))
+    (let validation-result (validate-{{entity-name}}-params {{PARAMS}}))
+    (match validation-result
+      ((err msg) (err msg))
+      ((ok _)
+        (ok (record
+          {{FIELD_ASSIGNMENTS}}
+          ;; Examples:
+          ;; (id (generate-uuid))
+          ;; (name $1)
+          ;; (email $2)
+          ;; (created-at (current-timestamp))
+          ;; (updated-at (current-timestamp))
+          )))))
+
+  ;; Validation
+  (define validate-{{entity-name}}-params ({{PARAM_TYPES}} -> (result unit string))
+    {{VALIDATION_LOGIC}}
+    ;; Examples:
+    ;; (if (empty-string? $1)
+    ;;   (err "Name cannot be empty")
+    ;;   (if (not (valid-email? $2))
+    ;;     (err "Invalid email format")
+    ;;     (ok unit)))
+    )
+
+  ;; Domain Methods (Business Logic)
+  {{DOMAIN_METHODS}}
+  ;; Examples:
+  ;; (define is-active? ({{EntityName}} -> boolean)
+  ;;   (get-field $1 status = "active"))
+  ;;
+  ;; (define can-be-deleted? ({{EntityName}} -> boolean)
+  ;;   (and (is-active? $1)
+  ;;        (> (get-field $1 age) 7)))
+)
+
+;; ============================================================================
+;; USAGE EXAMPLE
+;; ============================================================================
+;; (import user/create-user/domain/entities/user [User create-user])
+;;
+;; (let result (result User string)
+;;   (create-user "John Doe" "john@example.com"))
+;;
+;; (match result
+;;   ((ok user) (print "Created: " (get-field user name)))
+;;   ((err msg) (print "Error: " msg)))

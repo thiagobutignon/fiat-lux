@@ -1,0 +1,345 @@
+;; Grammar Language Self-Hosted Compiler - Parser
+;; Parses S-expressions into typed AST
+
+(module parser
+  (export
+    parse-program
+    parse-definition
+    parse-expr
+    parse-type))
+
+(import compiler-types (
+  Type PrimitiveType CompoundType
+  Expr LiteralExpr VarExpr LetExpr IfExpr CallExpr LambdaExpr
+  Definition FunctionDef TypeDef ModuleDef
+  SExpr Param Value))
+
+;; ============================================================================
+;; Type Parser
+;; ============================================================================
+
+(define parse-type (SExpr -> Type)
+  (match $1
+    ;; Primitive types
+    ((SString "integer") (PrimitiveType "integer"))
+    ((SString "string") (PrimitiveType "string"))
+    ((SString "boolean") (PrimitiveType "boolean"))
+    ((SString "unit") (PrimitiveType "unit"))
+
+    ;; Type variable (lowercase letter)
+    ((SString name)
+      (if (is-lowercase? (string-at name 0))
+        (TypeVar name)
+        (panic (concat "Unknown type: " name))))
+
+    ;; Compound types
+    ((SList items)
+      (parse-compound-type items))
+
+    (_ (panic "Invalid type expression"))))
+
+(define parse-compound-type ((list SExpr) -> Type)
+  ;; Check for function type: (T1 T2 ... -> R)
+  (let arrow-idx integer (find-index (lambda ((x SExpr)) (sexpr-equals? x (SString "->"))) $1))
+
+  (if (>= arrow-idx 0)
+    ;; Function type
+    (let param-types (list Type) (map parse-type (take arrow-idx $1)))
+    (let return-type Type (parse-type (nth $1 (+ arrow-idx 1))))
+    (FunctionType param-types return-type)
+
+    ;; Other compound types
+    (let head SExpr (head $1))
+    (let rest (list SExpr) (tail $1))
+    (match head
+      ((SString "list")
+        (if (= (length rest) 1)
+          (ListType (parse-type (head rest)))
+          (panic "List type requires exactly one argument")))
+
+      ((SString "record")
+        (RecordType (parse-fields rest)))
+
+      ((SString "enum")
+        (EnumType (parse-variants rest)))
+
+      (_ (panic (concat "Unknown compound type: " (sexpr-to-string head)))))))
+
+(define parse-fields ((list SExpr) -> (list Field))
+  (map parse-field $1))
+
+(define parse-field (SExpr -> Field)
+  (match $1
+    ((SList items)
+      (if (= (length items) 2)
+        (match (head items)
+          ((SString name)
+            (record
+              (name name)
+              (type (parse-type (nth items 1)))))
+          (_ (panic "Field name must be string")))
+        (panic "Field must be (name type)")))
+    (_ (panic "Field must be list"))))
+
+(define parse-variants ((list SExpr) -> (list Variant))
+  (map parse-variant $1))
+
+(define parse-variant (SExpr -> Variant)
+  (match $1
+    ;; Unit variant: Just a name
+    ((SString name)
+      (record
+        (name name)
+        (data (PrimitiveType "unit"))))
+
+    ;; Data variant: (Name Type)
+    ((SList items)
+      (if (= (length items) 2)
+        (match (head items)
+          ((SString name)
+            (record
+              (name name)
+              (type (parse-type (nth items 1)))))
+          (_ (panic "Variant name must be string")))
+        (panic "Variant must be (Name Type)")))
+
+    (_ (panic "Invalid variant"))))
+
+;; ============================================================================
+;; Expression Parser
+;; ============================================================================
+
+(define parse-expr (SExpr -> Expr)
+  (match $1
+    ;; Literals
+    ((SNumber n) (Literal (IntValue n) (PrimitiveType "integer")))
+    ((SBool b) (Literal (BoolValue b) (PrimitiveType "boolean")))
+
+    ;; String literal (starts with ")
+    ((SString s)
+      (if (string-starts-with? s "\"")
+        (Literal
+          (StringValue (string-slice s 1 (- (string-length s) 1)))
+          (PrimitiveType "string"))
+        ;; Variable reference
+        (Var s)))
+
+    ;; Compound expressions
+    ((SList items)
+      (if (empty? items)
+        (panic "Empty expression list")
+        (parse-compound-expr items)))
+
+    (_ (panic "Invalid expression"))))
+
+(define parse-compound-expr ((list SExpr) -> Expr)
+  (let head SExpr (head $1))
+  (let args (list SExpr) (tail $1))
+
+  (match head
+    ;; Let binding: (let name type value)
+    ((SString "let")
+      (if (= (length args) 3)
+        (match (nth args 0)
+          ((SString name)
+            (Let
+              name
+              (parse-type (nth args 1))
+              (parse-expr (nth args 2))
+              (Literal UnitValue (PrimitiveType "unit"))))  ;; No body for now
+          (_ (panic "Let name must be string")))
+        (panic "Let requires 3 arguments: name, type, value")))
+
+    ;; If expression: (if cond then else)
+    ((SString "if")
+      (if (= (length args) 3)
+        (If
+          (parse-expr (nth args 0))
+          (parse-expr (nth args 1))
+          (parse-expr (nth args 2)))
+        (panic "If requires 3 arguments: condition, then, else")))
+
+    ;; Lambda: (lambda ((param1 type1) ...) body)
+    ((SString "lambda")
+      (if (= (length args) 2)
+        (Lambda
+          (parse-params (nth args 0))
+          (parse-expr (nth args 1)))
+        (panic "Lambda requires 2 arguments: params and body")))
+
+    ;; Function call: (fn arg1 arg2 ...)
+    (_ (Call (parse-expr head) (map parse-expr args)))))
+
+(define parse-params (SExpr -> (list Param))
+  (match $1
+    ((SList items) (map parse-param items))
+    (_ (panic "Params must be list"))))
+
+(define parse-param (SExpr -> Param)
+  (match $1
+    ((SList items)
+      (if (= (length items) 2)
+        (match (head items)
+          ((SString name)
+            (record
+              (name name)
+              (type (parse-type (nth items 1)))))
+          (_ (panic "Param name must be string")))
+        (panic "Param must be (name type)")))
+    (_ (panic "Param must be list"))))
+
+;; ============================================================================
+;; Definition Parser
+;; ============================================================================
+
+(define parse-definition (SExpr -> Definition)
+  (match $1
+    ((SList items)
+      (if (empty? items)
+        (panic "Empty definition list")
+        (let kind SExpr (head items))
+        (let args (list SExpr) (tail items))
+        (match kind
+          ((SString "define") (parse-function-def args))
+          ((SString "type") (parse-type-def args))
+          ((SString "module") (parse-module-def args))
+          (_ (panic (concat "Unknown definition kind: " (sexpr-to-string kind)))))))
+    (_ (panic "Definition must be list"))))
+
+(define parse-function-def ((list SExpr) -> Definition)
+  (if (= (length $1) 3)
+    (match (head $1)
+      ((SString name)
+        (let func-type Type (parse-type (nth $1 1)))
+        (match func-type
+          ((FunctionType param-types return-type)
+            (Function
+              name
+              (generate-params param-types)
+              return-type
+              (parse-expr (nth $1 2))))
+          (_ (panic "Function definition requires function type"))))
+      (_ (panic "Function name must be string")))
+    (panic "Define requires 3 arguments: name, type, body")))
+
+(define generate-params ((list Type) -> (list Param))
+  (map-indexed
+    (lambda ((idx integer) (t Type))
+      (record
+        (name (concat "$" (to-string (+ idx 1))))
+        (type t)))
+    $1))
+
+(define parse-type-def ((list SExpr) -> Definition)
+  (if (= (length $1) 2)
+    (match (head $1)
+      ((SString name)
+        (TypeDef name (parse-type (nth $1 1))))
+      (_ (panic "Type name must be string")))
+    (panic "Type definition requires 2 arguments: name and type")))
+
+(define parse-module-def ((list SExpr) -> Definition)
+  (if (>= (length $1) 1)
+    (match (head $1)
+      ((SString name)
+        (let rest (list SExpr) (tail $1))
+        (let exports (list string) (parse-exports rest))
+        (let defs-start integer (if (> (length exports) 0) 1 0))
+        (let defs (list Definition)
+          (map parse-definition (drop defs-start rest)))
+        (Module name exports defs))
+      (_ (panic "Module name must be string")))
+    (panic "Module requires at least a name")))
+
+(define parse-exports ((list SExpr) -> (list string))
+  ;; Check if first element is (export ...)
+  (if (> (length $1) 0)
+    (match (head $1)
+      ((SList items)
+        (if (> (length items) 0)
+          (match (head items)
+            ((SString "export")
+              (extract-export-names (tail items)))
+            (_ (empty-list)))
+          (empty-list)))
+      (_ (empty-list)))
+    (empty-list)))
+
+(define extract-export-names ((list SExpr) -> (list string))
+  (map
+    (lambda ((x SExpr))
+      (match x
+        ((SString name) name)
+        (_ (panic "Export name must be string"))))
+    $1))
+
+;; ============================================================================
+;; Program Parser
+;; ============================================================================
+
+(define parse-program ((list SExpr) -> (list Definition))
+  (map parse-definition $1))
+
+;; ============================================================================
+;; Utility Functions
+;; ============================================================================
+
+(define sexpr-equals? (SExpr SExpr -> boolean)
+  (match $1
+    ((SString s1)
+      (match $2
+        ((SString s2) (string-equals? s1 s2))
+        (_ false)))
+    ((SNumber n1)
+      (match $2
+        ((SNumber n2) (= n1 n2))
+        (_ false)))
+    ((SBool b1)
+      (match $2
+        ((SBool b2) (and b1 b2))  ;; Simplified boolean equality
+        (_ false)))
+    (_ false)))
+
+(define sexpr-to-string (SExpr -> string)
+  (match $1
+    ((SString s) s)
+    ((SNumber n) (to-string n))
+    ((SBool b) (if b "true" "false"))
+    ((SList items)
+      (concat "(" (join " " (map sexpr-to-string items)) ")"))))
+
+(define is-lowercase? (string -> boolean)
+  ;; Check if character is lowercase (a-z)
+  (let code integer (char-code $1))
+  (and (>= code 97) (<= code 122)))
+
+(define string-starts-with? (string string -> boolean)
+  ;; Check if string starts with prefix
+  (let prefix-len integer (string-length $2))
+  (if (< (string-length $1) prefix-len)
+    false
+    (string-equals?
+      (string-slice $1 0 prefix-len)
+      $2)))
+
+;; Helper: find index of element in list
+(define find-index ((a -> boolean) (list a) -> integer)
+  (find-index-helper $1 $2 0))
+
+(define find-index-helper ((a -> boolean) (list a) integer -> integer)
+  (if (empty? $2)
+    -1
+    (if ($1 (head $2))
+      $3
+      (find-index-helper $1 (tail $2) (+ $3 1)))))
+
+;; Helper: map with index
+(define map-indexed ((integer a -> b) (list a) -> (list b))
+  (map-indexed-helper $1 $2 0))
+
+(define map-indexed-helper ((integer a -> b) (list a) integer -> (list b))
+  (if (empty? $2)
+    (empty-list)
+    (cons
+      ($1 $3 (head $2))
+      (map-indexed-helper $1 (tail $2) (+ $3 1)))))

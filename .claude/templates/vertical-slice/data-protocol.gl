@@ -1,0 +1,65 @@
+;; ============================================================================
+;; TEMPLATE: Data Protocol (ADVERB - Abstract Manner)
+;; GRAMMAR ROLE: Describes HOW action is performed (abstractly)
+;; ============================================================================
+
+;; Protocol: {{EntityName}}Repository
+;; Purpose: Abstract interface for {{entity-name}} persistence
+
+(module {{module-name}}/{{use-case-name}}/data/protocols/{{entity-name}}-repository
+  (export [{{EntityName}}Repository])
+
+  (import {{module-name}}/{{use-case-name}}/domain/entities/{{entity-name}} [{{EntityName}}])
+
+  ;; Repository Interface (Abstract Adverb)
+  (type {{EntityName}}Repository
+    (interface
+      {{METHODS}}
+      ;; Common patterns:
+      ;;
+      ;; Create:
+      ;; (save ({{EntityName}} -> (result unit string)))
+      ;;
+      ;; Read:
+      ;; (find-by-id (string -> (option {{EntityName}})))
+      ;; (find-all (unit -> (list {{EntityName}})))
+      ;; (find-by-field (string -> (option {{EntityName}})))
+      ;;
+      ;; Update:
+      ;; (update ({{EntityName}} -> (result unit string)))
+      ;;
+      ;; Delete:
+      ;; (delete (string -> (result unit string)))
+      ;;
+      ;; Queries:
+      ;; (count (unit -> integer))
+      ;; (exists (string -> boolean))
+      ))
+)
+
+;; ============================================================================
+;; GRAMMAR STRUCTURE
+;; ============================================================================
+;; Verb:   "save user" / "find user" / "delete user"
+;; Adverb: "in some manner" (abstract - could be mongo, postgres, memory)
+;;
+;; This interface answers: HOW to persist?
+;; Answer: "In some abstract manner" (concrete adapter implements)
+;; ============================================================================
+
+;; ============================================================================
+;; USAGE EXAMPLE
+;; ============================================================================
+;; ;; In use-case implementation:
+;; (define DbCreateUser (UserRepository -> CreateUser)
+;;   (record
+;;     (repository $1)  ;; Abstract - don't know if Mongo, Postgres, etc
+;;     (execute (lambda ((params CreateUserParams))
+;;       (save repository new-user)))))  ;; Use abstract method
+;;
+;; ;; Concrete adapter (infrastructure):
+;; (define MongoUserRepository (MongoClient -> UserRepository)
+;;   (record
+;;     (client $1)
+;;     (save (lambda ((user User))
+;;       (mongo-insert client "users" user)))))  ;; Concrete implementation

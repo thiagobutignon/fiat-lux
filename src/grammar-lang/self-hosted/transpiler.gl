@@ -1,0 +1,147 @@
+;; Grammar Language Self-Hosted Compiler - Transpiler
+;; Converts typed AST to JavaScript code
+
+(module transpiler
+  (export
+    transpile-program
+    transpile-definition
+    transpile-expr))
+
+(import compiler-types (Expr Definition Type))
+
+;; ============================================================================
+;; Expression Transpiler
+;; ============================================================================
+
+(define transpile-expr (Expr -> string)
+  (match $1
+    ;; Literals
+    ((Literal value type)
+      (transpile-value value))
+
+    ;; Variable reference
+    ((Var name) name)
+
+    ;; Let binding
+    ((Let name type value body)
+      (concat
+        "const " name " = " (transpile-expr value) ";\n"
+        (transpile-expr body)))
+
+    ;; If expression (ternary operator)
+    ((If cond then-branch else-branch)
+      (concat
+        "("
+        (transpile-expr cond)
+        " ? "
+        (transpile-expr then-branch)
+        " : "
+        (transpile-expr else-branch)
+        ")"))
+
+    ;; Function call
+    ((Call fn args)
+      (let fn-code string (transpile-expr fn))
+      (let args-code string (join ", " (map transpile-expr args)))
+      (concat fn-code "(" args-code ")"))
+
+    ;; Lambda function
+    ((Lambda params body)
+      (let param-names (list string)
+        (map (lambda ((p Param)) (get-field p name)) params))
+      (let params-code string (join ", " param-names))
+      (let body-code string (transpile-expr body))
+      (concat "((" params-code ") => " body-code ")"))
+
+    ;; List literal
+    ((List items)
+      (let items-code (list string) (map transpile-expr items))
+      (concat "[" (join ", " items-code) "]"))
+
+    ;; Record literal
+    ((Record fields)
+      (let fields-code (list string)
+        (map transpile-field-value fields))
+      (concat "{ " (join ", " fields-code) " }"))
+
+    (_ (panic "Unknown expression in transpiler"))))
+
+(define transpile-value (Value -> string)
+  (match $1
+    ((IntValue n) (to-string n))
+    ((StringValue s) (concat "\"" s "\""))
+    ((BoolValue b) (if b "true" "false"))
+    ((UnitValue) "null")))
+
+(define transpile-field-value (FieldValue -> string)
+  (concat
+    (get-field $1 name)
+    ": "
+    (transpile-expr (get-field $1 value))))
+
+;; ============================================================================
+;; Definition Transpiler
+;; ============================================================================
+
+(define transpile-definition (Definition -> string)
+  (match $1
+    ;; Function definition
+    ((Function name params return-type body)
+      (let param-names (list string)
+        (map (lambda ((p Param)) (get-field p name)) params))
+      (let params-code string (join ", " param-names))
+      (let body-code string (transpile-expr body))
+      (concat
+        "function " name "(" params-code ") {\n"
+        "  return " body-code ";\n"
+        "}\n"))
+
+    ;; Type definition (skip - types are erased)
+    ((TypeDef name type) "")
+
+    ;; Module definition
+    ((Module name exports defs)
+      (let defs-code (list string) (map transpile-definition defs))
+      (let module-code string (join "\n" defs-code))
+
+      ;; Wrap in IIFE with exports
+      (concat
+        "// Module: " name "\n"
+        "(function() {\n"
+        module-code "\n"
+        "\n  // Exports\n"
+        (transpile-exports name exports)
+        "})();\n"))
+
+    (_ (panic "Unknown definition in transpiler"))))
+
+(define transpile-exports (string (list string) -> string)
+  (let export-lines (list string)
+    (map
+      (lambda ((export-name string))
+        (concat
+          "  globalThis." $1 "$" export-name " = " export-name ";\n"))
+      $2))
+  (join "" export-lines))
+
+;; ============================================================================
+;; Program Transpiler
+;; ============================================================================
+
+(define transpile-program ((list Definition) -> string)
+  (let defs-code (list string) (map transpile-definition $1))
+  (join "\n" defs-code))
+
+;; ============================================================================
+;; Utility: String joining
+;; ============================================================================
+
+(define join (string (list string) -> string)
+  (if (empty? $2)
+    ""
+    (if (= (length $2) 1)
+      (head $2)
+      (concat
+        (head $2)
+        $1
+        (join $1 (tail $2))))))

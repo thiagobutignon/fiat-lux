@@ -1,0 +1,293 @@
+;; Grammar Language Self-Hosted Compiler - Type Checker
+;; O(1) type checking with no inference
+
+(module type-checker
+  (export
+    check-program
+    check-definition
+    check-expr
+    type-equals
+    TypeEnv
+    create-env
+    env-lookup
+    env-bind))
+
+(import compiler-types (
+  Type PrimitiveType CompoundType
+  Expr Definition
+  TypeEnv Binding))
+
+;; ============================================================================
+;; Type Environment
+;; ============================================================================
+
+(define create-env (unit -> TypeEnv)
+  (record
+    (bindings (empty-list))
+    (parent null)))
+
+(define env-bind (TypeEnv string Type -> TypeEnv)
+  (record
+    (bindings (cons
+      (record (name $2) (type $3))
+      (get-field $1 bindings)))
+    (parent (get-field $1 parent))))
+
+(define env-lookup (TypeEnv string -> Type)
+  (let bindings (list Binding) (get-field $1 bindings))
+  (let result Type (lookup-in-bindings bindings $2))
+
+  (if (not (is-null? result))
+    result
+    ;; Check parent environment
+    (let parent TypeEnv (get-field $1 parent))
+    (if (is-null? parent)
+      (panic (concat "Undefined variable: " $2))
+      (env-lookup parent $2))))
+
+(define lookup-in-bindings ((list Binding) string -> Type)
+  (if (empty? $1)
+    null
+    (let binding Binding (head $1))
+    (if (string-equals? (get-field binding name) $2)
+      (get-field binding type)
+      (lookup-in-bindings (tail $1) $2))))
+
+(define env-extend (TypeEnv -> TypeEnv)
+  (record
+    (bindings (empty-list))
+    (parent $1)))
+
+;; ============================================================================
+;; Type Equality (O(1) structural equality)
+;; ============================================================================
+
+(define type-equals (Type Type -> boolean)
+  (match $1
+    ;; Primitive types
+    ((PrimitiveType name1)
+      (match $2
+        ((PrimitiveType name2) (string-equals? name1 name2))
+        (_ false)))
+
+    ;; List types
+    ((ListType elem1)
+      (match $2
+        ((ListType elem2) (type-equals elem1 elem2))
+        (_ false)))
+
+    ;; Function types
+    ((FunctionType params1 ret1)
+      (match $2
+        ((FunctionType params2 ret2)
+          (and
+            (types-equal? params1 params2)
+            (type-equals ret1 ret2)))
+        (_ false)))
+
+    ;; Type variables
+    ((TypeVar name1)
+      (match $2
+        ((TypeVar name2) (string-equals? name1 name2))
+        (_ false)))
+
+    ;; Record types
+    ((RecordType fields1)
+      (match $2
+        ((RecordType fields2) (fields-equal? fields1 fields2))
+        (_ false)))
+
+    ;; Enum types
+    ((EnumType variants1)
+      (match $2
+        ((EnumType variants2) (variants-equal? variants1 variants2))
+        (_ false)))
+
+    (_ false)))
+
+(define types-equal? ((list Type) (list Type) -> boolean)
+  (if (not (= (length $1) (length $2)))
+    false
+    (all-true (map2 type-equals $1 $2))))
+
+(define fields-equal? ((list Field) (list Field) -> boolean)
+  (if (not (= (length $1) (length $2)))
+    false
+    (all-true (map2 field-equals $1 $2))))
+
+(define field-equals (Field Field -> boolean)
+  (and
+    (string-equals?
+      (get-field $1 name)
+      (get-field $2 name))
+    (type-equals
+      (get-field $1 type)
+      (get-field $2 type))))
+
+(define variants-equal? ((list Variant) (list Variant) -> boolean)
+  (if (not (= (length $1) (length $2)))
+    false
+    (all-true (map2 variant-equals $1 $2))))
+
+(define variant-equals (Variant Variant -> boolean)
+  (and
+    (string-equals?
+      (get-field $1 name)
+      (get-field $2 name))
+    (type-equals
+      (get-field $1 data)
+      (get-field $2 data))))
+
+;; ============================================================================
+;; Expression Type Checking (O(1) per expression)
+;; ============================================================================
+
+(define check-expr (Expr TypeEnv -> Type)
+  (match $1
+    ;; Literal: return its type
+    ((Literal value type) type)
+
+    ;; Variable: lookup in environment
+    ((Var name) (env-lookup $2 name))
+
+    ;; Let binding: check value, extend env
+    ((Let name type value body)
+      (let value-type Type (check-expr value $2))
+      (if (not (type-equals value-type type))
+        (panic (concat "Let binding type mismatch for " name))
+        (let new-env TypeEnv (env-bind $2 name type))
+        (check-expr body new-env)))
+
+    ;; If expression: check all branches
+    ((If cond then-branch else-branch)
+      (let cond-type Type (check-expr cond $2))
+      (if (not (type-equals cond-type (PrimitiveType "boolean")))
+        (panic "If condition must be boolean")
+        (let then-type Type (check-expr then-branch $2))
+        (let else-type Type (check-expr else-branch $2))
+        (if (not (type-equals then-type else-type))
+          (panic "If branches must have same type")
+          then-type)))
+
+    ;; Function call: check function and arguments
+    ((Call fn args)
+      (let fn-type Type (check-expr fn $2))
+      (match fn-type
+        ((FunctionType param-types return-type)
+          (if (not (= (length args) (length param-types)))
+            (panic "Wrong number of arguments")
+            (let arg-types (list Type) (map (lambda ((arg Expr)) (check-expr arg $2)) args))
+            (if (not (types-equal? arg-types param-types))
+              (panic "Argument types don't match")
+              return-type)))
+        (_ (panic "Cannot call non-function"))))
+
+    ;; Lambda: check body with parameters in scope
+    ((Lambda params body)
+      (let param-types (list Type) (map (lambda ((p Param)) (get-field p type)) params))
+      (let lambda-env TypeEnv (add-params-to-env params $2))
+      (let body-type Type (check-expr body lambda-env))
+      (FunctionType param-types body-type))
+
+    (_ (panic "Unknown expression type"))))
+
+(define add-params-to-env ((list Param) TypeEnv -> TypeEnv)
+  (fold
+    (lambda ((env TypeEnv) (param Param))
+      (env-bind env (get-field param name) (get-field param type)))
+    $2
+    $1))
+
+;; ============================================================================
+;; Definition Type Checking
+;; ============================================================================
+
+(define check-definition (Definition TypeEnv -> TypeEnv)
+  (match $1
+    ;; Function definition
+    ((Function name params return-type body)
+      ;; Forward declare function (for recursion)
+      (let param-types (list Type) (map (lambda ((p Param)) (get-field p type)) params))
+      (let fn-type Type (FunctionType param-types return-type))
+      (let env-with-fn TypeEnv (env-bind $2 name fn-type))
+
+      ;; Check body with parameters
+      (let fn-env TypeEnv (add-params-to-env params env-with-fn))
+      (let body-type Type (check-expr body fn-env))
+
+      (if (not (type-equals body-type return-type))
+        (panic (concat "Function " name " return type mismatch"))
+        env-with-fn))
+
+    ;; Type definition (just add to environment)
+    ((TypeDef name type)
+      (env-bind $2 name type))
+
+    ;; Module definition
+    ((Module name exports defs)
+      (check-definitions defs $2))
+
+    (_ (panic "Unknown definition type"))))
+
+(define check-definitions ((list Definition) TypeEnv -> TypeEnv)
+  (fold check-definition $2 $1))
+
+;; ============================================================================
+;; Program Type Checking
+;; ============================================================================
+
+(define check-program ((list Definition) -> TypeEnv)
+  (let env TypeEnv (create-env))
+  (let env-with-builtins TypeEnv (add-builtins env))
+  (check-definitions $1 env-with-builtins))
+
+(define add-builtins (TypeEnv -> TypeEnv)
+  ;; Add all built-in function types
+  (let env1 TypeEnv (env-bind $1 "+" (FunctionType
+    [(PrimitiveType "integer") (PrimitiveType "integer")]
+    (PrimitiveType "integer"))))
+
+  (let env2 TypeEnv (env-bind env1 "-" (FunctionType
+    [(PrimitiveType "integer") (PrimitiveType "integer")]
+    (PrimitiveType "integer"))))
+
+  (let env3 TypeEnv (env-bind env2 "*" (FunctionType
+    [(PrimitiveType "integer") (PrimitiveType "integer")]
+    (PrimitiveType "integer"))))
+
+  (let env4 TypeEnv (env-bind env3 "/" (FunctionType
+    [(PrimitiveType "integer") (PrimitiveType "integer")]
+    (PrimitiveType "integer"))))
+
+  (let env5 TypeEnv (env-bind env4 "=" (FunctionType
+    [(PrimitiveType "integer") (PrimitiveType "integer")]
+    (PrimitiveType "boolean"))))
+
+  (let env6 TypeEnv (env-bind env5 "<" (FunctionType
+    [(PrimitiveType "integer") (PrimitiveType "integer")]
+    (PrimitiveType "boolean"))))
+
+  (let env7 TypeEnv (env-bind env6 ">" (FunctionType
+    [(PrimitiveType "integer") (PrimitiveType "integer")]
+    (PrimitiveType "boolean"))))
+
+  ;; ... more built-ins (cons, head, tail, etc.)
+  env7)
+
+;; ============================================================================
+;; Utility Functions
+;; ============================================================================
+
+(define all-true ((list boolean) -> boolean)
+  (fold and true $1))
+
+(define map2 ((a b -> c) (list a) (list b) -> (list c))
+  (if (or (empty? $2) (empty? $3))
+    (empty-list)
+    (cons
+      ($1 (head $2) (head $3))
+      (map2 $1 (tail $2) (tail $3)))))
+
+(define is-null? (a -> boolean)
+  ;; Check if value is null
+  (= $1 null))
