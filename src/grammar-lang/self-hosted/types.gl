@@ -1,0 +1,122 @@
+;; Grammar Language Self-Hosted Compiler - Type Definitions
+;; This file defines all types used by the compiler itself
+
+(module compiler-types
+  (export
+    ;; Type System Types
+    Type PrimitiveType CompoundType
+    ;; Expression Types
+    Expr LiteralExpr VarExpr LetExpr IfExpr CallExpr LambdaExpr
+    ;; Definition Types
+    Definition FunctionDef TypeDef ModuleDef
+    ;; Utility Types
+    Param SourceLocation))
+
+;; ============================================================================
+;; Type System Types
+;; ============================================================================
+
+(type Type
+  (enum
+    (PrimitiveType string)           ;; "integer", "string", "boolean", "unit"
+    (ListType Type)                  ;; (list T)
+    (FunctionType (list Type) Type)  ;; (T1 T2 -> R)
+    (RecordType (list Field))        ;; (record (name type) ...)
+    (EnumType (list Variant))        ;; (enum Variant1 Variant2 ...)
+    (TypeVar string)))               ;; Type variable (a, b, etc.)
+
+(type Field
+  (record
+    (name string)
+    (type Type)))
+
+(type Variant
+  (record
+    (name string)
+    (data Type)))  ;; null for unit variants
+
+;; ============================================================================
+;; Expression AST
+;; ============================================================================
+
+(type Expr
+  (enum
+    (Literal Value Type)                  ;; Literal value with type
+    (Var string)                          ;; Variable reference
+    (Let string Type Expr Expr)           ;; Let binding with optional body
+    (If Expr Expr Expr)                   ;; Conditional
+    (Call Expr (list Expr))               ;; Function call
+    (Lambda (list Param) Expr)            ;; Lambda function
+    (List (list Expr))                    ;; List literal
+    (Record (list FieldValue))))          ;; Record literal
+
+(type Value
+  (enum
+    (IntValue integer)
+    (StringValue string)
+    (BoolValue boolean)
+    (UnitValue)))
+
+(type FieldValue
+  (record
+    (name string)
+    (value Expr)))
+
+;; ============================================================================
+;; Definition AST
+;; ============================================================================
+
+(type Definition
+  (enum
+    (Function string (list Param) Type Expr)    ;; Function definition
+    (TypeDef string Type)                       ;; Type definition
+    (Module string (list string) (list Definition))))  ;; Module definition
+
+(type Param
+  (record
+    (name string)
+    (type Type)))
+
+;; ============================================================================
+;; Source Location (for error messages)
+;; ============================================================================
+
+(type SourceLocation
+  (record
+    (file string)
+    (line integer)
+    (column integer)))
+
+;; ============================================================================
+;; S-Expression (input to parser)
+;; ============================================================================
+
+(type SExpr
+  (enum
+    (SString string)
+    (SNumber integer)
+    (SBool boolean)
+    (SList (list SExpr))))
+
+;; ============================================================================
+;; Type Environment
+;; ============================================================================
+
+(type TypeEnv
+  (record
+    (bindings (list Binding))
+    (parent TypeEnv)))  ;; null for root
+
+(type Binding
+  (record
+    (name string)
+    (type Type)))
+
+;; ============================================================================
+;; Compilation Result
+;; ============================================================================
+
+(type CompileResult
+  (enum
+    (Success string)            ;; Generated code
+    (Failure (list string))))   ;; Error messages
