@@ -1,0 +1,223 @@
+;; Grammar Language Standard Library
+;; Module: core
+;;
+;; Core functions and types available to all programs
+
+;; ============================================================================
+;; Boolean Operations
+;; ============================================================================
+
+(define not (boolean -> boolean)
+  (if $1 false true))
+
+(define and (boolean boolean -> boolean)
+  (if $1 $2 false))
+
+(define or (boolean boolean -> boolean)
+  (if $1 true $2))
+
+;; ============================================================================
+;; Integer Operations
+;; ============================================================================
+
+(define abs (integer -> integer)
+  (if (< $1 0)
+    (- 0 $1)
+    $1))
+
+(define max (integer integer -> integer)
+  (if (> $1 $2) $1 $2))
+
+(define min (integer integer -> integer)
+  (if (< $1 $2) $1 $2))
+
+(define even? (integer -> boolean)
+  (= (% $1 2) 0))
+
+(define odd? (integer -> boolean)
+  (not (even? $1)))
+
+;; ============================================================================
+;; List Operations
+;; ============================================================================
+
+(define length ((list a) -> integer)
+  (if (empty? $1)
+    0
+    (+ 1 (length (tail $1)))))
+
+(define map ((a -> b) (list a) -> (list b))
+  (if (empty? $1)
+    (empty-list)
+    (cons
+      ($2 (head $1))
+      (map $2 (tail $1)))))
+
+(define filter ((a -> boolean) (list a) -> (list a))
+  (if (empty? $1)
+    (empty-list)
+    (if ($2 (head $1))
+      (cons (head $1) (filter $2 (tail $1)))
+      (filter $2 (tail $1)))))
+
+(define fold ((b a -> b) b (list a) -> b)
+  (if (empty? $1)
+    $2
+    (fold $1 ($1 $2 (head $3)) (tail $3))))
+
+(define reverse ((list a) -> (list a))
+  (fold
+    (lambda ((acc (list a)) (x a)) (cons x acc))
+    (empty-list)
+    $1))
+
+(define append ((list a) (list a) -> (list a))
+  (if (empty? $1)
+    $2
+    (cons (head $1) (append (tail $1) $2))))
+
+(define take (integer (list a) -> (list a))
+  (if (or (<= $1 0) (empty? $2))
+    (empty-list)
+    (cons (head $2) (take (- $1 1) (tail $2)))))
+
+(define drop (integer (list a) -> (list a))
+  (if (or (<= $1 0) (empty? $2))
+    $2
+    (drop (- $1 1) (tail $2))))
+
+;; ============================================================================
+;; String Operations
+;; ============================================================================
+
+(define concat (string string -> string)
+  (+ $1 $2))
+
+(define uppercase (string -> string)
+  (builtin-uppercase $1))
+
+(define lowercase (string -> string)
+  (builtin-lowercase $1))
+
+;; ============================================================================
+;; Option Type (for nullable values)
+;; ============================================================================
+
+(type Option
+  (enum
+    (Some a)
+    None))
+
+(define is-some ((Option a) -> boolean)
+  (match $1
+    ((Some _) true)
+    (None false)))
+
+(define is-none ((Option a) -> boolean)
+  (not (is-some $1)))
+
+(define unwrap ((Option a) -> a)
+  (match $1
+    ((Some x) x)
+    (None (panic "Cannot unwrap None"))))
+
+(define unwrap-or ((Option a) a -> a)
+  (match $1
+    ((Some x) x)
+    (None $2)))
+
+;; ============================================================================
+;; Result Type (for error handling)
+;; ============================================================================
+
+(type Result
+  (enum
+    (Ok a)
+    (Err e)))
+
+(define is-ok ((Result a e) -> boolean)
+  (match $1
+    ((Ok _) true)
+    (Err _) false))
+
+(define is-err ((Result a e) -> boolean)
+  (not (is-ok $1)))
+
+(define unwrap-result ((Result a e) -> a)
+  (match $1
+    ((Ok x) x)
+    (Err e) (panic "Cannot unwrap Err")))
+
+;; ============================================================================
+;; IO Operations
+;; ============================================================================
+
+(define print (string -> unit)
+  (builtin-print $1))
+
+(define println (string -> unit)
+  (print (concat $1 "\n")))
+
+(define read-line (unit -> string)
+  (builtin-read-line))
+
+;; ============================================================================
+;; Utility Functions
+;; ============================================================================
+
+(define identity (a -> a)
+  $1)
+
+(define const (a b -> a)
+  $1)
+
+(define compose ((b -> c) (a -> b) -> (a -> c))
+  (lambda ((x a))
+    ($1 ($2 x))))
+
+(define flip ((a b -> c) -> (b a -> c))
+  (lambda ((x b) (y a))
+    ($1 y x)))
+
+;; ============================================================================
+;; Math Functions
+;; ============================================================================
+
+(define square (integer -> integer)
+  (* $1 $1))
+
+(define cube (integer -> integer)
+  (* $1 (* $1 $1)))
+
+(define pow (integer integer -> integer)
+  (if (<= $2 0)
+    1
+    (* $1 (pow $1 (- $2 1)))))
+
+(define factorial (integer -> integer)
+  (if (<= $1 1)
+    1
+    (* $1 (factorial (- $1 1)))))
+
+(define fibonacci (integer -> integer)
+  (if (<= $1 1)
+    $1
+    (+ (fibonacci (- $1 1))
+       (fibonacci (- $1 2)))))
+
+(define range (integer integer -> (list integer))
+  (if (>= $1 $2)
+    (empty-list)
+    (cons $1 (range (+ $1 1) $2))))
+
+(define sum ((list integer) -> integer)
+  (fold
+    (lambda ((acc integer) (x integer)) (+ acc x))
+    0
+    $1))
+
+(define product ((list integer) -> integer)
+  (fold
+    (lambda ((acc integer) (x integer)) (* acc x))
+    1
+    $1))

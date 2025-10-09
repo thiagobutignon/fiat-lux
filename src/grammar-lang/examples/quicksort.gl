@@ -1,0 +1,38 @@
+;; Grammar Language Example: Quicksort
+;; Demonstrates list processing and higher-order functions
+
+;; Quicksort implementation
+(define quicksort ((list integer) -> (list integer))
+  (if (empty? $1)
+    (empty-list)
+    (let pivot integer (head $1))
+    (let rest (list integer) (tail $1))
+    (let smaller (list integer) (filter (lambda ((x integer)) (< x pivot)) rest))
+    (let greater (list integer) (filter (lambda ((x integer)) (>= x pivot)) rest))
+    (append
+      (append (quicksort smaller) (cons pivot (empty-list)))
+      (quicksort greater))))
+
+;; Partition a list by a predicate
+(define partition ((integer -> boolean) (list integer) -> (record ((true (list integer)) (false (list integer)))))
+  (if (empty? $1)
+    (record
+      (true (empty-list))
+      (false (empty-list)))
+    (let head-val integer (head $1))
+    (let rest-partition (record ((true (list integer)) (false (list integer)))) (partition $2 (tail $1)))
+    (if ($2 head-val)
+      (record
+        (true (cons head-val (get-field rest-partition true)))
+        (false (get-field rest-partition false)))
+      (record
+        (true (get-field rest-partition true))
+        (false (cons head-val (get-field rest-partition false)))))))
+
+;; Check if list is sorted
+(define is-sorted? ((list integer) -> boolean)
+  (if (or (empty? $1) (empty? (tail $1)))
+    true
+    (if (<= (head $1) (head (tail $1)))
+      (is-sorted? (tail $1))
+      false)))
