@@ -1,0 +1,26 @@
+;; Grammar Language Example: Hello World
+;; File extension: .gl
+
+;; Simple function
+(define greet (string -> string)
+  (+ "Hello, " $1))
+
+;; Function with multiple params
+(define add (integer integer -> integer)
+  (+ $1 $2))
+
+;; Recursive function
+(define factorial (integer -> integer)
+  (if (<= $1 1)
+    1
+    (* $1 (factorial (- $1 1)))))
+
+;; Higher-order function
+(define apply-twice ((integer -> integer) integer -> integer)
+  ($1 ($1 $2)))
+
+;; List processing
+(define sum-list ((list integer) -> integer)
+  (if (= (length $1) 0)
+    0
+    (+ (head $1) (sum-list (tail $1)))))
