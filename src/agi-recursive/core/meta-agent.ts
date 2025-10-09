@@ -187,16 +187,12 @@ You MUST respond with valid JSON:
         reasoning: parsed.reasoning || '',
       };
     } catch (e) {
-      // Fallback if not valid JSON
-      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
-      console.warn(`❌ Failed to parse JSON from ${this.getDomain()}:`, errorMessage);
-      console.warn('Raw response (first 200 chars):', llmResponse.text.substring(0, 200));
-
+      // Fallback if not valid JSON - use plain text response
       return {
         answer: llmResponse.text,
         concepts: [],
-        confidence: 0.3,
-        reasoning: `Failed to parse JSON response: ${errorMessage}`,
+        confidence: 0.5,
+        reasoning: 'Fallback to plain text response',
       };
     }
   }

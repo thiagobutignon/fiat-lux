@@ -7,6 +7,7 @@
 
 import { Expr, Definition, FunctionDef, TypeDef, ModuleDef } from './ast';
 import { Type, TypeEnv, typeEquals, formatType } from './types';
+import { BUILTINS } from '../stdlib/builtins';
 
 // ============================================================================
 // Type Checker Errors
@@ -253,20 +254,8 @@ export function checkProgram(definitions: Definition[]): TypeEnv {
 }
 
 function addBuiltins(env: TypeEnv): void {
-  // Primitive operators
-  env.bind('+', { kind: 'function', params: [{ kind: 'integer' }, { kind: 'integer' }], return: { kind: 'integer' } });
-  env.bind('-', { kind: 'function', params: [{ kind: 'integer' }, { kind: 'integer' }], return: { kind: 'integer' } });
-  env.bind('*', { kind: 'function', params: [{ kind: 'integer' }, { kind: 'integer' }], return: { kind: 'integer' } });
-  env.bind('/', { kind: 'function', params: [{ kind: 'integer' }, { kind: 'integer' }], return: { kind: 'integer' } });
-
-  env.bind('=', { kind: 'function', params: [{ kind: 'integer' }, { kind: 'integer' }], return: { kind: 'boolean' } });
-  env.bind('<', { kind: 'function', params: [{ kind: 'integer' }, { kind: 'integer' }], return: { kind: 'boolean' } });
-  env.bind('<=', { kind: 'function', params: [{ kind: 'integer' }, { kind: 'integer' }], return: { kind: 'boolean' } });
-  env.bind('>', { kind: 'function', params: [{ kind: 'integer' }, { kind: 'integer' }], return: { kind: 'boolean' } });
-  env.bind('>=', { kind: 'function', params: [{ kind: 'integer' }, { kind: 'integer' }], return: { kind: 'boolean' } });
-
-  // Boolean operators
-  env.bind('and', { kind: 'function', params: [{ kind: 'boolean' }, { kind: 'boolean' }], return: { kind: 'boolean' } });
-  env.bind('or', { kind: 'function', params: [{ kind: 'boolean' }, { kind: 'boolean' }], return: { kind: 'boolean' } });
-  env.bind('not', { kind: 'function', params: [{ kind: 'boolean' }], return: { kind: 'boolean' } });
+  // Add all built-in functions from stdlib
+  for (const builtin of BUILTINS) {
+    env.bind(builtin.name, builtin.type);
+  }
 }
