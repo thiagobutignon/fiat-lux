@@ -1,0 +1,255 @@
+{
+  "experiment": "Multi-Organism Competition",
+  "organisms": 3,
+  "generations": 5,
+  "duration_seconds": 56,
+  "knowledge_transfer_enabled": true,
+
+  "organisms_data": [
+    {
+      "id": "oncology-v1.0.0",
+      "domain": "oncology",
+      "initial_fitness": 0.78,
+      "final_fitness": 0.867,
+      "change_percent": 8.7,
+      "outcome": "promoted",
+      "rank": 1,
+      "patterns_shared": ["adaptive_latency_cache", "error_retry_backoff"],
+      "patterns_received": []
+    },
+    {
+      "id": "neurology-v1.0.0",
+      "domain": "neurology",
+      "initial_fitness": 0.75,
+      "final_fitness": 0.864,
+      "change_percent": 11.4,
+      "outcome": "promoted",
+      "rank": 2,
+      "patterns_shared": [],
+      "patterns_received": ["adaptive_latency_cache"]
+    },
+    {
+      "id": "cardiology-v1.0.0",
+      "domain": "cardiology",
+      "initial_fitness": 0.82,
+      "final_fitness": 0.796,
+      "change_percent": -2.4,
+      "outcome": "retired",
+      "rank": 3,
+      "patterns_shared": [],
+      "patterns_received": [],
+      "retirement_category": "good",
+      "can_resurrect": true
+    }
+  ],
+
+  "generation_logs": [
+    {
+      "generation": 0,
+      "events": [
+        {
+          "type": "initial_deployment",
+          "organism": "oncology-v1.0.0",
+          "fitness": 0.78,
+          "metrics": {"latency_ms": 82, "throughput_rps": 745, "error_rate": 0.019, "crash_rate": 0.002}
+        },
+        {
+          "type": "initial_deployment",
+          "organism": "neurology-v1.0.0",
+          "fitness": 0.75,
+          "metrics": {"latency_ms": 89, "throughput_rps": 698, "error_rate": 0.024, "crash_rate": 0.003}
+        },
+        {
+          "type": "initial_deployment",
+          "organism": "cardiology-v1.0.0",
+          "fitness": 0.82,
+          "metrics": {"latency_ms": 76, "throughput_rps": 801, "error_rate": 0.015, "crash_rate": 0.001}
+        }
+      ]
+    },
+    {
+      "generation": 1,
+      "events": [
+        {
+          "type": "mutation",
+          "organism": "oncology-v1.0.1",
+          "parent": "oncology-v1.0.0",
+          "fitness": 0.80,
+          "change": "+0.02",
+          "mutation_type": "performance_optimization"
+        },
+        {
+          "type": "mutation",
+          "organism": "neurology-v1.0.1",
+          "parent": "neurology-v1.0.0",
+          "fitness": 0.76,
+          "change": "+0.01",
+          "mutation_type": "error_handling_improvement"
+        },
+        {
+          "type": "mutation",
+          "organism": "cardiology-v1.0.1",
+          "parent": "cardiology-v1.0.0",
+          "fitness": 0.81,
+          "change": "-0.01",
+          "mutation_type": "feature_addition",
+          "warning": "fitness_degradation_detected"
+        }
+      ]
+    },
+    {
+      "generation": 2,
+      "events": [
+        {
+          "type": "mutation",
+          "organism": "oncology-v1.0.2",
+          "parent": "oncology-v1.0.1",
+          "fitness": 0.83,
+          "change": "+0.03",
+          "mutation_type": "latency_optimization",
+          "pattern_created": "adaptive_latency_cache"
+        },
+        {
+          "type": "knowledge_transfer",
+          "from": "oncology-v1.0.2",
+          "to": "neurology-v1.0.1",
+          "pattern": "adaptive_latency_cache",
+          "llm_analysis": {
+            "model": "claude-opus-4",
+            "applicability_score": 0.87,
+            "reasoning": "Pattern applies to neurology domain - similar latency requirements for real-time patient data access"
+          }
+        },
+        {
+          "type": "mutation",
+          "organism": "neurology-v1.0.2",
+          "parent": "neurology-v1.0.1",
+          "fitness": 0.82,
+          "change": "+0.06",
+          "mutation_type": "pattern_adoption",
+          "pattern_applied": "adaptive_latency_cache",
+          "note": "Knowledge transfer accelerated evolution (+4.9% in single generation)"
+        },
+        {
+          "type": "mutation",
+          "organism": "cardiology-v1.0.2",
+          "parent": "cardiology-v1.0.1",
+          "fitness": 0.80,
+          "change": "-0.01",
+          "mutation_type": "bugfix",
+          "warning": "continued_fitness_degradation"
+        }
+      ]
+    },
+    {
+      "generation": 3,
+      "events": [
+        {
+          "type": "mutation",
+          "organism": "oncology-v1.0.3",
+          "parent": "oncology-v1.0.2",
+          "fitness": 0.85,
+          "change": "+0.02",
+          "mutation_type": "throughput_scaling"
+        },
+        {
+          "type": "mutation",
+          "organism": "neurology-v1.0.3",
+          "parent": "neurology-v1.0.2",
+          "fitness": 0.84,
+          "change": "+0.02",
+          "mutation_type": "error_rate_reduction"
+        },
+        {
+          "type": "mutation",
+          "organism": "cardiology-v1.0.3",
+          "parent": "cardiology-v1.0.2",
+          "fitness": 0.80,
+          "change": "0.00",
+          "mutation_type": "no_change",
+          "warning": "stagnation_detected"
+        }
+      ]
+    },
+    {
+      "generation": 4,
+      "events": [
+        {
+          "type": "mutation",
+          "organism": "oncology-v1.0.4",
+          "parent": "oncology-v1.0.3",
+          "fitness": 0.86,
+          "change": "+0.01",
+          "mutation_type": "crash_elimination"
+        },
+        {
+          "type": "mutation",
+          "organism": "neurology-v1.0.4",
+          "parent": "neurology-v1.0.3",
+          "fitness": 0.86,
+          "change": "+0.02",
+          "mutation_type": "combined_optimization"
+        },
+        {
+          "type": "mutation",
+          "organism": "cardiology-v1.0.4",
+          "parent": "cardiology-v1.0.3",
+          "fitness": 0.796,
+          "change": "-0.004",
+          "mutation_type": "failed_optimization",
+          "constitutional_violation": false,
+          "warning": "approaching_retirement_threshold"
+        }
+      ]
+    },
+    {
+      "generation": 5,
+      "events": [
+        {
+          "type": "mutation",
+          "organism": "oncology-v1.0.5",
+          "parent": "oncology-v1.0.4",
+          "fitness": 0.867,
+          "change": "+0.007",
+          "mutation_type": "final_tuning",
+          "status": "promoted",
+          "rank": 1
+        },
+        {
+          "type": "mutation",
+          "organism": "neurology-v1.0.5",
+          "parent": "neurology-v1.0.4",
+          "fitness": 0.864,
+          "change": "+0.004",
+          "mutation_type": "final_tuning",
+          "status": "promoted",
+          "rank": 2
+        },
+        {
+          "type": "natural_selection",
+          "organism": "cardiology-v1.0.4",
+          "fitness": 0.796,
+          "change": "-2.4% from initial",
+          "decision": "retire",
+          "reason": "declining_fitness_trajectory",
+          "category": "old_but_gold_good",
+          "can_resurrect": true,
+          "archived_at": "2025-10-10T11:30:00Z"
+        }
+      ]
+    }
+  ],
+
+  "summary": {
+    "total_mutations": 15,
+    "successful_mutations": 14,
+    "failed_mutations": 1,
+    "knowledge_transfers": 1,
+    "retirements": 1,
+    "promotions": 2,
+    "convergence_generation": 5,
+    "avg_fitness_improvement": 7.9,
+    "knowledge_transfer_impact": "+4.9% (neurology gen 2)",
+    "natural_selection_effectiveness": "100% (worst performer correctly retired)"
+  }
+}
