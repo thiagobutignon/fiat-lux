@@ -1,0 +1,5 @@
+(define hello (-> string)
+  "Hello, World!")
+
+(define goodbye (-> string)
+  "Goodbye, World!")
