@@ -12,6 +12,12 @@ import './similarity-algorithms/__tests__/jaro-winkler.test'
 import './similarity-algorithms/__tests__/hybrid.test'
 import './grammar-engine/__tests__/grammar-engine.test'
 import './pattern-loader/__tests__/pattern-loader.test'
+import './grammar-lang/database/__tests__/sqlo.test'
+import './grammar-lang/database/__tests__/rbac.test'
+import './grammar-lang/database/__tests__/consolidation-optimizer.test'
+import './grammar-lang/database/__tests__/sqlo-constitutional.test'
+import './grammar-lang/database/__tests__/embedding-semantic.test'
+import './grammar-lang/glass/__tests__/sqlo-integration.test'
 
 // Run tests
 runTests().catch(error => {
