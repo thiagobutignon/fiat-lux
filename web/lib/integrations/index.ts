@@ -237,24 +237,25 @@ export async function checkAllNodesHealth(): Promise<{
 // Integration Status
 // ============================================================================
 
+// Import availability checkers for getIntegrationStatus()
+import { isRoxoAvailable as checkRoxo } from './glass';
+import { isVerdeAvailable as checkVerde } from './gvcs';
+import { isVermelhoAvailable as checkVermelho } from './security';
+import { isCinzaAvailable as checkCinza } from './cognitive';
+import { isLaranjaAvailable as checkLaranja } from './sqlo';
+
 /**
  * Get integration readiness status
  *
  * @returns Integration readiness summary
  */
 export function getIntegrationStatus() {
-  const { isRoxoAvailable } = require('./glass');
-  const { isVerdeAvailable } = require('./gvcs');
-  const { isVermelhoAvailable } = require('./security');
-  const { isCinzaAvailable } = require('./cognitive');
-  const { isLaranjaAvailable } = require('./sqlo');
-
   const nodes = [
-    { name: 'ROXO', available: isRoxoAvailable(), color: '🟣' },
-    { name: 'VERDE', available: isVerdeAvailable(), color: '🟢' },
-    { name: 'VERMELHO', available: isVermelhoAvailable(), color: '🔴' },
-    { name: 'CINZA', available: isCinzaAvailable(), color: '🩶' },
-    { name: 'LARANJA', available: isLaranjaAvailable(), color: '🟠' },
+    { name: 'ROXO', available: checkRoxo(), color: '🟣' },
+    { name: 'VERDE', available: checkVerde(), color: '🟢' },
+    { name: 'VERMELHO', available: checkVermelho(), color: '🔴' },
+    { name: 'CINZA', available: checkCinza(), color: '🩶' },
+    { name: 'LARANJA', available: checkLaranja(), color: '🟠' },
   ];
 
   const availableCount = nodes.filter(n => n.available).length;
