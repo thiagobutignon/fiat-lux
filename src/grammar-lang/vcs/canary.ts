@@ -21,6 +21,7 @@ import {
   selectWinner,
   getRankedMutations
 } from './genetic-versioning';
+import { vcsConstitutionalValidator } from './constitutional-integration';
 
 // ===== TYPES =====
 
@@ -195,8 +196,11 @@ export function getAggregatedMetrics(version: string): {
 /**
  * Start canary deployment
  * O(1) - create config and store
+ *
+ * Constitutional Enforcement: Validates canary deployment against Layer 1 Constitutional AI
+ * before starting. Blocks deployments that violate universal principles.
  */
-export function startCanary(
+export async function startCanary(
   deploymentId: string,
   originalVersion: string,
   canaryVersion: string,
@@ -205,7 +209,7 @@ export function startCanary(
     autoRollback?: boolean;
     minSampleSize?: number;
   } = {}
-): boolean {
+): Promise<boolean> {
   const config: CanaryConfig = {
     originalVersion,
     canaryVersion,
@@ -214,6 +218,39 @@ export function startCanary(
     autoRollback: options.autoRollback !== false,
     minSampleSize: options.minSampleSize || 100
   };
+
+  // ===== CONSTITUTIONAL VALIDATION (BEFORE CANARY) =====
+  // Integration with Layer 1 Constitutional AI System
+  // Validates canary deployment before starting
+  try {
+    const constitutionalResult = await vcsConstitutionalValidator.validateCanary(
+      deploymentId,
+      originalVersion,
+      canaryVersion
+    );
+
+    // Block canary if constitutional violation detected
+    if (!constitutionalResult.allowed) {
+      console.error('❌ CONSTITUTIONAL VIOLATION - Canary BLOCKED');
+      console.error(vcsConstitutionalValidator.formatVCSReport(constitutionalResult));
+      console.error(`   Deployment ID: ${deploymentId}`);
+      console.error(`   Original: v${originalVersion}`);
+      console.error(`   Canary: v${canaryVersion}`);
+      if (constitutionalResult.blockedReason) {
+        console.error(`   Reason: ${constitutionalResult.blockedReason}`);
+      }
+      if (constitutionalResult.suggestedAction) {
+        console.error(`   Suggested: ${constitutionalResult.suggestedAction}`);
+      }
+      return false; // Canary rejected by constitutional enforcement
+    }
+
+    console.log('✅ Constitutional validation passed');
+  } catch (constitutionalError) {
+    console.error(`⚠️  Constitutional validation error: ${constitutionalError}`);
+    console.error('   Proceeding with canary (fail-open for availability)');
+    // Fail-open: if constitutional system is down, allow canary but log warning
+  }
 
   canaryDeployments.set(deploymentId, config);
 

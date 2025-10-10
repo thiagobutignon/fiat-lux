@@ -69,7 +69,7 @@ try {
   const { execSync } = require('child_process');
   execSync(`git add "${GLASS_FILE}"`, { stdio: 'pipe' });
 
-  const committed = autoCommit(GLASS_FILE);
+  const committed = await autoCommit(GLASS_FILE);
   if (committed) {
     console.log(`   ✅ Evolution auto-committed!`);
   } else {

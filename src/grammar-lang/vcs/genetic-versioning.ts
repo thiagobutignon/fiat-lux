@@ -16,6 +16,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { vcsConstitutionalValidator } from './constitutional-integration';
 
 // ===== TYPES =====
 
@@ -150,12 +151,15 @@ function generateMutatedPath(
  * - Copies file content
  * - Increments version
  * - Creates mutation record
+ *
+ * Constitutional Enforcement: Validates mutation against Layer 1 Constitutional AI
+ * before creating mutated file. Blocks mutations that violate universal principles.
  */
-export function createMutation(
+export async function createMutation(
   filePath: string,
   author: 'human' | 'agi' = 'human',
   type: 'major' | 'minor' | 'patch' = 'patch'
-): Mutation | null {
+): Promise<Mutation | null> {
   // Check file exists
   if (!fs.existsSync(filePath)) {
     console.error(`❌ File not found: ${filePath}`);
@@ -174,6 +178,40 @@ export function createMutation(
 
   // Generate mutated file path
   const mutatedPath = generateMutatedPath(filePath, newVersion);
+
+  // ===== CONSTITUTIONAL VALIDATION (BEFORE MUTATION) =====
+  // Integration with Layer 1 Constitutional AI System
+  // Validates mutation before creating new version
+  try {
+    const constitutionalResult = await vcsConstitutionalValidator.validateMutation(
+      filePath,
+      mutatedPath,
+      0.5, // Initial fitness (neutral)
+      author
+    );
+
+    // Block mutation if constitutional violation detected
+    if (!constitutionalResult.allowed) {
+      console.error('❌ CONSTITUTIONAL VIOLATION - Mutation BLOCKED');
+      console.error(vcsConstitutionalValidator.formatVCSReport(constitutionalResult));
+      console.error(`   Original: ${filePath}`);
+      console.error(`   Mutated: ${mutatedPath}`);
+      console.error(`   Author: ${author}`);
+      if (constitutionalResult.blockedReason) {
+        console.error(`   Reason: ${constitutionalResult.blockedReason}`);
+      }
+      if (constitutionalResult.suggestedAction) {
+        console.error(`   Suggested: ${constitutionalResult.suggestedAction}`);
+      }
+      return null; // Mutation rejected by constitutional enforcement
+    }
+
+    console.log('✅ Constitutional validation passed');
+  } catch (constitutionalError) {
+    console.error(`⚠️  Constitutional validation error: ${constitutionalError}`);
+    console.error('   Proceeding with mutation (fail-open for availability)');
+    // Fail-open: if constitutional system is down, allow mutation but log warning
+  }
 
   // Copy file (genetic replication)
   const content = fs.readFileSync(filePath, 'utf-8');

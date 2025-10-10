@@ -85,7 +85,7 @@ try {
 glassContent.metadata.maturity = 0.85;
 fs.writeFileSync(versionedPath, JSON.stringify(glassContent, null, 2));
 
-const committed = autoCommit(versionedPath);
+const committed = await autoCommit(versionedPath);
 if (committed) {
   console.log(`   ✅ Changes auto-committed!`);
 } else {
@@ -95,7 +95,7 @@ if (committed) {
 // Step 4: Create genetic mutation
 console.log('\n🧬 Step 4: Creating genetic mutation...');
 
-const mutation = createMutation(versionedPath, 'agi', 'patch');
+const mutation = await createMutation(versionedPath, 'agi', 'patch');
 
 if (!mutation) {
   console.log(`   ⚠️  Mutation creation skipped (file management)`);
@@ -117,7 +117,7 @@ if (!mutation) {
 console.log('\n🐤 Step 5: Starting canary deployment...');
 
 const deploymentId = 'cancer-research-evolution-1';
-startCanary(deploymentId, '1.0.0', '1.0.1', {
+await startCanary(deploymentId, '1.0.0', '1.0.1', {
   rampUpSpeed: 'fast',
   autoRollback: true,
   minSampleSize: 50

@@ -15,6 +15,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
 import * as crypto from 'crypto';
+import { vcsConstitutionalValidator } from './constitutional-integration';
 
 // ===== TYPES =====
 
@@ -143,8 +144,11 @@ Co-Authored-By: ${author === 'agi' ? 'AGI <agi@fiat.ai>' : 'Human <human@fiat.ai
 /**
  * Auto-commit file changes
  * O(1) - no scanning, hash-based detection
+ *
+ * Constitutional Enforcement: Validates against Layer 1 Constitutional AI
+ * before executing commit. Blocks commits that violate universal principles.
  */
-export function autoCommit(filePath: string): boolean {
+export async function autoCommit(filePath: string): Promise<boolean> {
   // Calculate current hash (O(1))
   const currentHash = calculateHash(filePath);
   const previousState = fileStates.get(filePath);
@@ -167,6 +171,38 @@ export function autoCommit(filePath: string): boolean {
 
   // Generate commit message
   const message = generateCommitMessage(filePath, author, diffResult);
+
+  // ===== CONSTITUTIONAL VALIDATION (BEFORE COMMIT) =====
+  // Integration with Layer 1 Constitutional AI System
+  // Uses existing ConstitutionEnforcer - does NOT reimplement
+  try {
+    const constitutionalResult = await vcsConstitutionalValidator.validateCommit(
+      filePath,
+      diffResult.diff,
+      author
+    );
+
+    // Block commit if constitutional violation detected
+    if (!constitutionalResult.allowed) {
+      console.error('❌ CONSTITUTIONAL VIOLATION - Commit BLOCKED');
+      console.error(vcsConstitutionalValidator.formatVCSReport(constitutionalResult));
+      console.error(`   File: ${filePath}`);
+      console.error(`   Author: ${author}`);
+      if (constitutionalResult.blockedReason) {
+        console.error(`   Reason: ${constitutionalResult.blockedReason}`);
+      }
+      if (constitutionalResult.suggestedAction) {
+        console.error(`   Suggested: ${constitutionalResult.suggestedAction}`);
+      }
+      return false; // Commit rejected by constitutional enforcement
+    }
+
+    console.log('✅ Constitutional validation passed');
+  } catch (constitutionalError) {
+    console.error(`⚠️  Constitutional validation error: ${constitutionalError}`);
+    console.error('   Proceeding with commit (fail-open for availability)');
+    // Fail-open: if constitutional system is down, allow commit but log warning
+  }
 
   // Auto-commit (NO manual intervention)
   try {
@@ -225,8 +261,8 @@ export function watchFile(filePath: string): fs.FSWatcher {
   return fs.watch(filePath, (eventType) => {
     if (eventType === 'change') {
       // Debounce (wait for write to complete)
-      setTimeout(() => {
-        autoCommit(filePath);
+      setTimeout(async () => {
+        await autoCommit(filePath);
       }, 100);
     }
   });
