@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "format": "fiat-glass-v1.0",
+    "type": "digital-organism",
+    "name": "cardiology-research",
+    "version": "1.0.0",
+    "created": "2025-10-10T01:45:17.065Z",
+    "specialization": "cardiology",
+    "maturity": 0.82,
+    "stage": "maturity",
+    "generation": 1,
+    "parent": null
+  },
+  "model": {
+    "architecture": "transformer-27M",
+    "parameters": 27000000,
+    "weights": null,
+    "quantization": "int8",
+    "constitutional_embedding": true
+  },
+  "knowledge": {
+    "papers": {
+      "count": 100,
+      "sources": [
+        "pubmed:100"
+      ],
+      "embeddings": null,
+      "indexed": true
+    },
+    "patterns": {
+      "heart_failure_prediction": 70,
+      "arrhythmia_detection": 85,
+      "cardiovascular_risk": 75
+    },
+    "connections": {
+      "nodes": 100,
+      "edges": 250,
+      "clusters": 10
+    }
+  },
+  "code": {
+    "functions": [],
+    "emergence_log": {}
+  },
+  "memory": {
+    "short_term": [],
+    "long_term": [],
+    "contextual": []
+  },
+  "constitutional": {
+    "principles": [
+      "transparency",
+      "honesty",
+      "privacy",
+      "safety"
+    ],
+    "boundaries": {
+      "cannot_harm": true,
+      "must_cite_sources": true,
+      "cannot_diagnose": true,
+      "confidence_threshold_required": true
+    },
+    "validation": "native"
+  },
+  "evolution": {
+    "enabled": true,
+    "last_evolution": null,
+    "generations": 0,
+    "fitness_trajectory": [
+      0.82
+    ]
+  }
+}
