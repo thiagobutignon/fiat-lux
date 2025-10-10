@@ -1,0 +1,23 @@
+{
+  "query": "Difference between pembrolizumab and nivolumab?",
+  "response": "Both are PD-1 inhibitors with similar mechanisms. Key differences: pembrolizumab (approved 2014, dosing every 3 weeks) vs nivolumab (approved 2014, initially every 2 weeks). Efficacy is comparable in most indications, with subtle differences in side effect profiles.",
+  "attention": {
+    "sources": [
+      "comparative-immunotherapy.pdf",
+      "meta-analysis-PD1.pdf"
+    ],
+    "weights": [
+      0.55,
+      0.45
+    ],
+    "patterns": [
+      "sources:2",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.88,
+  "timestamp": 1760058208795,
+  "memory_type": "long-term",
+  "id": "57cb48b59df5c20af4bf853899ef44d6cfa9aae039039db787ac58ff2fd3d0f1"
+}

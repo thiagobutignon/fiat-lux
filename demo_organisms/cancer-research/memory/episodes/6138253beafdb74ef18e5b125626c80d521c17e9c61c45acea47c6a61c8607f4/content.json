@@ -1,0 +1,24 @@
+{
+  "query": "What is pembrolizumab?",
+  "response": "Pembrolizumab is an immunotherapy drug (PD-1 inhibitor) used to treat various cancers including melanoma, lung cancer, and head and neck cancers. It works by blocking the PD-1 protein, allowing the immune system to attack cancer cells.",
+  "attention": {
+    "sources": [
+      "FDA-pembrolizumab-label.pdf",
+      "NEJM-immunotherapy-2015.pdf"
+    ],
+    "weights": [
+      0.6,
+      0.4
+    ],
+    "patterns": [
+      "sources:2",
+      "high-confidence",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.92,
+  "timestamp": 1760058208793,
+  "memory_type": "long-term",
+  "id": "6138253beafdb74ef18e5b125626c80d521c17e9c61c45acea47c6a61c8607f4"
+}

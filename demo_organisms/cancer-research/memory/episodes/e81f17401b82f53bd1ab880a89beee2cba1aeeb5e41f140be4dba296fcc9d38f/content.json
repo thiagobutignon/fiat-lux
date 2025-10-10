@@ -1,0 +1,24 @@
+{
+  "query": "What is PD-L1 expression and why does it matter?",
+  "response": "PD-L1 (Programmed Death-Ligand 1) expression is a biomarker measured by immunohistochemistry. Higher PD-L1 expression (≥50%) correlates with better response to PD-1 inhibitors. However, even PD-L1 negative patients can respond, especially in combination therapy.",
+  "attention": {
+    "sources": [
+      "PD-L1-biomarker-review.pdf",
+      "predictive-biomarkers.pdf"
+    ],
+    "weights": [
+      0.6,
+      0.4
+    ],
+    "patterns": [
+      "sources:2",
+      "high-confidence",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.91,
+  "timestamp": 1760058208795,
+  "memory_type": "long-term",
+  "id": "e81f17401b82f53bd1ab880a89beee2cba1aeeb5e41f140be4dba296fcc9d38f"
+}

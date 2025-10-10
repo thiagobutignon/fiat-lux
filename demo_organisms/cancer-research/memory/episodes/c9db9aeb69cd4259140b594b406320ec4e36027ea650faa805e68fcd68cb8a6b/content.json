@@ -1,0 +1,23 @@
+{
+  "query": "What is the future of personalized cancer immunotherapy?",
+  "response": "Future directions include: (1) Neoantigen-based vaccines targeting patient-specific mutations, (2) Engineered T-cells with multiple targets, (3) Microbiome modulation to enhance response, (4) AI-driven treatment selection, (5) Oncolytic viruses combined with checkpoint inhibitors. Precision medicine will integrate multi-omics data.",
+  "attention": {
+    "sources": [
+      "future-immunotherapy.pdf",
+      "precision-oncology.pdf"
+    ],
+    "weights": [
+      0.6,
+      0.4
+    ],
+    "patterns": [
+      "sources:2",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.85,
+  "timestamp": 1760058208798,
+  "memory_type": "long-term",
+  "id": "c9db9aeb69cd4259140b594b406320ec4e36027ea650faa805e68fcd68cb8a6b"
+}

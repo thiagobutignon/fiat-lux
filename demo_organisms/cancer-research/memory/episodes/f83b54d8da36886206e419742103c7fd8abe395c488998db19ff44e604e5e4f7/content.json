@@ -1,0 +1,23 @@
+{
+  "query": "How to manage immune-related pneumonitis?",
+  "response": "Grade 2+ pneumonitis requires immunotherapy hold and corticosteroids (1-2 mg/kg prednisone). Grade 3-4 requires permanent discontinuation. CT imaging and pulmonary consult are essential. Most cases resolve with treatment, though 5-10% can be fatal if not managed promptly.",
+  "attention": {
+    "sources": [
+      "irAE-management-guidelines.pdf",
+      "pneumonitis-case-series.pdf"
+    ],
+    "weights": [
+      0.8,
+      0.2
+    ],
+    "patterns": [
+      "sources:2",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.9,
+  "timestamp": 1760058208797,
+  "memory_type": "long-term",
+  "id": "f83b54d8da36886206e419742103c7fd8abe395c488998db19ff44e604e5e4f7"
+}

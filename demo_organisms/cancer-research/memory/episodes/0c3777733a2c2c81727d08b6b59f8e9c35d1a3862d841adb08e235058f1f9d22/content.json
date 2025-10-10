@@ -1,0 +1,23 @@
+{
+  "query": "What are emerging biomarkers beyond PD-L1?",
+  "response": "Emerging biomarkers include tumor mutational burden (TMB), microsatellite instability (MSI-H), mismatch repair deficiency (dMMR), and gene expression profiles. TMB ≥10 mutations/megabase shows improved response to immunotherapy regardless of PD-L1 status.",
+  "attention": {
+    "sources": [
+      "TMB-predictive-value.pdf",
+      "biomarkers-future.pdf"
+    ],
+    "weights": [
+      0.7,
+      0.3
+    ],
+    "patterns": [
+      "sources:2",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.87,
+  "timestamp": 1760058208796,
+  "memory_type": "long-term",
+  "id": "0c3777733a2c2c81727d08b6b59f8e9c35d1a3862d841adb08e235058f1f9d22"
+}

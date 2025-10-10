@@ -1,0 +1,23 @@
+{
+  "query": "Explain mechanisms of immunotherapy resistance",
+  "response": "Primary resistance mechanisms: loss of antigen presentation (β2M mutations), defects in IFN-γ signaling (JAK1/2 mutations), and T-cell exclusion. Acquired resistance: selection of antigen-loss variants, upregulation of alternative checkpoints (TIM-3, LAG-3), and epithelial-mesenchymal transition.",
+  "attention": {
+    "sources": [
+      "resistance-mechanisms.pdf",
+      "tumor-evolution.pdf"
+    ],
+    "weights": [
+      0.7,
+      0.3
+    ],
+    "patterns": [
+      "sources:2",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.88,
+  "timestamp": 1760058208798,
+  "memory_type": "long-term",
+  "id": "b86db20feaa4654c69785a8400b7d3f276fe20bb59806645ae96b5edfd168072"
+}

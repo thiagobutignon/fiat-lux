@@ -1,0 +1,23 @@
+{
+  "query": "What are common side effects of immunotherapy?",
+  "response": "Common immune-related adverse effects include fatigue (20-40%), rash (15-30%), diarrhea/colitis (10-20%), pneumonitis (5-10%), and endocrine disorders (5-15%). Most are manageable with steroids and dose modifications.",
+  "attention": {
+    "sources": [
+      "immunotherapy-toxicity-review.pdf",
+      "ASCO-guidelines-irAE.pdf"
+    ],
+    "weights": [
+      0.5,
+      0.5
+    ],
+    "patterns": [
+      "sources:2",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.85,
+  "timestamp": 1760058208795,
+  "memory_type": "long-term",
+  "id": "43454402f9bc149d3c230526d6be6a8360134dd95ced7070f20f00e023dadcdf"
+}

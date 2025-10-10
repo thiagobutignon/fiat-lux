@@ -1,0 +1,106 @@
+{
+  "episodes": {
+    "6138253beafdb74ef18e5b125626c80d521c17e9c61c45acea47c6a61c8607f4": {
+      "hash": "6138253beafdb74ef18e5b125626c80d521c17e9c61c45acea47c6a61c8607f4",
+      "memory_type": "long-term",
+      "size": 450,
+      "created_at": 1760058208794,
+      "consolidated": false,
+      "relevance": 0.92
+    },
+    "896ef6753eff312668206ff6afa7dd0c4c00065a197c29280ce2a9c236bee083": {
+      "hash": "896ef6753eff312668206ff6afa7dd0c4c00065a197c29280ce2a9c236bee083",
+      "memory_type": "long-term",
+      "size": 441,
+      "created_at": 1760058208794,
+      "consolidated": false,
+      "relevance": 0.89
+    },
+    "43454402f9bc149d3c230526d6be6a8360134dd95ced7070f20f00e023dadcdf": {
+      "hash": "43454402f9bc149d3c230526d6be6a8360134dd95ced7070f20f00e023dadcdf",
+      "memory_type": "long-term",
+      "size": 441,
+      "created_at": 1760058208795,
+      "consolidated": false,
+      "relevance": 0.85
+    },
+    "57cb48b59df5c20af4bf853899ef44d6cfa9aae039039db787ac58ff2fd3d0f1": {
+      "hash": "57cb48b59df5c20af4bf853899ef44d6cfa9aae039039db787ac58ff2fd3d0f1",
+      "memory_type": "long-term",
+      "size": 486,
+      "created_at": 1760058208795,
+      "consolidated": false,
+      "relevance": 0.88
+    },
+    "e81f17401b82f53bd1ab880a89beee2cba1aeeb5e41f140be4dba296fcc9d38f": {
+      "hash": "e81f17401b82f53bd1ab880a89beee2cba1aeeb5e41f140be4dba296fcc9d38f",
+      "memory_type": "long-term",
+      "size": 500,
+      "created_at": 1760058208795,
+      "consolidated": false,
+      "relevance": 0.91
+    },
+    "4387f70c77887cf71616cded4e530d14126da2b7ee3127dd882f4815cd114b3d": {
+      "hash": "4387f70c77887cf71616cded4e530d14126da2b7ee3127dd882f4815cd114b3d",
+      "memory_type": "long-term",
+      "size": 454,
+      "created_at": 1760058208796,
+      "consolidated": false,
+      "relevance": 0.93
+    },
+    "0c3777733a2c2c81727d08b6b59f8e9c35d1a3862d841adb08e235058f1f9d22": {
+      "hash": "0c3777733a2c2c81727d08b6b59f8e9c35d1a3862d841adb08e235058f1f9d22",
+      "memory_type": "long-term",
+      "size": 463,
+      "created_at": 1760058208796,
+      "consolidated": false,
+      "relevance": 0.87
+    },
+    "f83b54d8da36886206e419742103c7fd8abe395c488998db19ff44e604e5e4f7": {
+      "hash": "f83b54d8da36886206e419742103c7fd8abe395c488998db19ff44e604e5e4f7",
+      "memory_type": "long-term",
+      "size": 491,
+      "created_at": 1760058208797,
+      "consolidated": false,
+      "relevance": 0.9
+    },
+    "62878fd8ea976ec38a6465163b125b6d13287bf1d7d7e56c16e4f19e32215f9b": {
+      "hash": "62878fd8ea976ec38a6465163b125b6d13287bf1d7d7e56c16e4f19e32215f9b",
+      "memory_type": "long-term",
+      "size": 456,
+      "created_at": 1760058208797,
+      "consolidated": false,
+      "relevance": 0.86
+    },
+    "fd8ded7e07718c7a5b4944a0e577264c3161c641cf2b32ba413d1c624ae774ea": {
+      "hash": "fd8ded7e07718c7a5b4944a0e577264c3161c641cf2b32ba413d1c624ae774ea",
+      "memory_type": "long-term",
+      "size": 507,
+      "created_at": 1760058208798,
+      "consolidated": false,
+      "relevance": 0.84
+    },
+    "b86db20feaa4654c69785a8400b7d3f276fe20bb59806645ae96b5edfd168072": {
+      "hash": "b86db20feaa4654c69785a8400b7d3f276fe20bb59806645ae96b5edfd168072",
+      "memory_type": "long-term",
+      "size": 508,
+      "created_at": 1760058208798,
+      "consolidated": false,
+      "relevance": 0.88
+    },
+    "c9db9aeb69cd4259140b594b406320ec4e36027ea650faa805e68fcd68cb8a6b": {
+      "hash": "c9db9aeb69cd4259140b594b406320ec4e36027ea650faa805e68fcd68cb8a6b",
+      "memory_type": "long-term",
+      "size": 556,
+      "created_at": 1760058208798,
+      "consolidated": false,
+      "relevance": 0.85
+    }
+  },
+  "statistics": {
+    "total_episodes": 12,
+    "short_term_count": 0,
+    "long_term_count": 12,
+    "contextual_count": 0
+  }
+}

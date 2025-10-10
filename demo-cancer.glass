@@ -1,0 +1,201 @@
+{
+  "metadata": {
+    "format": "fiat-glass-v1.0",
+    "type": "digital-organism",
+    "name": "demo-cancer",
+    "version": "1.0.0",
+    "created": "2025-10-10T01:03:47.801Z",
+    "specialization": "oncology",
+    "maturity": 1,
+    "stage": "maturity",
+    "generation": 1,
+    "parent": null
+  },
+  "model": {
+    "architecture": "transformer-27M",
+    "parameters": 27000000,
+    "weights": null,
+    "quantization": "int8",
+    "constitutional_embedding": true
+  },
+  "knowledge": {
+    "papers": {
+      "count": 250,
+      "sources": [
+        "pubmed:250"
+      ],
+      "embeddings": null,
+      "indexed": true
+    },
+    "patterns": {
+      "efficacy_pattern": 250,
+      "treatment_pattern": 250,
+      "outcome_pattern": 250,
+      "trial_pattern": 250
+    },
+    "connections": {
+      "nodes": 250,
+      "edges": 625,
+      "clusters": 25
+    }
+  },
+  "code": {
+    "functions": [
+      {
+        "name": "assess_efficacy",
+        "signature": "assess_efficacy(cancer_type: CancerType, drug: Drug, stage: Stage) -> Efficacy",
+        "source_patterns": [
+          "efficacy_pattern"
+        ],
+        "confidence": 1,
+        "accuracy": 0,
+        "constitutional": true,
+        "implementation": "# assess_efficacy\n# Emerged from efficacy patterns in knowledge base\n# Assesses treatment efficacy based on cancer type, drug, and stage\n\nfunction assess_efficacy(cancer_type: CancerType, drug: Drug, stage: Stage) -> Efficacy:\n  # Extract cancer type and stage severity\n  severity = extract_severity(stage)\n\n  # Query knowledge base for efficacy data\n  efficacy_data = query_knowledge_base(\n    pattern: \"drug_efficacy\",\n    filters: [cancer_type, drug, stage]\n  )\n\n  # Calculate base efficacy from historical data\n  base_efficacy = calculate_mean(efficacy_data.response_rates)\n\n  # Adjust for stage severity\n  stage_adjustment = match severity:\n    | \"early\" -> 1.2    # Better outcomes in early stages\n    | \"intermediate\" -> 1.0\n    | \"advanced\" -> 0.7  # Reduced efficacy in advanced stages\n\n  adjusted_efficacy = base_efficacy * stage_adjustment\n\n  # Constitutional check: confidence threshold\n  if efficacy_data.sample_size < 10:\n    return Efficacy(\n      value: adjusted_efficacy,\n      confidence: 0.5,  # Low confidence due to small sample\n      warning: \"Limited data available\"\n    )\n\n  # Calculate confidence based on data quality\n  confidence = min(efficacy_data.sample_size / 100, 0.95)\n\n  return Efficacy(\n    value: adjusted_efficacy,\n    confidence: confidence,\n    sample_size: efficacy_data.sample_size,\n    sources: efficacy_data.citations\n  )",
+        "emerged_at": "2025-10-10T01:45:01.408Z",
+        "trigger": "pattern_threshold_reached",
+        "validated": true
+      },
+      {
+        "name": "evaluate_treatment",
+        "signature": "evaluate_treatment(input: Input) -> Output",
+        "source_patterns": [
+          "treatment_pattern"
+        ],
+        "confidence": 1,
+        "accuracy": 0,
+        "constitutional": true,
+        "implementation": "# evaluate_treatment\n# Emerged from treatment patterns\n# Evaluates treatment options\n\nfunction evaluate_treatment(input: Input) -> Output:\n  # Extract treatment details\n  treatment_type = classify_treatment(input)\n\n  # Query knowledge base\n  evidence = query_knowledge_base(\n    pattern: \"treatment_pattern\",\n    filters: [treatment_type]\n  )\n\n  # Evaluate effectiveness\n  effectiveness = calculate_effectiveness(evidence)\n\n  return Output(\n    treatment: treatment_type,\n    effectiveness: effectiveness,\n    confidence: evidence.confidence\n  )",
+        "emerged_at": "2025-10-10T01:45:01.408Z",
+        "trigger": "pattern_threshold_reached",
+        "validated": true
+      },
+      {
+        "name": "predict_outcome",
+        "signature": "predict_outcome(cancer_type: CancerType, treatment: Treatment) -> Outcome",
+        "source_patterns": [
+          "outcome_pattern"
+        ],
+        "confidence": 1,
+        "accuracy": 0,
+        "constitutional": true,
+        "implementation": "# predict_outcome\n# Emerged from outcome patterns in knowledge base\n# Predicts treatment outcomes based on historical data\n\nfunction predict_outcome(cancer_type: CancerType, treatment: Treatment) -> Outcome:\n  # Query historical outcomes\n  outcomes = query_knowledge_base(\n    pattern: \"outcome_pattern\",\n    filters: [cancer_type, treatment]\n  )\n\n  # Calculate survival rates\n  survival_rates = analyze_survival(outcomes)\n\n  # Calculate response rates\n  response_rates = analyze_response(outcomes)\n\n  # Predict outcome\n  predicted_outcome = match (survival_rates.mean, response_rates.mean):\n    | (s, r) if s > 0.7 and r > 0.6 -> \"Excellent\"\n    | (s, r) if s > 0.5 and r > 0.4 -> \"Good\"\n    | (s, r) if s > 0.3 and r > 0.2 -> \"Moderate\"\n    | _ -> \"Poor\"\n\n  return Outcome(\n    prediction: predicted_outcome,\n    survival_probability: survival_rates.mean,\n    response_probability: response_rates.mean,\n    confidence: calculate_confidence(outcomes.size)\n  )",
+        "emerged_at": "2025-10-10T01:45:01.408Z",
+        "trigger": "pattern_threshold_reached",
+        "validated": true
+      },
+      {
+        "name": "assess_efficacy",
+        "signature": "assess_efficacy(cancer_type: CancerType, drug: Drug, stage: Stage) -> Efficacy",
+        "source_patterns": [
+          "efficacy_pattern"
+        ],
+        "confidence": 1,
+        "accuracy": 0,
+        "constitutional": true,
+        "implementation": "# assess_efficacy\n# Emerged from efficacy patterns in knowledge base\n# Assesses treatment efficacy based on cancer type, drug, and stage\n\nfunction assess_efficacy(cancer_type: CancerType, drug: Drug, stage: Stage) -> Efficacy:\n  # Extract cancer type and stage severity\n  severity = extract_severity(stage)\n\n  # Query knowledge base for efficacy data\n  efficacy_data = query_knowledge_base(\n    pattern: \"drug_efficacy\",\n    filters: [cancer_type, drug, stage]\n  )\n\n  # Calculate base efficacy from historical data\n  base_efficacy = calculate_mean(efficacy_data.response_rates)\n\n  # Adjust for stage severity\n  stage_adjustment = match severity:\n    | \"early\" -> 1.2    # Better outcomes in early stages\n    | \"intermediate\" -> 1.0\n    | \"advanced\" -> 0.7  # Reduced efficacy in advanced stages\n\n  adjusted_efficacy = base_efficacy * stage_adjustment\n\n  # Constitutional check: confidence threshold\n  if efficacy_data.sample_size < 10:\n    return Efficacy(\n      value: adjusted_efficacy,\n      confidence: 0.5,  # Low confidence due to small sample\n      warning: \"Limited data available\"\n    )\n\n  # Calculate confidence based on data quality\n  confidence = min(efficacy_data.sample_size / 100, 0.95)\n\n  return Efficacy(\n    value: adjusted_efficacy,\n    confidence: confidence,\n    sample_size: efficacy_data.sample_size,\n    sources: efficacy_data.citations\n  )",
+        "emerged_at": "2025-10-10T02:21:12.866Z",
+        "trigger": "pattern_threshold_reached",
+        "validated": true
+      },
+      {
+        "name": "evaluate_treatment",
+        "signature": "evaluate_treatment(input: Input) -> Output",
+        "source_patterns": [
+          "treatment_pattern"
+        ],
+        "confidence": 1,
+        "accuracy": 0,
+        "constitutional": true,
+        "implementation": "# evaluate_treatment\n# Emerged from treatment patterns\n# Evaluates treatment options\n\nfunction evaluate_treatment(input: Input) -> Output:\n  # Extract treatment details\n  treatment_type = classify_treatment(input)\n\n  # Query knowledge base\n  evidence = query_knowledge_base(\n    pattern: \"treatment_pattern\",\n    filters: [treatment_type]\n  )\n\n  # Evaluate effectiveness\n  effectiveness = calculate_effectiveness(evidence)\n\n  return Output(\n    treatment: treatment_type,\n    effectiveness: effectiveness,\n    confidence: evidence.confidence\n  )",
+        "emerged_at": "2025-10-10T02:21:12.866Z",
+        "trigger": "pattern_threshold_reached",
+        "validated": true
+      },
+      {
+        "name": "predict_outcome",
+        "signature": "predict_outcome(cancer_type: CancerType, treatment: Treatment) -> Outcome",
+        "source_patterns": [
+          "outcome_pattern"
+        ],
+        "confidence": 1,
+        "accuracy": 0,
+        "constitutional": true,
+        "implementation": "# predict_outcome\n# Emerged from outcome patterns in knowledge base\n# Predicts treatment outcomes based on historical data\n\nfunction predict_outcome(cancer_type: CancerType, treatment: Treatment) -> Outcome:\n  # Query historical outcomes\n  outcomes = query_knowledge_base(\n    pattern: \"outcome_pattern\",\n    filters: [cancer_type, treatment]\n  )\n\n  # Calculate survival rates\n  survival_rates = analyze_survival(outcomes)\n\n  # Calculate response rates\n  response_rates = analyze_response(outcomes)\n\n  # Predict outcome\n  predicted_outcome = match (survival_rates.mean, response_rates.mean):\n    | (s, r) if s > 0.7 and r > 0.6 -> \"Excellent\"\n    | (s, r) if s > 0.5 and r > 0.4 -> \"Good\"\n    | (s, r) if s > 0.3 and r > 0.2 -> \"Moderate\"\n    | _ -> \"Poor\"\n\n  return Outcome(\n    prediction: predicted_outcome,\n    survival_probability: survival_rates.mean,\n    response_probability: response_rates.mean,\n    confidence: calculate_confidence(outcomes.size)\n  )",
+        "emerged_at": "2025-10-10T02:21:12.866Z",
+        "trigger": "pattern_threshold_reached",
+        "validated": true
+      },
+      {
+        "name": "analyze_trial",
+        "signature": "analyze_trial(cancer_type: CancerType, criteria: Criteria) -> ClinicalTrial[]",
+        "source_patterns": [
+          "trial_pattern"
+        ],
+        "confidence": 1,
+        "accuracy": 0,
+        "constitutional": true,
+        "implementation": "# analyze_trial\n# Emerged from clinical trial patterns\n# Recommends relevant clinical trials\n\nfunction analyze_trial(cancer_type: CancerType, criteria: Criteria) -> ClinicalTrial[]:\n  # Query active trials\n  trials = query_knowledge_base(\n    pattern: \"trial_pattern\",\n    filters: [cancer_type, criteria]\n  )\n\n  # Filter by eligibility\n  eligible_trials = filter(trials, trial ->\n    meets_criteria(trial, criteria)\n  )\n\n  # Rank by relevance\n  ranked_trials = sort_by_relevance(eligible_trials)\n\n  # Return top recommendations\n  return take(ranked_trials, 10)",
+        "emerged_at": "2025-10-10T02:21:12.866Z",
+        "trigger": "pattern_threshold_reached",
+        "validated": true
+      }
+    ],
+    "emergence_log": {
+      "assess_efficacy": {
+        "emerged_at": "2025-10-10T02:21:12.866Z",
+        "trigger": "pattern_threshold_reached",
+        "pattern_count": 250,
+        "validated": true
+      },
+      "evaluate_treatment": {
+        "emerged_at": "2025-10-10T02:21:12.866Z",
+        "trigger": "pattern_threshold_reached",
+        "pattern_count": 250,
+        "validated": true
+      },
+      "predict_outcome": {
+        "emerged_at": "2025-10-10T02:21:12.866Z",
+        "trigger": "pattern_threshold_reached",
+        "pattern_count": 250,
+        "validated": true
+      },
+      "analyze_trial": {
+        "emerged_at": "2025-10-10T02:21:12.866Z",
+        "trigger": "pattern_threshold_reached",
+        "pattern_count": 250,
+        "validated": true
+      }
+    }
+  },
+  "memory": {
+    "short_term": [],
+    "long_term": [],
+    "contextual": []
+  },
+  "constitutional": {
+    "agent_type": "biology",
+    "principles": [
+      "transparency",
+      "honesty",
+      "privacy",
+      "safety"
+    ],
+    "boundaries": {
+      "cannot_harm": true,
+      "must_cite_sources": true,
+      "cannot_diagnose": true,
+      "confidence_threshold_required": true
+    },
+    "validation": "native"
+  },
+  "evolution": {
+    "enabled": true,
+    "last_evolution": "2025-10-10T02:21:12.866Z",
+    "generations": 2,
+    "fitness_trajectory": [
+      0,
+      0.91,
+      1
+    ]
+  }
+}

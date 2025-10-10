@@ -1,0 +1,23 @@
+{
+  "query": "How effective is pembrolizumab for lung cancer?",
+  "response": "For non-small cell lung cancer (NSCLC), pembrolizumab shows approximately 45-55% response rate in patients with high PD-L1 expression (≥50%). The KEYNOTE-024 trial demonstrated superior overall survival compared to chemotherapy.",
+  "attention": {
+    "sources": [
+      "KEYNOTE-024-trial.pdf",
+      "JCO-lung-cancer-2017.pdf"
+    ],
+    "weights": [
+      0.7,
+      0.3
+    ],
+    "patterns": [
+      "sources:2",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.89,
+  "timestamp": 1760058208794,
+  "memory_type": "long-term",
+  "id": "896ef6753eff312668206ff6afa7dd0c4c00065a197c29280ce2a9c236bee083"
+}

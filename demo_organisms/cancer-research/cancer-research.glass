@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "name": "cancer-research",
+    "version": "1.0.0",
+    "domain": "oncology",
+    "maturity": 3.3160000000000003,
+    "stage": "infant",
+    "created_at": 1760058208792,
+    "updated_at": 1760058208798
+  },
+  "model": {
+    "architecture": "transformer",
+    "parameters": 27000000,
+    "quantization": "int8"
+  },
+  "knowledge": {
+    "papers": 0,
+    "embeddings": 0,
+    "patterns": 0
+  },
+  "code": {
+    "emerged_functions": [],
+    "confidence": 0
+  },
+  "memory": {
+    "database_path": "./memory",
+    "total_episodes": 12,
+    "short_term_count": 0,
+    "long_term_count": 12,
+    "contextual_count": 0
+  },
+  "constitutional": {
+    "principles": [
+      "transparency",
+      "honesty",
+      "privacy"
+    ],
+    "boundaries": [
+      "no-harm",
+      "human-oversight"
+    ],
+    "validators": [
+      "constitutional-check"
+    ]
+  },
+  "evolution": {
+    "enabled": true,
+    "generation": 0,
+    "fitness": 0
+  }
+}

@@ -1,0 +1,68 @@
+format: gcr-v1.0
+name: gpu-compute
+version: 1.0.0
+
+# Base image
+base: scratch
+
+# Build phase
+build:
+  # Copy GCUDA kernels
+  copy:
+    - src: ../gcuda/kernels/
+      dest: /app/kernels/
+
+    - src: ../gcuda/test-execution.ts
+      dest: /app/test.ts
+
+  # Dependencies
+  dependencies:
+    - name: "node"
+      version: "20"
+
+    - name: "gcuda-runtime"
+      version: "1.0"
+
+  # Build commands
+  commands:
+    - npm install
+
+# Runtime phase
+runtime:
+  # Entry point
+  entrypoint:
+    - node
+    - /app/test.ts
+
+  # Working directory
+  workdir: /app
+
+  # Resources - REQUEST GPU!
+  resources:
+    memory: 2GB
+    cpu: 2.0
+    gpu: 0  # Request GPU 0
+
+  # Ports (for monitoring)
+  ports:
+    - 8080/tcp
+
+  # Volumes
+  volumes:
+    - /app/data
+    - /app/results
+
+  # Environment
+  env:
+    CUDA_VISIBLE_DEVICES: "0"
+    GPU_MEMORY_LIMIT: "1GB"
+
+# Metadata
+metadata:
+  author: "chomsky@example.com"
+  description: "GPU-accelerated compute container with GCUDA"
+  tags:
+    - gpu
+    - compute
+    - gcuda
+  license: MIT

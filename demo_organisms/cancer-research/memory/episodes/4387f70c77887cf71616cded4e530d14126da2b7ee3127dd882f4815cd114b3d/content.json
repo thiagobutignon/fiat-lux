@@ -1,0 +1,24 @@
+{
+  "query": "Can immunotherapy be combined with chemotherapy?",
+  "response": "Yes, combination therapy is increasingly standard. KEYNOTE-189 showed pembrolizumab + chemotherapy improved overall survival vs chemotherapy alone in metastatic NSCLC. The combination appears to have synergistic effects.",
+  "attention": {
+    "sources": [
+      "KEYNOTE-189.pdf",
+      "combination-therapy-review.pdf"
+    ],
+    "weights": [
+      0.65,
+      0.35
+    ],
+    "patterns": [
+      "sources:2",
+      "high-confidence",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.93,
+  "timestamp": 1760058208796,
+  "memory_type": "long-term",
+  "id": "4387f70c77887cf71616cded4e530d14126da2b7ee3127dd882f4815cd114b3d"
+}

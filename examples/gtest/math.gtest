@@ -1,0 +1,35 @@
+# Math - Test Suite
+
+setup:
+  # Initialize math library
+  const add = (a, b) => a + b
+  const multiply = (a, b) => a * b
+
+teardown:
+  # Clean up
+
+beforeEach:
+  # Reset state before each test
+
+afterEach:
+  # Verify cleanup after each test
+
+test "should add two numbers":
+  given: a = 2, b = 3
+  when: result = add(a, b)
+  then: expect result equals 5
+
+test "should multiply two numbers":
+  given: a = 4, b = 5
+  when: result = multiply(a, b)
+  then: expect result equals 20
+
+test "should handle zero":
+  given: a = 0, b = 10
+  when: result = add(a, b)
+  then: expect result equals 10
+
+test "should handle negative numbers":
+  given: a = -5, b = 3
+  when: result = add(a, b)
+  then: expect result equals -2

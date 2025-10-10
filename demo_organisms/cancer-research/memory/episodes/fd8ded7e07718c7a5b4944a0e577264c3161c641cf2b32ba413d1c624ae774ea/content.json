@@ -1,0 +1,23 @@
+{
+  "query": "What are the latest CAR-T therapies for solid tumors?",
+  "response": "CAR-T therapy is challenging in solid tumors due to immunosuppressive microenvironment and antigen heterogeneity. Promising targets include mesothelin (mesothelioma), HER2 (breast/gastric), and GD2 (neuroblastoma). Clinical trials ongoing, but no FDA approvals yet for solid tumors.",
+  "attention": {
+    "sources": [
+      "CAR-T-solid-tumors.pdf",
+      "cellular-therapy-review.pdf"
+    ],
+    "weights": [
+      0.55,
+      0.45
+    ],
+    "patterns": [
+      "sources:2",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.84,
+  "timestamp": 1760058208798,
+  "memory_type": "long-term",
+  "id": "fd8ded7e07718c7a5b4944a0e577264c3161c641cf2b32ba413d1c624ae774ea"
+}

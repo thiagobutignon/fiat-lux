@@ -1,0 +1,106 @@
+{
+  "version": "1.0.0",
+  "timestamp": 1760070003667,
+  "suites": [
+    [
+      "33d2c19dd8e9ab06",
+      {
+        "id": "33d2c19dd8e9ab06",
+        "name": "math",
+        "file": "examples/gtest/math.gtest",
+        "tests": [
+          {
+            "id": "a0593e2987ee0f85",
+            "name": "should add two numbers",
+            "file": "examples/gtest/math.gtest",
+            "given": "a = 2, b = 3",
+            "when": "result = add(a, b)",
+            "then": "expect result equals 5"
+          },
+          {
+            "id": "57c73adbfbe91588",
+            "name": "should multiply two numbers",
+            "file": "examples/gtest/math.gtest",
+            "given": "a = 4, b = 5",
+            "when": "result = multiply(a, b)",
+            "then": "expect result equals 20"
+          },
+          {
+            "id": "380bc1819a700528",
+            "name": "should handle zero",
+            "file": "examples/gtest/math.gtest",
+            "given": "a = 0, b = 10",
+            "when": "result = add(a, b)",
+            "then": "expect result equals 10"
+          },
+          {
+            "id": "f92481d69008e2b2",
+            "name": "should handle negative numbers",
+            "file": "examples/gtest/math.gtest",
+            "given": "a = -5, b = 3",
+            "when": "result = add(a, b)",
+            "then": "expect result equals -2"
+          }
+        ]
+      }
+    ]
+  ],
+  "tests": [
+    [
+      "a0593e2987ee0f85",
+      {
+        "id": "a0593e2987ee0f85",
+        "name": "should add two numbers",
+        "file": "examples/gtest/math.gtest",
+        "given": "a = 2, b = 3",
+        "when": "result = add(a, b)",
+        "then": "expect result equals 5"
+      }
+    ],
+    [
+      "57c73adbfbe91588",
+      {
+        "id": "57c73adbfbe91588",
+        "name": "should multiply two numbers",
+        "file": "examples/gtest/math.gtest",
+        "given": "a = 4, b = 5",
+        "when": "result = multiply(a, b)",
+        "then": "expect result equals 20"
+      }
+    ],
+    [
+      "380bc1819a700528",
+      {
+        "id": "380bc1819a700528",
+        "name": "should handle zero",
+        "file": "examples/gtest/math.gtest",
+        "given": "a = 0, b = 10",
+        "when": "result = add(a, b)",
+        "then": "expect result equals 10"
+      }
+    ],
+    [
+      "f92481d69008e2b2",
+      {
+        "id": "f92481d69008e2b2",
+        "name": "should handle negative numbers",
+        "file": "examples/gtest/math.gtest",
+        "given": "a = -5, b = 3",
+        "when": "result = add(a, b)",
+        "then": "expect result equals -2"
+      }
+    ]
+  ],
+  "files": [
+    [
+      "examples/gtest/math.gtest",
+      "33d2c19dd8e9ab06"
+    ]
+  ],
+  "hashes": [
+    [
+      "examples/gtest/math.gtest",
+      "33d2c19dd8e9ab06"
+    ]
+  ]
+}

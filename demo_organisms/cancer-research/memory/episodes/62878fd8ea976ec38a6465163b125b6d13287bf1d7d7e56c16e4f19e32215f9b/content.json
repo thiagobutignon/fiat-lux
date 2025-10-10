@@ -1,0 +1,23 @@
+{
+  "query": "What is the role of CTLA-4 inhibitors?",
+  "response": "CTLA-4 inhibitors (ipilimumab) work earlier in immune activation than PD-1 inhibitors. Combination ipilimumab + nivolumab shows higher response rates (58% in melanoma) but increased toxicity (59% grade 3-4 adverse events). Reserved for specific indications.",
+  "attention": {
+    "sources": [
+      "CTLA4-mechanism.pdf",
+      "ipilimumab-trials.pdf"
+    ],
+    "weights": [
+      0.6,
+      0.4
+    ],
+    "patterns": [
+      "sources:2",
+      "outcome:success"
+    ]
+  },
+  "outcome": "success",
+  "confidence": 0.86,
+  "timestamp": 1760058208797,
+  "memory_type": "long-term",
+  "id": "62878fd8ea976ec38a6465163b125b6d13287bf1d7d7e56c16e4f19e32215f9b"
+}

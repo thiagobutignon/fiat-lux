@@ -1,0 +1,101 @@
+# Grammar Container Runtime Spec v1.0
+# Example: Simple web server
+
+format: gcr-v1.0
+name: webserver
+version: 1.0.0
+
+# Base image (scratch = empty base)
+base: scratch
+
+# Build instructions
+build:
+  # Copy application files
+  copy:
+    - src: ./app/
+      dest: /app/
+
+    - src: ./config/
+      dest: /etc/webserver/
+
+  # Dependencies (via GLM - Grammar Language Manager)
+  dependencies:
+    - name: "http-server"
+      version: "1.0.0"
+      hash: sha256:abc123...
+
+    - name: "logger"
+      version: "2.1.0"
+      hash: sha256:def456...
+
+  # Build commands (executed in order)
+  commands:
+    - gsx build.gl      # Compile Grammar Language code
+    - glm install       # Install dependencies
+    - gsx test.gl       # Run tests
+
+  # Build-time environment variables
+  env:
+    BUILD_ENV: production
+    OPTIMIZATION: "O(1)"
+
+# Runtime configuration
+runtime:
+  # Entry point (command to run when container starts)
+  entrypoint:
+    - node
+    - /app/hello.js
+
+  # Working directory
+  workdir: /app
+
+  # User (for security - don't run as root)
+  user: webserver
+  uid: 1000
+  gid: 1000
+
+  # Resource limits
+  resources:
+    memory: 512MB
+    cpu: 1.0
+    storage: 1GB
+
+  # Exposed ports
+  ports:
+    - 8080/tcp
+    - 8443/tcp
+
+  # Persistent volumes
+  volumes:
+    - /app/data
+    - /app/logs
+
+  # Health check
+  healthcheck:
+    command:
+      - gsx
+      - health.gl
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    startPeriod: 60s
+
+  # Runtime environment variables
+  env:
+    PORT: "8080"
+    LOG_LEVEL: info
+    NODE_ENV: production
+
+# Metadata
+metadata:
+  author: "developer@example.com"
+  description: "High-performance O(1) web server built with Grammar Language"
+  tags:
+    - web
+    - server
+    - api
+    - production
+  license: MIT
+  homepage: "https://example.com/webserver"
+  repository: "https://github.com/example/webserver"
+  created: "2025-10-10T00:00:00Z"
