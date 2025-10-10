@@ -1,0 +1,2 @@
+(define calculate-roi (investment: number -> number)
+  (* investment 0.15))  ; 15% ROI
