@@ -412,10 +412,22 @@ export async function updateBehavioralProfile(userId: string, data: any): Promis
     return;
   }
 
-  // TODO: Real implementation
-  // await securityClient.updateProfile(userId, data);
+  try {
+    const adapter = getVermelhoAdapter();
 
-  throw new Error('VERMELHO integration not yet implemented');
+    // Convert data to Interaction format
+    const interaction: Interaction = {
+      timestamp: Date.now(),
+      interaction_type: 'query',
+      text_content: data.text || '',
+      metadata: data,
+    };
+
+    await adapter.updateBehavioralProfile(userId, interaction);
+  } catch (error) {
+    console.error('[VERMELHO] updateBehavioralProfile error:', error);
+    // Fail-silent for storage operations
+  }
 }
 
 // ============================================================================
@@ -446,10 +458,23 @@ export async function analyzeLinguisticFingerprint(
     };
   }
 
-  // TODO: Real implementation
-  // return await securityClient.analyzeLinguisticFingerprint({ text, userId });
+  try {
+    const adapter = getVermelhoAdapter();
 
-  throw new Error('VERMELHO integration not yet implemented');
+    // Get user profiles
+    const profiles = await getBehavioralProfileInternal(userId);
+
+    return await adapter.analyzeLinguisticFingerprint(text, userId, profiles);
+  } catch (error) {
+    console.error('[VERMELHO] analyzeLinguisticFingerprint error:', error);
+
+    // Fail-open with default
+    return {
+      match: true,
+      confidence: 0,
+      deviations: ['Error during analysis'],
+    };
+  }
 }
 
 // ============================================================================
@@ -479,10 +504,22 @@ export async function analyzeTypingPatterns(
     };
   }
 
-  // TODO: Real implementation
-  // return await securityClient.analyzeTypingPatterns({ patterns, userId });
+  try {
+    const adapter = getVermelhoAdapter();
 
-  throw new Error('VERMELHO integration not yet implemented');
+    // Get user profiles
+    const profiles = await getBehavioralProfileInternal(userId);
+
+    return await adapter.analyzeTypingPatterns(patterns, userId, profiles);
+  } catch (error) {
+    console.error('[VERMELHO] analyzeTypingPatterns error:', error);
+
+    // Fail-open with default
+    return {
+      match: true,
+      confidence: 0,
+    };
+  }
 }
 
 // ============================================================================
@@ -510,10 +547,25 @@ export async function analyzeEmotionalState(text: string): Promise<EmotionalStat
     };
   }
 
-  // TODO: Real implementation
-  // return await securityClient.analyzeEmotion(text);
+  try {
+    const adapter = getVermelhoAdapter();
 
-  throw new Error('VERMELHO integration not yet implemented');
+    // Get a default user profile (or use system profile)
+    // In production, you'd pass a userId to get their specific profile
+    const profiles = await getBehavioralProfileInternal('system');
+
+    return await adapter.analyzeEmotionalState(text, profiles);
+  } catch (error) {
+    console.error('[VERMELHO] analyzeEmotionalState error:', error);
+
+    // Fail-open with neutral emotional state
+    return {
+      valence: 0,
+      arousal: 0,
+      dominance: 0,
+      confidence: 0,
+    };
+  }
 }
 
 /**
@@ -539,10 +591,22 @@ export async function compareEmotionalState(
     };
   }
 
-  // TODO: Real implementation
-  // return await securityClient.compareEmotionalState(userId, emotionalState);
+  try {
+    const adapter = getVermelhoAdapter();
 
-  throw new Error('VERMELHO integration not yet implemented');
+    // Get user profiles
+    const profiles = await getBehavioralProfileInternal(userId);
+
+    return await adapter.compareEmotionalState(userId, emotionalState, profiles);
+  } catch (error) {
+    console.error('[VERMELHO] compareEmotionalState error:', error);
+
+    // Fail-open with no alert
+    return {
+      deviation: 0,
+      alert: false,
+    };
+  }
 }
 
 // ============================================================================
@@ -572,10 +636,22 @@ export async function analyzeTemporalPattern(
     };
   }
 
-  // TODO: Real implementation
-  // return await securityClient.analyzeTemporalPattern(userId, timestamp);
+  try {
+    const adapter = getVermelhoAdapter();
 
-  throw new Error('VERMELHO integration not yet implemented');
+    // Get user profiles
+    const profiles = await getBehavioralProfileInternal(userId);
+
+    return await adapter.analyzeTemporalPattern(userId, timestamp, profiles);
+  } catch (error) {
+    console.error('[VERMELHO] analyzeTemporalPattern error:', error);
+
+    // Fail-open with no anomaly
+    return {
+      anomaly: false,
+      confidence: 0,
+    };
+  }
 }
 
 // ============================================================================

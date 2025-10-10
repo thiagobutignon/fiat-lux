@@ -1,35 +1,27 @@
 import { NextResponse } from "next/server";
 import { SystemStats } from "@/lib/types";
-import * as fs from "fs/promises";
-import * as path from "path";
+import { getAllOrganisms } from "@/lib/integrations/sqlo";
 
-const ORGANISMS_DIR = path.join(process.cwd(), "..", "organisms");
-
+/**
+ * GET /api/stats - Get system statistics
+ *
+ * INTEGRATION: ✅ Connected to LARANJA (getAllOrganisms)
+ */
 export async function GET() {
   try {
-    // Get all organisms
-    const files = await fs.readdir(ORGANISMS_DIR).catch(() => []);
-    const glassFiles = files.filter((f) => f.endsWith(".glass"));
+    // Get all organisms from LARANJA
+    const organisms = await getAllOrganisms();
 
     let totalCost = 0;
     let totalQueries = 0;
 
-    for (const file of glassFiles) {
-      try {
-        const content = await fs.readFile(
-          path.join(ORGANISMS_DIR, file),
-          "utf-8"
-        );
-        const organism = JSON.parse(content);
-        totalCost += organism.stats?.total_cost || 0;
-        totalQueries += organism.stats?.queries_count || 0;
-      } catch (error) {
-        console.error(`Failed to parse ${file}:`, error);
-      }
+    for (const organism of organisms) {
+      totalCost += organism.stats?.total_cost || 0;
+      totalQueries += organism.stats?.queries_count || 0;
     }
 
     const stats: SystemStats = {
-      total_organisms: glassFiles.length,
+      total_organisms: organisms.length,
       total_queries: totalQueries,
       total_cost: totalCost,
       budget_limit: 100, // $100 default
@@ -41,7 +33,7 @@ export async function GET() {
   } catch (error) {
     console.error("Failed to get stats:", error);
     return NextResponse.json(
-      { error: "Failed to get stats" },
+      { error: "Failed to get stats", message: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

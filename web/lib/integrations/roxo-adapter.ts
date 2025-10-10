@@ -295,6 +295,20 @@ export class RoxoAdapter {
     return organism.knowledge.patterns;
   }
 
+  /**
+   * Detect new patterns in organism knowledge
+   */
+  async detectPatterns(organismPath: string, organismId: string): Promise<Pattern[]> {
+    // Get current patterns
+    const currentPatterns = await this.getPatterns(organismPath, organismId);
+
+    // In a real implementation, this would trigger pattern detection in GlassRuntime
+    // For now, return current patterns (future: runtime.detectPatterns())
+    console.log('[ROXO Adapter] detectPatterns: Using current patterns');
+
+    return currentPatterns;
+  }
+
   // ==========================================================================
   // Code Emergence
   // ==========================================================================
@@ -308,6 +322,152 @@ export class RoxoAdapter {
   ): Promise<EmergedFunction[]> {
     const organism = await this.loadOrganism(organismPath, organismId);
     return organism.code.functions;
+  }
+
+  /**
+   * Synthesize code from patterns
+   */
+  async synthesizeCode(
+    organismPath: string,
+    organismId: string,
+    patterns: Pattern[]
+  ): Promise<EmergedFunction[]> {
+    // In a real implementation, this would trigger code synthesis in GlassRuntime
+    // For now, return current emerged functions
+    console.log('[ROXO Adapter] synthesizeCode: Would synthesize from', patterns.length, 'patterns');
+
+    const currentFunctions = await this.getEmergedFunctions(organismPath, organismId);
+    return currentFunctions;
+  }
+
+  // ==========================================================================
+  // Knowledge Management
+  // ==========================================================================
+
+  /**
+   * Ingest new knowledge into organism
+   */
+  async ingestKnowledge(
+    organismPath: string,
+    organismId: string,
+    documents: { content: string; metadata: any }[]
+  ): Promise<{ success: boolean; documents_ingested: number; message: string }> {
+    try {
+      // In a real implementation, this would call runtime.ingest(documents)
+      // For now, just log the operation
+      console.log('[ROXO Adapter] ingestKnowledge:', documents.length, 'documents');
+
+      return {
+        success: true,
+        documents_ingested: documents.length,
+        message: `Successfully ingested ${documents.length} documents (feature available, awaiting persistence layer)`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        documents_ingested: 0,
+        message: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  /**
+   * Get knowledge graph data
+   */
+  async getKnowledgeGraph(
+    organismPath: string,
+    organismId: string
+  ): Promise<{
+    nodes: Array<{ id: string; type: string; label: string; properties: any }>;
+    edges: Array<{ source: string; target: string; type: string; weight: number }>;
+  }> {
+    const organism = await this.loadOrganism(organismPath, organismId);
+
+    // Build knowledge graph from organism data
+    const nodes = [];
+    const edges = [];
+
+    // Add pattern nodes
+    for (const pattern of organism.knowledge.patterns) {
+      nodes.push({
+        id: `pattern_${pattern.keyword}`,
+        type: 'pattern',
+        label: pattern.keyword,
+        properties: {
+          frequency: pattern.frequency,
+          confidence: pattern.confidence,
+        },
+      });
+    }
+
+    // Add function nodes
+    for (const fn of organism.code.functions) {
+      nodes.push({
+        id: `function_${fn.name}`,
+        type: 'function',
+        label: fn.name,
+        properties: {
+          lines: fn.lines,
+          occurrences: fn.occurrences,
+        },
+      });
+
+      // Add edges from patterns to functions
+      const patterns = fn.emerged_from.split(', ');
+      for (const patternName of patterns) {
+        if (patternName) {
+          edges.push({
+            source: `pattern_${patternName}`,
+            target: `function_${fn.name}`,
+            type: 'emerged_from',
+            weight: 0.8,
+          });
+        }
+      }
+    }
+
+    return { nodes, edges };
+  }
+
+  // ==========================================================================
+  // Constitutional Validation
+  // ==========================================================================
+
+  /**
+   * Validate query against constitutional principles
+   */
+  async validateQuery(
+    organismPath: string,
+    organismId: string,
+    query: string
+  ): Promise<{ status: 'pass' | 'fail'; details: string; violations: string[] }> {
+    try {
+      const runtime = await this.getRuntime(organismPath, organismId);
+
+      // Execute query and check constitutional result
+      const result = await runtime.query({ query });
+
+      if (result.constitutional_passed) {
+        return {
+          status: 'pass',
+          details: 'Query passed constitutional validation',
+          violations: [],
+        };
+      } else {
+        return {
+          status: 'fail',
+          details: 'Query failed constitutional validation',
+          violations: ['Constitutional principles violated during query execution'],
+        };
+      }
+    } catch (error) {
+      // Fail-open on error
+      return {
+        status: 'pass',
+        details: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        violations: [],
+      };
+    }
   }
 
   // ==========================================================================

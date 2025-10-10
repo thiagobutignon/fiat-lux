@@ -1,57 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GlassOrganism } from "@/lib/types";
-import * as fs from "fs/promises";
-import * as path from "path";
+import { getAllOrganisms, storeOrganism } from "@/lib/integrations/sqlo";
 
-// Temporary in-memory storage (replace with .sqlo in Sprint 2)
-const ORGANISMS_DIR = path.join(process.cwd(), "..", "organisms");
-
-// Ensure organisms directory exists
-async function ensureOrganismsDir() {
-  try {
-    await fs.access(ORGANISMS_DIR);
-  } catch {
-    await fs.mkdir(ORGANISMS_DIR, { recursive: true });
-  }
-}
-
-// GET /api/organisms - List all organisms
+/**
+ * GET /api/organisms - List all organisms
+ *
+ * INTEGRATION: ✅ Connected to LARANJA (getAllOrganisms)
+ */
 export async function GET() {
   try {
-    await ensureOrganismsDir();
-    const files = await fs.readdir(ORGANISMS_DIR);
-    const glassFiles = files.filter((f) => f.endsWith(".glass"));
-
-    const organisms: GlassOrganism[] = [];
-
-    for (const file of glassFiles) {
-      try {
-        const content = await fs.readFile(
-          path.join(ORGANISMS_DIR, file),
-          "utf-8"
-        );
-        const organism = JSON.parse(content) as GlassOrganism;
-        organisms.push(organism);
-      } catch (error) {
-        console.error(`Failed to parse ${file}:`, error);
-      }
-    }
-
+    const organisms = await getAllOrganisms();
     return NextResponse.json(organisms);
   } catch (error) {
     console.error("Failed to list organisms:", error);
     return NextResponse.json(
-      { error: "Failed to list organisms" },
+      { error: "Failed to list organisms", message: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }
 }
 
-// POST /api/organisms - Upload .glass file
+/**
+ * POST /api/organisms - Upload .glass file
+ *
+ * INTEGRATION: ✅ Connected to LARANJA (storeOrganism)
+ */
 export async function POST(request: NextRequest) {
   try {
-    await ensureOrganismsDir();
-
     const formData = await request.formData();
     const file = formData.get("file") as File;
 
@@ -96,15 +71,14 @@ export async function POST(request: NextRequest) {
       organism.id = organism.metadata.name.toLowerCase().replace(/\s+/g, "-");
     }
 
-    // Save to file
-    const filePath = path.join(ORGANISMS_DIR, `${organism.id}.glass`);
-    await fs.writeFile(filePath, JSON.stringify(organism, null, 2));
+    // Store using LARANJA
+    await storeOrganism(organism);
 
     return NextResponse.json(organism);
   } catch (error) {
     console.error("Failed to upload organism:", error);
     return NextResponse.json(
-      { error: "Failed to upload organism" },
+      { error: "Failed to upload organism", message: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

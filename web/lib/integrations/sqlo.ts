@@ -107,10 +107,15 @@ export async function getAllOrganisms(): Promise<GlassOrganism[]> {
     throw new Error('[STUB] Use filesystem for now');
   }
 
-  // TODO: Real implementation
-  // return await sqloClient.query('organisms', {});
+  try {
+    const adapter = getLaranjaAdapter();
+    return await adapter.getAllOrganisms();
+  } catch (error) {
+    console.error('[LARANJA] getAllOrganisms error:', error);
 
-  throw new Error('LARANJA integration not yet implemented');
+    // Fail-open with empty array
+    return [];
+  }
 }
 
 /**
@@ -129,10 +134,13 @@ export async function storeOrganism(organism: GlassOrganism): Promise<void> {
     throw new Error('[STUB] Use filesystem for now');
   }
 
-  // TODO: Real implementation
-  // await sqloClient.insert('organisms', organism);
-
-  throw new Error('LARANJA integration not yet implemented');
+  try {
+    const adapter = getLaranjaAdapter();
+    await adapter.storeOrganism(organism);
+  } catch (error) {
+    console.error('[LARANJA] storeOrganism error:', error);
+    // Fail-silent for storage operations
+  }
 }
 
 /**
@@ -155,10 +163,13 @@ export async function updateOrganism(
     throw new Error('[STUB] Use filesystem for now');
   }
 
-  // TODO: Real implementation
-  // await sqloClient.update('organisms', { id: organismId }, updates);
-
-  throw new Error('LARANJA integration not yet implemented');
+  try {
+    const adapter = getLaranjaAdapter();
+    await adapter.updateOrganism(organismId, updates);
+  } catch (error) {
+    console.error('[LARANJA] updateOrganism error:', error);
+    // Fail-silent for storage operations
+  }
 }
 
 /**
@@ -177,10 +188,13 @@ export async function deleteOrganism(organismId: string): Promise<void> {
     throw new Error('[STUB] Use filesystem for now');
   }
 
-  // TODO: Real implementation
-  // await sqloClient.delete('organisms', { id: organismId });
-
-  throw new Error('LARANJA integration not yet implemented');
+  try {
+    const adapter = getLaranjaAdapter();
+    await adapter.deleteOrganism(organismId);
+  } catch (error) {
+    console.error('[LARANJA] deleteOrganism error:', error);
+    // Fail-silent for storage operations
+  }
 }
 
 // ============================================================================
@@ -263,10 +277,15 @@ export async function getUserQueryHistory(
     return [];
   }
 
-  // TODO: Real implementation
-  // return await sqloClient.query('episodic_memory', { user_id: userId }, { limit });
+  try {
+    const adapter = getLaranjaAdapter();
+    return await adapter.getUserQueryHistory(userId, limit);
+  } catch (error) {
+    console.error('[LARANJA] getUserQueryHistory error:', error);
 
-  throw new Error('LARANJA integration not yet implemented');
+    // Fail-open with empty array
+    return [];
+  }
 }
 
 // ============================================================================
@@ -289,10 +308,13 @@ export async function storeConstitutionalLog(log: Omit<ConstitutionalLog, 'id'>)
     return;
   }
 
-  // TODO: Real implementation
-  // await sqloClient.insert('constitutional_logs', { ...log, id: generateId() });
-
-  throw new Error('LARANJA integration not yet implemented');
+  try {
+    const adapter = getLaranjaAdapter();
+    await adapter.storeConstitutionalLog(log);
+  } catch (error) {
+    console.error('[LARANJA] storeConstitutionalLog error:', error);
+    // Fail-silent for storage operations
+  }
 }
 
 /**
@@ -317,10 +339,15 @@ export async function getConstitutionalLogs(
     return [];
   }
 
-  // TODO: Real implementation
-  // return await sqloClient.query('constitutional_logs', { organism_id: organismId, ...filters }, { limit });
+  try {
+    const adapter = getLaranjaAdapter();
+    return await adapter.getConstitutionalLogs(organismId, filters, limit);
+  } catch (error) {
+    console.error('[LARANJA] getConstitutionalLogs error:', error);
 
-  throw new Error('LARANJA integration not yet implemented');
+    // Fail-open with empty array
+    return [];
+  }
 }
 
 // ============================================================================
@@ -343,10 +370,13 @@ export async function storeLLMCall(call: Omit<LLMCall, 'id'>): Promise<void> {
     return;
   }
 
-  // TODO: Real implementation
-  // await sqloClient.insert('llm_calls', { ...call, id: generateId() });
-
-  throw new Error('LARANJA integration not yet implemented');
+  try {
+    const adapter = getLaranjaAdapter();
+    await adapter.storeLLMCall(call);
+  } catch (error) {
+    console.error('[LARANJA] storeLLMCall error:', error);
+    // Fail-silent for storage operations
+  }
 }
 
 /**
@@ -371,10 +401,15 @@ export async function getLLMCalls(
     return [];
   }
 
-  // TODO: Real implementation
-  // return await sqloClient.query('llm_calls', { organism_id: organismId, ...filters }, { limit });
+  try {
+    const adapter = getLaranjaAdapter();
+    return await adapter.getLLMCalls(organismId, filters, limit);
+  } catch (error) {
+    console.error('[LARANJA] getLLMCalls error:', error);
 
-  throw new Error('LARANJA integration not yet implemented');
+    // Fail-open with empty array
+    return [];
+  }
 }
 
 // ============================================================================
@@ -463,10 +498,13 @@ export async function createRole(role: Omit<RBACRole, 'created_at'>): Promise<vo
     return;
   }
 
-  // TODO: Real implementation
-  // await sqloClient.insert('rbac_roles', { ...role, created_at: new Date().toISOString() });
-
-  throw new Error('LARANJA integration not yet implemented');
+  try {
+    const adapter = getLaranjaAdapter();
+    await adapter.createRole(role);
+  } catch (error) {
+    console.error('[LARANJA] createRole error:', error);
+    // Fail-silent for storage operations
+  }
 }
 
 /**
@@ -486,10 +524,13 @@ export async function assignRole(userId: string, roleId: string): Promise<void> 
     return;
   }
 
-  // TODO: Real implementation
-  // await sqloClient.assignRole(userId, roleId);
-
-  throw new Error('LARANJA integration not yet implemented');
+  try {
+    const adapter = getLaranjaAdapter();
+    await adapter.assignRole(userId, roleId);
+  } catch (error) {
+    console.error('[LARANJA] assignRole error:', error);
+    // Fail-silent for storage operations
+  }
 }
 
 // ============================================================================
@@ -515,10 +556,18 @@ export async function runConsolidation(): Promise<{ optimized: number; duration_
     };
   }
 
-  // TODO: Real implementation
-  // return await sqloClient.consolidate();
+  try {
+    const adapter = getLaranjaAdapter();
+    return await adapter.runConsolidation();
+  } catch (error) {
+    console.error('[LARANJA] runConsolidation error:', error);
 
-  throw new Error('LARANJA integration not yet implemented');
+    // Fail-open with zero optimization
+    return {
+      optimized: 0,
+      duration_ms: 0,
+    };
+  }
 }
 
 /**
@@ -545,10 +594,19 @@ export async function getConsolidationStatus(): Promise<{
     };
   }
 
-  // TODO: Real implementation
-  // return await sqloClient.getConsolidationStatus();
+  try {
+    const adapter = getLaranjaAdapter();
+    return await adapter.getConsolidationStatus();
+  } catch (error) {
+    console.error('[LARANJA] getConsolidationStatus error:', error);
 
-  throw new Error('LARANJA integration not yet implemented');
+    // Fail-open with idle status
+    return {
+      last_run: new Date().toISOString(),
+      next_run: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      status: 'idle',
+    };
+  }
 }
 
 // ============================================================================

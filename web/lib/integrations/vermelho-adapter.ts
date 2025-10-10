@@ -281,6 +281,46 @@ export class VermelhoAdapter {
   }
 
   // ==========================================================================
+  // Typing Pattern Analysis
+  // ==========================================================================
+
+  /**
+   * Analyze typing patterns
+   */
+  async analyzeTypingPatterns(
+    patterns: Array<{ timestamp: number; key: string; duration: number; interval: number }>,
+    userId: string,
+    profiles: UserSecurityProfiles
+  ): Promise<{ match: boolean; confidence: number }> {
+    try {
+      const typing = profiles.typing;
+
+      if (!typing || typing.confidence < 0.3) {
+        // Not enough data for analysis
+        return {
+          match: true,
+          confidence: 0.5,
+        };
+      }
+
+      // Calculate average interval from patterns
+      const avgInterval = patterns.reduce((sum, p) => sum + p.interval, 0) / patterns.length;
+      const expectedInterval = typing.timing?.keystroke_interval_avg || 0;
+
+      // Calculate deviation
+      const deviation = Math.abs(avgInterval - expectedInterval) / Math.max(expectedInterval, 1);
+
+      return {
+        match: deviation < 0.3, // Within 30% of baseline
+        confidence: typing.confidence,
+      };
+    } catch (error) {
+      console.error('[VermelhoAdapter] analyzeTypingPatterns error:', error);
+      throw error;
+    }
+  }
+
+  // ==========================================================================
   // Emotional Analysis (VAD Model)
   // ==========================================================================
 

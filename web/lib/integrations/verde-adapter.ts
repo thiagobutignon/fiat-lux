@@ -438,6 +438,59 @@ export class VerdeAdapter {
     return versions.filter((v) => v.status === 'old' && v.fitness > 0.7);
   }
 
+  /**
+   * Mark a version as old-but-gold
+   *
+   * Note: VERDE's genetic versioning doesn't have explicit "old-but-gold" marking.
+   * Versions are automatically considered "old-but-gold" if they have:
+   * - status = 'old' (traffic = 0)
+   * - fitness > 0.7
+   *
+   * This function ensures the version exists and validates its fitness qualifies it.
+   */
+  async markOldButGold(
+    organismId: string,
+    version: string
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const mutation = getMutation(version);
+
+      if (!mutation) {
+        return {
+          success: false,
+          message: `Version ${version} not found`,
+        };
+      }
+
+      // Check if fitness qualifies for old-but-gold
+      if (mutation.fitness < 0.7) {
+        return {
+          success: false,
+          message: `Version ${version} fitness (${mutation.fitness.toFixed(3)}) is too low for old-but-gold (requires >= 0.7)`,
+        };
+      }
+
+      // Old-but-gold is implicit in VERDE: high fitness + old (zero traffic)
+      // We just validate that it qualifies
+      const qualifiesAsOldButGold = mutation.fitness >= 0.7 && mutation.traffic === 0;
+
+      // Invalidate cache
+      this.versionCache.delete(organismId);
+
+      return {
+        success: true,
+        message: qualifiesAsOldButGold
+          ? `Version ${version} is marked as old-but-gold (fitness: ${mutation.fitness.toFixed(3)})`
+          : `Version ${version} recorded (will become old-but-gold when traffic reaches 0)`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
   // ==========================================================================
   // Fitness Tracking
   // ==========================================================================
@@ -495,6 +548,55 @@ export class VerdeAdapter {
       fitness: v.fitness,
       timestamp: v.deployed_at,
     }));
+  }
+
+  // ==========================================================================
+  // Auto-commit
+  // ==========================================================================
+
+  /**
+   * Trigger auto-commit for organism changes
+   *
+   * Creates a new mutation (version) for the organism file.
+   * This is used for automatic versioning when organism code changes.
+   */
+  async autoCommit(
+    organismId: string,
+    filePath: string,
+    message: string
+  ): Promise<{ success: boolean; version: string; message: string }> {
+    try {
+      // Create mutation (auto-commit as new patch version)
+      const mutation = await createMutation(filePath, 'agi', 'patch');
+
+      if (!mutation) {
+        return {
+          success: false,
+          version: '',
+          message: `Auto-commit failed: ${message} - file not found or validation failed`,
+        };
+      }
+
+      const version = this.versionToString(mutation.mutatedVersion);
+
+      // New mutations start with 0% traffic (canary)
+      mutation.traffic = 0;
+
+      // Invalidate cache
+      this.versionCache.delete(organismId);
+
+      return {
+        success: true,
+        version,
+        message: `Auto-committed v${version}: ${message}`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        version: '',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
   }
 
   // ==========================================================================

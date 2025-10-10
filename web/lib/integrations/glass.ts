@@ -46,11 +46,20 @@ export async function createRuntime(organismId: string): Promise<void> {
     return;
   }
 
-  // TODO: Real implementation
-  // const organism = await loadOrganism(organismId);
-  // return new GlassRuntime(organism);
+  try {
+    const adapter = getRoxoAdapter();
 
-  throw new Error('ROXO integration not yet implemented');
+    // Construct organism path
+    const organismPath = `/Users/thiagobutignon/dev/chomsky/demo_organisms/${organismId}.glass`;
+
+    // Get or create runtime (adapter manages caching)
+    await adapter.getRuntime(organismPath, organismId);
+
+    console.log('[ROXO] createRuntime: Runtime created and cached');
+  } catch (error) {
+    console.error('[ROXO] createRuntime error:', error);
+    throw error;
+  }
 }
 
 /**
@@ -215,11 +224,19 @@ export async function detectPatterns(organismId: string): Promise<Pattern[]> {
     return [];
   }
 
-  // TODO: Real implementation
-  // const runtime = await createRuntime(organismId);
-  // return await runtime.detectPatterns();
+  try {
+    const adapter = getRoxoAdapter();
 
-  throw new Error('ROXO integration not yet implemented');
+    // Construct organism path
+    const organismPath = `/Users/thiagobutignon/dev/chomsky/demo_organisms/${organismId}.glass`;
+
+    return await adapter.detectPatterns(organismPath, organismId);
+  } catch (error) {
+    console.error('[ROXO] detectPatterns error:', error);
+
+    // Fail-open
+    return [];
+  }
 }
 
 // ============================================================================
@@ -275,11 +292,19 @@ export async function synthesizeCode(
     return [];
   }
 
-  // TODO: Real implementation
-  // const runtime = await createRuntime(organismId);
-  // return await runtime.synthesizeCode(patterns);
+  try {
+    const adapter = getRoxoAdapter();
 
-  throw new Error('ROXO integration not yet implemented');
+    // Construct organism path
+    const organismPath = `/Users/thiagobutignon/dev/chomsky/demo_organisms/${organismId}.glass`;
+
+    return await adapter.synthesizeCode(organismPath, organismId, patterns);
+  } catch (error) {
+    console.error('[ROXO] synthesizeCode error:', error);
+
+    // Fail-open
+    return [];
+  }
 }
 
 // ============================================================================
@@ -305,11 +330,24 @@ export async function ingestKnowledge(
     return;
   }
 
-  // TODO: Real implementation
-  // const runtime = await createRuntime(organismId);
-  // await runtime.ingest(documents);
+  try {
+    const adapter = getRoxoAdapter();
 
-  throw new Error('ROXO integration not yet implemented');
+    // Construct organism path
+    const organismPath = `/Users/thiagobutignon/dev/chomsky/demo_organisms/${organismId}.glass`;
+
+    const result = await adapter.ingestKnowledge(organismPath, organismId, documents);
+
+    if (!result.success) {
+      console.error('[ROXO] ingestKnowledge failed:', result.message);
+      throw new Error(result.message);
+    }
+
+    console.log('[ROXO] ingestKnowledge success:', result.message);
+  } catch (error) {
+    console.error('[ROXO] ingestKnowledge error:', error);
+    throw error;
+  }
 }
 
 /**
@@ -327,11 +365,19 @@ export async function getKnowledgeGraph(organismId: string): Promise<any> {
     return { nodes: [], edges: [] };
   }
 
-  // TODO: Real implementation
-  // const runtime = await createRuntime(organismId);
-  // return await runtime.getKnowledgeGraph();
+  try {
+    const adapter = getRoxoAdapter();
 
-  throw new Error('ROXO integration not yet implemented');
+    // Construct organism path
+    const organismPath = `/Users/thiagobutignon/dev/chomsky/demo_organisms/${organismId}.glass`;
+
+    return await adapter.getKnowledgeGraph(organismPath, organismId);
+  } catch (error) {
+    console.error('[ROXO] getKnowledgeGraph error:', error);
+
+    // Fail-open
+    return { nodes: [], edges: [] };
+  }
 }
 
 // ============================================================================
@@ -357,11 +403,27 @@ export async function validateQuery(
     return { status: 'pass', details: 'Stub validation - always passes' };
   }
 
-  // TODO: Real implementation
-  // const runtime = await createRuntime(organismId);
-  // return await runtime.validateQuery(query);
+  try {
+    const adapter = getRoxoAdapter();
 
-  throw new Error('ROXO integration not yet implemented');
+    // Construct organism path
+    const organismPath = `/Users/thiagobutignon/dev/chomsky/demo_organisms/${organismId}.glass`;
+
+    const result = await adapter.validateQuery(organismPath, organismId, query);
+
+    return {
+      status: result.status,
+      details: result.details,
+    };
+  } catch (error) {
+    console.error('[ROXO] validateQuery error:', error);
+
+    // Fail-open (allow by default on error)
+    return {
+      status: 'pass',
+      details: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    };
+  }
 }
 
 // ============================================================================

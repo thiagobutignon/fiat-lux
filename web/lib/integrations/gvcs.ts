@@ -418,10 +418,20 @@ export async function markOldButGold(organismId: string, version: string): Promi
     return;
   }
 
-  // TODO: Real implementation
-  // await gvcsClient.markOldButGold(organismId, version);
+  try {
+    const adapter = getVerdeAdapter();
+    const result = await adapter.markOldButGold(organismId, version);
 
-  throw new Error('VERDE integration not yet implemented');
+    if (!result.success) {
+      console.error('[VERDE] markOldButGold failed:', result.message);
+      throw new Error(result.message);
+    }
+
+    console.log('[VERDE] markOldButGold success:', result.message);
+  } catch (error) {
+    console.error('[VERDE] markOldButGold error:', error);
+    throw error;
+  }
 }
 
 // ============================================================================
@@ -514,10 +524,27 @@ export async function autoCommit(organismId: string, message: string): Promise<s
     return 'stub-commit-hash';
   }
 
-  // TODO: Real implementation
-  // return await gvcsClient.autoCommit(organismId, message);
+  try {
+    const adapter = getVerdeAdapter();
 
-  throw new Error('VERDE integration not yet implemented');
+    // Convert organismId to file path (assume .glass files)
+    const filePath = `${organismId}.glass`;
+
+    const result = await adapter.autoCommit(organismId, filePath, message);
+
+    if (!result.success) {
+      console.error('[VERDE] autoCommit failed:', result.message);
+      throw new Error(result.message);
+    }
+
+    console.log('[VERDE] autoCommit success:', result.message);
+
+    // Return the version as the commit hash
+    return result.version;
+  } catch (error) {
+    console.error('[VERDE] autoCommit error:', error);
+    throw error;
+  }
 }
 
 // ============================================================================
