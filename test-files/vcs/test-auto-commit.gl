@@ -3,3 +3,5 @@
 
 (define goodbye (-> string)
   "Goodbye, World!")
+(define greet (name: string -> string)
+  (concat "Hello, " name))
