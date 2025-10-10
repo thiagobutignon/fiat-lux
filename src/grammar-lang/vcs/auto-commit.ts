@@ -16,6 +16,18 @@ import * as path from 'path';
 import { execSync } from 'child_process';
 import * as crypto from 'crypto';
 import { vcsConstitutionalValidator } from './constitutional-integration';
+import {
+  createCommitRequest,
+  generateSecurityMetadata,
+} from '../security/git-operation-guard';
+import {
+  CognitiveBehaviorGuard,
+  shouldProceedWithOperation,
+  getCognitiveBehaviorSummary,
+  formatCognitiveBehaviorAnalysis,
+} from '../security/cognitive-behavior-guard';
+import { SecurityStorage } from '../security/security-storage';
+import { UserSecurityProfiles } from '../security/types';
 
 // ===== TYPES =====
 
@@ -147,8 +159,18 @@ Co-Authored-By: ${author === 'agi' ? 'AGI <agi@fiat.ai>' : 'Human <human@fiat.ai
  *
  * Constitutional Enforcement: Validates against Layer 1 Constitutional AI
  * before executing commit. Blocks commits that violate universal principles.
+ *
+ * Dual-Layer Security (VERMELHO + CINZA):
+ * - VERMELHO: Validates behavioral biometrics (duress/coercion detection)
+ * - CINZA: Validates cognitive integrity (manipulation detection in commit message)
+ * Creates auto-snapshots when suspicious behavior or manipulation detected.
  */
-export async function autoCommit(filePath: string): Promise<boolean> {
+export async function autoCommit(
+  filePath: string,
+  userProfiles?: UserSecurityProfiles,
+  userId?: string,
+  storage?: SecurityStorage
+): Promise<boolean> {
   // Calculate current hash (O(1))
   const currentHash = calculateHash(filePath);
   const previousState = fileStates.get(filePath);
@@ -204,6 +226,79 @@ export async function autoCommit(filePath: string): Promise<boolean> {
     // Fail-open: if constitutional system is down, allow commit but log warning
   }
 
+  // ===== DUAL-LAYER SECURITY VALIDATION (VERMELHO + CINZA + VERDE) =====
+  // Integration with dual-layer security system
+  // - VERMELHO: Behavioral biometrics (duress/coercion)
+  // - CINZA: Cognitive manipulation detection
+  // Validates user's behavioral + cognitive state before Git commit
+  let securityMetadata = '';
+
+  if (userProfiles && userId && storage) {
+    try {
+      const cognitiveBehaviorGuard = new CognitiveBehaviorGuard(storage);
+
+      // Create commit request
+      const commitRequest = createCommitRequest(
+        userId,
+        filePath,
+        message,
+        author,
+        { lines_added: diffResult.linesAdded, lines_removed: diffResult.linesRemoved }
+      );
+
+      // Validate dual-layer security (behavioral + cognitive)
+      const securityResult = await cognitiveBehaviorGuard.validateGitOperation(
+        commitRequest,
+        userProfiles
+      );
+
+      console.log('🔒 Dual-layer security validation:');
+      console.log(getCognitiveBehaviorSummary(securityResult));
+
+      // Block commit if security validation failed
+      if (!shouldProceedWithOperation(securityResult)) {
+        console.error('❌ SECURITY VIOLATION - Commit BLOCKED');
+        console.error(`   Decision: ${securityResult.decision.toUpperCase()}`);
+        console.error(`   Reason: ${securityResult.reason}`);
+        console.error(`   File: ${filePath}`);
+        console.error(`   Author: ${author}`);
+
+        // Show detailed cognitive-behavior analysis
+        if (securityResult.cognitive_analysis) {
+          console.error('\n' + formatCognitiveBehaviorAnalysis(securityResult.cognitive_analysis));
+        }
+
+        if (securityResult.snapshot_created) {
+          console.error(`   📸 Duress snapshot saved: ${securityResult.snapshot_path}`);
+        }
+
+        if (securityResult.manipulation_snapshot_created) {
+          console.error(`   🧠 Manipulation snapshot saved: ${securityResult.manipulation_snapshot_path}`);
+        }
+
+        return false; // Commit rejected by dual-layer security
+      }
+
+      // Generate security metadata for commit message
+      securityMetadata = generateSecurityMetadata(securityResult.security_context);
+
+      // Add cognitive analysis metadata if available
+      if (securityResult.cognitive_analysis) {
+        const cogAnalysis = securityResult.cognitive_analysis;
+        securityMetadata += `\nX-Cognitive-Manipulation: ${cogAnalysis.cognitive.manipulation_detected}`;
+        securityMetadata += `\nX-Manipulation-Techniques: ${cogAnalysis.cognitive.techniques_found.length}`;
+        securityMetadata += `\nX-Threat-Level: ${cogAnalysis.combined.threat_level}`;
+        securityMetadata += `\nX-Risk-Score: ${(cogAnalysis.combined.risk_score * 100).toFixed(1)}%`;
+      }
+
+      console.log('✅ Dual-layer security validation passed');
+    } catch (securityError) {
+      console.error(`⚠️  Dual-layer security validation error: ${securityError}`);
+      console.error('   Proceeding with commit (fail-open for availability)');
+      // Fail-open: if security system is down, allow commit but log warning
+    }
+  }
+
   // Auto-commit (NO manual intervention)
   try {
     // Add file to staging
@@ -211,8 +306,11 @@ export async function autoCommit(filePath: string): Promise<boolean> {
       stdio: 'pipe'
     });
 
-    // Create commit
-    execSync(`git commit -m "${message}"`, {
+    // Append security metadata to commit message if available
+    const finalMessage = securityMetadata ? `${message}${securityMetadata}` : message;
+
+    // Create commit with security metadata
+    execSync(`git commit -m "${finalMessage}"`, {
       stdio: 'pipe'
     });
 

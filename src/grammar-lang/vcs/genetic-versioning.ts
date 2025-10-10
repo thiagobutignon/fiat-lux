@@ -17,6 +17,17 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { vcsConstitutionalValidator } from './constitutional-integration';
+import {
+  createMutationRequest,
+} from '../security/git-operation-guard';
+import {
+  CognitiveBehaviorGuard,
+  shouldProceedWithOperation,
+  getCognitiveBehaviorSummary,
+  formatCognitiveBehaviorAnalysis,
+} from '../security/cognitive-behavior-guard';
+import { SecurityStorage } from '../security/security-storage';
+import { UserSecurityProfiles } from '../security/types';
 
 // ===== TYPES =====
 
@@ -154,11 +165,19 @@ function generateMutatedPath(
  *
  * Constitutional Enforcement: Validates mutation against Layer 1 Constitutional AI
  * before creating mutated file. Blocks mutations that violate universal principles.
+ *
+ * Dual-Layer Security (VERMELHO + CINZA):
+ * - VERMELHO: Validates behavioral biometrics (duress/coercion detection)
+ * - CINZA: Validates cognitive integrity (manipulation detection in mutation request)
+ * Creates auto-snapshots when suspicious behavior or manipulation detected.
  */
 export async function createMutation(
   filePath: string,
   author: 'human' | 'agi' = 'human',
-  type: 'major' | 'minor' | 'patch' = 'patch'
+  type: 'major' | 'minor' | 'patch' = 'patch',
+  userProfiles?: UserSecurityProfiles,
+  userId?: string,
+  storage?: SecurityStorage
 ): Promise<Mutation | null> {
   // Check file exists
   if (!fs.existsSync(filePath)) {
@@ -211,6 +230,66 @@ export async function createMutation(
     console.error(`⚠️  Constitutional validation error: ${constitutionalError}`);
     console.error('   Proceeding with mutation (fail-open for availability)');
     // Fail-open: if constitutional system is down, allow mutation but log warning
+  }
+
+  // ===== DUAL-LAYER SECURITY VALIDATION (VERMELHO + CINZA + VERDE) =====
+  // Integration with dual-layer security system
+  // - VERMELHO: Behavioral biometrics (duress/coercion)
+  // - CINZA: Cognitive manipulation detection
+  // Validates user's behavioral + cognitive state before creating mutation
+  if (userProfiles && userId && storage) {
+    try {
+      const cognitiveBehaviorGuard = new CognitiveBehaviorGuard(storage);
+
+      // Create mutation request
+      const mutationRequest = createMutationRequest(
+        userId,
+        filePath,
+        author,
+        versionToString(currentVersion),
+        versionToString(newVersion)
+      );
+
+      // Validate dual-layer security (behavioral + cognitive)
+      const securityResult = await cognitiveBehaviorGuard.validateGitOperation(
+        mutationRequest,
+        userProfiles
+      );
+
+      console.log('🔒 Dual-layer security validation:');
+      console.log(getCognitiveBehaviorSummary(securityResult));
+
+      // Block mutation if security validation failed
+      if (!shouldProceedWithOperation(securityResult)) {
+        console.error('❌ SECURITY VIOLATION - Mutation BLOCKED');
+        console.error(`   Decision: ${securityResult.decision.toUpperCase()}`);
+        console.error(`   Reason: ${securityResult.reason}`);
+        console.error(`   Original: ${filePath}`);
+        console.error(`   Mutated: ${mutatedPath}`);
+        console.error(`   Author: ${author}`);
+
+        // Show detailed cognitive-behavior analysis
+        if (securityResult.cognitive_analysis) {
+          console.error('\n' + formatCognitiveBehaviorAnalysis(securityResult.cognitive_analysis));
+        }
+
+        if (securityResult.snapshot_created) {
+          console.error(`   📸 Duress snapshot saved: ${securityResult.snapshot_path}`);
+        }
+
+        if (securityResult.manipulation_snapshot_created) {
+          console.error(`   🧠 Manipulation snapshot saved: ${securityResult.manipulation_snapshot_path}`);
+        }
+
+        return null; // Mutation rejected by dual-layer security
+      }
+
+      console.log('✅ Dual-layer security validation passed');
+    } catch (securityError) {
+      console.error(`⚠️  Dual-layer security validation error: ${securityError}`);
+      console.error('   Proceeding with mutation (fail-open for availability)');
+      // Fail-open: if security system is down, allow mutation but log warning
+    }
   }
 
   // Copy file (genetic replication)
