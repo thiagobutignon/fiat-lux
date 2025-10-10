@@ -244,10 +244,20 @@ export async function deployCanary(
     return;
   }
 
-  // TODO: Real implementation
-  // await gvcsClient.deployCanary(organismId, version, trafficPercent);
+  try {
+    const adapter = getVerdeAdapter();
+    const result = await adapter.deployCanary(organismId, version, trafficPercent);
 
-  throw new Error('VERDE integration not yet implemented');
+    if (!result.success) {
+      console.error('[VERDE] deployCanary failed:', result.message);
+      throw new Error(result.message);
+    }
+
+    console.log('[VERDE] deployCanary success:', result.message);
+  } catch (error) {
+    console.error('[VERDE] deployCanary error:', error);
+    throw error;
+  }
 }
 
 /**
@@ -265,10 +275,27 @@ export async function promoteCanary(organismId: string): Promise<void> {
     return;
   }
 
-  // TODO: Real implementation
-  // await gvcsClient.promoteCanary(organismId);
+  try {
+    const adapter = getVerdeAdapter();
 
-  throw new Error('VERDE integration not yet implemented');
+    // Get current canary version
+    const canaryStatus = await adapter.getCanaryStatus(organismId);
+    if (canaryStatus.status === 'inactive') {
+      throw new Error('No active canary deployment to promote');
+    }
+
+    const result = await adapter.promoteCanary(organismId, canaryStatus.canary_version);
+
+    if (!result.success) {
+      console.error('[VERDE] promoteCanary failed:', result.message);
+      throw new Error(result.message);
+    }
+
+    console.log('[VERDE] promoteCanary success:', result.message);
+  } catch (error) {
+    console.error('[VERDE] promoteCanary error:', error);
+    throw error;
+  }
 }
 
 /**
@@ -286,10 +313,27 @@ export async function rollbackCanary(organismId: string): Promise<void> {
     return;
   }
 
-  // TODO: Real implementation
-  // await gvcsClient.rollbackCanary(organismId);
+  try {
+    const adapter = getVerdeAdapter();
 
-  throw new Error('VERDE integration not yet implemented');
+    // Get current canary version
+    const canaryStatus = await adapter.getCanaryStatus(organismId);
+    if (canaryStatus.status === 'inactive') {
+      throw new Error('No active canary deployment to rollback');
+    }
+
+    const result = await adapter.rollbackCanary(organismId, canaryStatus.canary_version);
+
+    if (!result.success) {
+      console.error('[VERDE] rollbackCanary failed:', result.message);
+      throw new Error(result.message);
+    }
+
+    console.log('[VERDE] rollbackCanary success:', result.message);
+  } catch (error) {
+    console.error('[VERDE] rollbackCanary error:', error);
+    throw error;
+  }
 }
 
 // ============================================================================
@@ -312,10 +356,20 @@ export async function rollbackVersion(organismId: string, version: string): Prom
     return;
   }
 
-  // TODO: Real implementation
-  // await gvcsClient.rollback(organismId, version);
+  try {
+    const adapter = getVerdeAdapter();
+    const result = await adapter.rollbackVersion(organismId, version);
 
-  throw new Error('VERDE integration not yet implemented');
+    if (!result.success) {
+      console.error('[VERDE] rollbackVersion failed:', result.message);
+      throw new Error(result.message);
+    }
+
+    console.log('[VERDE] rollbackVersion success:', result.message);
+  } catch (error) {
+    console.error('[VERDE] rollbackVersion error:', error);
+    throw error;
+  }
 }
 
 // ============================================================================
@@ -337,10 +391,15 @@ export async function getOldButGoldVersions(organismId: string): Promise<Version
     return [];
   }
 
-  // TODO: Real implementation
-  // return await gvcsClient.getOldButGold(organismId);
+  try {
+    const adapter = getVerdeAdapter();
+    return await adapter.getOldButGoldVersions(organismId);
+  } catch (error) {
+    console.error('[VERDE] getOldButGoldVersions error:', error);
 
-  throw new Error('VERDE integration not yet implemented');
+    // Fail-open
+    return [];
+  }
 }
 
 /**
@@ -385,10 +444,26 @@ export async function recordFitness(organismId: string, fitness: number): Promis
     return;
   }
 
-  // TODO: Real implementation
-  // await gvcsClient.recordFitness(organismId, fitness);
+  try {
+    const adapter = getVerdeAdapter();
 
-  throw new Error('VERDE integration not yet implemented');
+    // Get current version for this organism
+    const current = await adapter.getCurrentVersion(organismId);
+
+    // Convert fitness score to metrics (adapter expects metrics object)
+    // We pass empty metrics and rely on VERDE's updateFitness to handle it
+    const result = await adapter.recordFitness(current.version, {});
+
+    if (!result.success) {
+      console.error('[VERDE] recordFitness failed:', result.message);
+      throw new Error(result.message);
+    }
+
+    console.log('[VERDE] recordFitness success:', result.message);
+  } catch (error) {
+    console.error('[VERDE] recordFitness error:', error);
+    throw error;
+  }
 }
 
 /**
@@ -408,10 +483,15 @@ export async function getFitnessTrajectory(
     return [];
   }
 
-  // TODO: Real implementation
-  // return await gvcsClient.getFitnessTrajectory(organismId);
+  try {
+    const adapter = getVerdeAdapter();
+    return await adapter.getFitnessTrajectory(organismId);
+  } catch (error) {
+    console.error('[VERDE] getFitnessTrajectory error:', error);
 
-  throw new Error('VERDE integration not yet implemented');
+    // Fail-open
+    return [];
+  }
 }
 
 // ============================================================================
