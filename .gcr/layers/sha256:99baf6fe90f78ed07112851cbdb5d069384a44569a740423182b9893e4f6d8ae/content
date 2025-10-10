@@ -1,0 +1,12 @@
+[
+  {
+    "name": "http-server",
+    "version": "1.0.0",
+    "hash": "sha256:abc123..."
+  },
+  {
+    "name": "logger",
+    "version": "2.1.0",
+    "hash": "sha256:def456..."
+  }
+]

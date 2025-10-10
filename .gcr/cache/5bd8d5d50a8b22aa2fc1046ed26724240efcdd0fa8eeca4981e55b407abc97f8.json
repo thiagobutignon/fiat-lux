@@ -1,0 +1,32 @@
+{
+  "cacheKey": "",
+  "imageHash": "sha256:b7935b8e4c1b901be881c73924d628281fac8d2d166a7460d39e641525b25802",
+  "imageName": "webserver",
+  "imageVersion": "1.0.0",
+  "layers": [
+    {
+      "hash": "sha256:99baf6fe90f78ed07112851cbdb5d069384a44569a740423182b9893e4f6d8ae",
+      "size": 179,
+      "type": "dependencies",
+      "created": "2025-10-10T04:55:51.087Z"
+    },
+    {
+      "hash": "sha256:7cfa1fab69a606e32b650b2f87be77bbcb6dcfa2e8ee1f1732d077b36b855368",
+      "size": 329,
+      "type": "config",
+      "created": "2025-10-10T04:55:51.089Z"
+    },
+    {
+      "hash": "sha256:cdae005a8d230ac2344a9cb00ef23ab768370159cc5579ff45cf99dd9211e9d3",
+      "size": 395,
+      "type": "metadata",
+      "created": "2025-10-10T04:55:51.089Z"
+    }
+  ],
+  "buildTime": "2025-10-10T04:56:00.366Z",
+  "buildDuration": 3,
+  "metadata": {
+    "specHash": "e65593657141b6f798377fce1da8e5eb78f893fc6c53cf3a20427070fd8fcab2",
+    "baseImage": "scratch"
+  }
+}

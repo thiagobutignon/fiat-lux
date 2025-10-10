@@ -1,0 +1,7 @@
+{
+  "event_hash": "c7b1cd35dd79afce788c0cdc2bf1e8fb5f3108cffc1b9aef1e4231734501c50b",
+  "user_id": "alice",
+  "timestamp": 1760068938937,
+  "event_type": "operation_blocked",
+  "is_alert": true
+}

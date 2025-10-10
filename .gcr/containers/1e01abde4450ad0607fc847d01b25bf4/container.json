@@ -1,0 +1,74 @@
+{
+  "id": "1e01abde4450ad0607fc847d01b25bf4",
+  "name": "test-web",
+  "image": "webserver:1.0.0",
+  "imageHash": "sha256:242059ce211dc34459f2c15eac0ec31841ef6fb4222df92ad631cec55b1b3164",
+  "status": "exited",
+  "config": {
+    "entrypoint": [
+      "node",
+      "/app/hello.js"
+    ],
+    "workdir": "/app",
+    "user": "webserver",
+    "uid": 1000,
+    "gid": 1000,
+    "resources": {
+      "memory": "512MB",
+      "cpu": 1,
+      "storage": "1GB"
+    },
+    "ports": [
+      "8080/tcp",
+      "8443/tcp"
+    ],
+    "volumes": [
+      "/app/data",
+      "/app/logs"
+    ],
+    "healthcheck": {
+      "command": [
+        "gsx",
+        "health.gl"
+      ],
+      "interval": "30s",
+      "timeout": "5s",
+      "retries": 3,
+      "startPeriod": "60s"
+    },
+    "env": {
+      "PORT": "8080",
+      "LOG_LEVEL": "info",
+      "NODE_ENV": "production"
+    }
+  },
+  "isolation": {
+    "pid_namespace": true,
+    "net_namespace": true,
+    "mount_namespace": true,
+    "user_namespace": false,
+    "ipc_namespace": true,
+    "resource_limits": {
+      "memory": "512MB",
+      "cpu": 1,
+      "storage": "1GB"
+    }
+  },
+  "network": {
+    "mode": "bridge",
+    "ports": []
+  },
+  "storage": {
+    "rootfs": ".gcr/containers/1e01abde4450ad0607fc847d01b25bf4/rootfs",
+    "volumes": [],
+    "driver": "content-addressable"
+  },
+  "created": "2025-10-10T05:06:17.315Z",
+  "started": "2025-10-10T05:06:17.316Z",
+  "logs": {
+    "stdout": ".gcr/containers/1e01abde4450ad0607fc847d01b25bf4/stdout.log",
+    "stderr": ".gcr/containers/1e01abde4450ad0607fc847d01b25bf4/stderr.log"
+  },
+  "finished": "2025-10-10T05:06:46.300Z",
+  "exitCode": 0
+}

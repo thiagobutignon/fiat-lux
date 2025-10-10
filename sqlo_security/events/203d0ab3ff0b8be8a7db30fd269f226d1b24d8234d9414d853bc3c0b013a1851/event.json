@@ -1,0 +1,24 @@
+{
+  "user_id": "alice",
+  "timestamp": 1760068938936,
+  "event_type": "coercion_detected",
+  "duress_score": 0.3268021644617403,
+  "coercion_score": 1,
+  "confidence": 1,
+  "decision": "block",
+  "reason": "Normal behavioral pattern | Coercion detected (100% confidence)",
+  "operation_type": "transfer",
+  "operation_value": 50000,
+  "context": {
+    "coercion_indicators": {
+      "compliance_language": true,
+      "passive_voice_excessive": false,
+      "hedging_excessive": false,
+      "fear_markers": false,
+      "submission_markers": false,
+      "rushed_responses": true,
+      "unusual_requests": true
+    }
+  },
+  "event_id": "203d0ab3ff0b8be8a7db30fd269f226d1b24d8234d9414d853bc3c0b013a1851"
+}

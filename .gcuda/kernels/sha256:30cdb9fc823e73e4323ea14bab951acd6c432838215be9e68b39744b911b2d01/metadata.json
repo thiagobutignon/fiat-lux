@@ -1,0 +1,17 @@
+{
+  "hash": "sha256:30cdb9fc823e73e4323ea14bab951acd6c432838215be9e68b39744b911b2d01",
+  "name": "matmul_kernel",
+  "version": "1.0.0",
+  "lang": "cuda",
+  "entryPoint": "matmul_kernel",
+  "sourcePath": "",
+  "metadata": {
+    "compileTime": "2025-10-10T05:45:14.100Z",
+    "compiler": "cuda-runtime",
+    "flags": [],
+    "arch": [
+      "sm_80"
+    ],
+    "size": 682
+  }
+}

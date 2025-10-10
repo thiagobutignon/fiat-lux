@@ -1,0 +1,16 @@
+{
+  "name": "webserver",
+  "version": "1.0.0",
+  "author": "developer@example.com",
+  "description": "High-performance O(1) web server built with Grammar Language",
+  "tags": [
+    "web",
+    "server",
+    "api",
+    "production"
+  ],
+  "created": "2025-10-10T00:00:00Z",
+  "license": "MIT",
+  "homepage": "https://example.com/webserver",
+  "repository": "https://github.com/example/webserver"
+}

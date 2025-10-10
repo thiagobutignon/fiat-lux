@@ -1,0 +1,85 @@
+{
+  "format": "gcr-v1.0",
+  "name": "webserver",
+  "version": "1.0.0",
+  "hash": "sha256:242059ce211dc34459f2c15eac0ec31841ef6fb4222df92ad631cec55b1b3164",
+  "size": 1146,
+  "layers": [
+    {
+      "hash": "sha256:08008d6ee69a2cc6f4bd1880fb4e1f7c1e89b75b42cb5cbef2c0512972e4d636",
+      "size": 279,
+      "type": "app",
+      "created": "2025-10-10T05:06:15.643Z"
+    },
+    {
+      "hash": "sha256:99baf6fe90f78ed07112851cbdb5d069384a44569a740423182b9893e4f6d8ae",
+      "size": 179,
+      "type": "dependencies",
+      "created": "2025-10-10T04:55:51.087Z"
+    },
+    {
+      "hash": "sha256:afe942c9c8a478e2c5bfe38bedf10df7a95e0bfa03539128860e474052542a85",
+      "size": 293,
+      "type": "config",
+      "created": "2025-10-10T05:06:15.645Z"
+    },
+    {
+      "hash": "sha256:cdae005a8d230ac2344a9cb00ef23ab768370159cc5579ff45cf99dd9211e9d3",
+      "size": 395,
+      "type": "metadata",
+      "created": "2025-10-10T04:55:51.089Z"
+    }
+  ],
+  "config": {
+    "entrypoint": [
+      "node",
+      "/app/hello.js"
+    ],
+    "workdir": "/app",
+    "user": "webserver",
+    "uid": 1000,
+    "gid": 1000,
+    "resources": {
+      "memory": "512MB",
+      "cpu": 1,
+      "storage": "1GB"
+    },
+    "ports": [
+      "8080/tcp",
+      "8443/tcp"
+    ],
+    "volumes": [
+      "/app/data",
+      "/app/logs"
+    ],
+    "healthcheck": {
+      "command": [
+        "gsx",
+        "health.gl"
+      ],
+      "interval": "30s",
+      "timeout": "5s",
+      "retries": 3,
+      "startPeriod": "60s"
+    },
+    "env": {
+      "PORT": "8080",
+      "LOG_LEVEL": "info",
+      "NODE_ENV": "production"
+    }
+  },
+  "metadata": {
+    "author": "developer@example.com",
+    "description": "High-performance O(1) web server built with Grammar Language",
+    "tags": [
+      "web",
+      "server",
+      "api",
+      "production"
+    ],
+    "created": "2025-10-10T00:00:00Z",
+    "license": "MIT",
+    "homepage": "https://example.com/webserver",
+    "repository": "https://github.com/example/webserver"
+  }
+}

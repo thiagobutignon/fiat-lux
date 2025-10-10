@@ -1,0 +1,17 @@
+{
+  "hash": "sha256:9cb4180020420d8211c511af38008bb4d55bf8199567f71b0ceec5526d38725a",
+  "name": "vecadd_kernel",
+  "version": "1.0.0",
+  "lang": "cuda",
+  "entryPoint": "vecadd_kernel",
+  "sourcePath": "",
+  "metadata": {
+    "compileTime": "2025-10-10T06:07:20.578Z",
+    "compiler": "cuda-runtime",
+    "flags": [],
+    "arch": [
+      "sm_80"
+    ],
+    "size": 319
+  }
+}

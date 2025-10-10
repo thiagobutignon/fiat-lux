@@ -1,0 +1,7 @@
+{
+  "event_hash": "203d0ab3ff0b8be8a7db30fd269f226d1b24d8234d9414d853bc3c0b013a1851",
+  "user_id": "alice",
+  "timestamp": 1760068938936,
+  "event_type": "coercion_detected",
+  "is_alert": true
+}

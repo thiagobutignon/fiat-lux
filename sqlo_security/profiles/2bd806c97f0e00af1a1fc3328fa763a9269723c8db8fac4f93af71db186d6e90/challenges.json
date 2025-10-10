@@ -1,0 +1,43 @@
+{
+  "user_id": "alice",
+  "challenges": [
+    {
+      "challenge_id": "challenge_1760068938935_yk024r873",
+      "user_id": "alice",
+      "type": "personal_fact",
+      "question": "What is your favorite hobby?",
+      "expected_answer_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fuzzy_match": true,
+      "confidence_threshold": 0.7,
+      "difficulty": 0.3,
+      "created_at": 1760068938935,
+      "use_count": 0
+    },
+    {
+      "challenge_id": "challenge_1760068938935_e6gnb23t0",
+      "user_id": "alice",
+      "type": "preference",
+      "question": "Do you prefer coffee or tea in the morning?",
+      "expected_answer_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fuzzy_match": true,
+      "confidence_threshold": 0.8,
+      "difficulty": 0.2,
+      "created_at": 1760068938935,
+      "use_count": 0
+    },
+    {
+      "challenge_id": "challenge_1760068938935_g4vya025o",
+      "user_id": "alice",
+      "type": "reasoning",
+      "question": "If you were under duress, what would be your safe word to alert me?",
+      "expected_answer_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fuzzy_match": false,
+      "confidence_threshold": 1,
+      "difficulty": 0.8,
+      "created_at": 1760068938935,
+      "use_count": 0
+    }
+  ],
+  "created_at": 1760068938935,
+  "last_updated": 1760068938935
+}

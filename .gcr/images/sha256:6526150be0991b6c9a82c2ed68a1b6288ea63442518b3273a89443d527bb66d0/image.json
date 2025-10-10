@@ -1,0 +1,171 @@
+{
+  "hash": "sha256:6526150be0991b6c9a82c2ed68a1b6288ea63442518b3273a89443d527bb66d0",
+  "name": "webserver",
+  "version": "1.0.0",
+  "size": 983,
+  "layers": [
+    {
+      "hash": "sha256:c9082f963402d70c1cd4a23ec3feb691ae593b253b9867b2fe7585660c4b37b4",
+      "size": 111,
+      "type": "app",
+      "created": "2025-10-10T05:05:39.705Z"
+    },
+    {
+      "hash": "sha256:99baf6fe90f78ed07112851cbdb5d069384a44569a740423182b9893e4f6d8ae",
+      "size": 179,
+      "type": "dependencies",
+      "created": "2025-10-10T04:55:51.087Z"
+    },
+    {
+      "hash": "sha256:b73ba5f63bc7adcff07bbb5325f715b9f0d1a78c43c25a79908c9d58c2080c5e",
+      "size": 298,
+      "type": "config",
+      "created": "2025-10-10T05:05:39.707Z"
+    },
+    {
+      "hash": "sha256:cdae005a8d230ac2344a9cb00ef23ab768370159cc5579ff45cf99dd9211e9d3",
+      "size": 395,
+      "type": "metadata",
+      "created": "2025-10-10T04:55:51.089Z"
+    }
+  ],
+  "config": {
+    "entrypoint": [
+      "/bin/bash",
+      "/app/hello.sh"
+    ],
+    "workdir": "/app",
+    "user": "webserver",
+    "uid": 1000,
+    "gid": 1000,
+    "resources": {
+      "memory": "512MB",
+      "cpu": 1,
+      "storage": "1GB"
+    },
+    "ports": [
+      "8080/tcp",
+      "8443/tcp"
+    ],
+    "volumes": [
+      "/app/data",
+      "/app/logs"
+    ],
+    "healthcheck": {
+      "command": [
+        "gsx",
+        "health.gl"
+      ],
+      "interval": "30s",
+      "timeout": "5s",
+      "retries": 3,
+      "startPeriod": "60s"
+    },
+    "env": {
+      "PORT": "8080",
+      "LOG_LEVEL": "info",
+      "NODE_ENV": "production"
+    }
+  },
+  "metadata": {
+    "author": "developer@example.com",
+    "description": "High-performance O(1) web server built with Grammar Language",
+    "tags": [
+      "web",
+      "server",
+      "api",
+      "production"
+    ],
+    "created": "2025-10-10T00:00:00Z",
+    "license": "MIT",
+    "homepage": "https://example.com/webserver",
+    "repository": "https://github.com/example/webserver",
+    "buildTime": "2025-10-10T05:05:39.707Z",
+    "builder": "gcr-v1.0"
+  },
+  "manifest": {
+    "format": "gcr-v1.0",
+    "name": "webserver",
+    "version": "1.0.0",
+    "hash": "sha256:6526150be0991b6c9a82c2ed68a1b6288ea63442518b3273a89443d527bb66d0",
+    "size": 983,
+    "layers": [
+      {
+        "hash": "sha256:c9082f963402d70c1cd4a23ec3feb691ae593b253b9867b2fe7585660c4b37b4",
+        "size": 111,
+        "type": "app",
+        "created": "2025-10-10T05:05:39.705Z"
+      },
+      {
+        "hash": "sha256:99baf6fe90f78ed07112851cbdb5d069384a44569a740423182b9893e4f6d8ae",
+        "size": 179,
+        "type": "dependencies",
+        "created": "2025-10-10T04:55:51.087Z"
+      },
+      {
+        "hash": "sha256:b73ba5f63bc7adcff07bbb5325f715b9f0d1a78c43c25a79908c9d58c2080c5e",
+        "size": 298,
+        "type": "config",
+        "created": "2025-10-10T05:05:39.707Z"
+      },
+      {
+        "hash": "sha256:cdae005a8d230ac2344a9cb00ef23ab768370159cc5579ff45cf99dd9211e9d3",
+        "size": 395,
+        "type": "metadata",
+        "created": "2025-10-10T04:55:51.089Z"
+      }
+    ],
+    "config": {
+      "entrypoint": [
+        "/bin/bash",
+        "/app/hello.sh"
+      ],
+      "workdir": "/app",
+      "user": "webserver",
+      "uid": 1000,
+      "gid": 1000,
+      "resources": {
+        "memory": "512MB",
+        "cpu": 1,
+        "storage": "1GB"
+      },
+      "ports": [
+        "8080/tcp",
+        "8443/tcp"
+      ],
+      "volumes": [
+        "/app/data",
+        "/app/logs"
+      ],
+      "healthcheck": {
+        "command": [
+          "gsx",
+          "health.gl"
+        ],
+        "interval": "30s",
+        "timeout": "5s",
+        "retries": 3,
+        "startPeriod": "60s"
+      },
+      "env": {
+        "PORT": "8080",
+        "LOG_LEVEL": "info",
+        "NODE_ENV": "production"
+      }
+    },
+    "metadata": {
+      "author": "developer@example.com",
+      "description": "High-performance O(1) web server built with Grammar Language",
+      "tags": [
+        "web",
+        "server",
+        "api",
+        "production"
+      ],
+      "created": "2025-10-10T00:00:00Z",
+      "license": "MIT",
+      "homepage": "https://example.com/webserver",
+      "repository": "https://github.com/example/webserver"
+    }
+  }
+}

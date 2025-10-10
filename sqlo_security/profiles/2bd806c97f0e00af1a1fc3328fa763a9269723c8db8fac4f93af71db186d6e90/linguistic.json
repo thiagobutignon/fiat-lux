@@ -1,0 +1,59 @@
+{
+  "user_id": "alice",
+  "created_at": 1760068938927,
+  "last_updated": 1760068938946,
+  "vocabulary": {
+    "distribution": {
+      "i": 50,
+      "am": 50,
+      "working": 50,
+      "project": 50,
+      "today": 50,
+      "everything": 50,
+      "going": 50,
+      "well": 50,
+      "reviewing": 1,
+      "security": 1,
+      "implementation": 1,
+      "looking": 1,
+      "good": 1
+    },
+    "unique_words": [
+      "i",
+      "am",
+      "working",
+      "project",
+      "today",
+      "everything",
+      "going",
+      "well",
+      "reviewing",
+      "security",
+      "implementation",
+      "looking",
+      "good"
+    ],
+    "average_word_length": 5.189215686274509,
+    "rare_words_frequency": 0.058823529411764705
+  },
+  "syntax": {
+    "average_sentence_length": 3.9705882352941178,
+    "sentence_length_variance": 0.9852941176470589,
+    "punctuation_patterns": {
+      ".": 101,
+      "!": 1
+    },
+    "grammar_preferences": [],
+    "passive_voice_frequency": 0,
+    "question_frequency": 0
+  },
+  "semantics": {
+    "topic_distribution": {},
+    "sentiment_baseline": 0.0196078431372549,
+    "sentiment_variance": 0,
+    "formality_level": 1,
+    "hedging_frequency": 0
+  },
+  "samples_analyzed": 51,
+  "confidence": 0.51
+}

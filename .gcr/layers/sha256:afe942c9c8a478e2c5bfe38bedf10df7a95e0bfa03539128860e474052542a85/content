@@ -1,0 +1,21 @@
+{
+  "entrypoint": [
+    "node",
+    "/app/hello.js"
+  ],
+  "workdir": "/app",
+  "user": "webserver",
+  "env": {
+    "PORT": "8080",
+    "LOG_LEVEL": "info",
+    "NODE_ENV": "production"
+  },
+  "ports": [
+    "8080/tcp",
+    "8443/tcp"
+  ],
+  "volumes": [
+    "/app/data",
+    "/app/logs"
+  ]
+}
